@@ -739,7 +739,7 @@
         function loadProdArmada() {
             if(!SPREADSHEET_LINKS.prodArmada) return;
             Papa.parse(SPREADSHEET_LINKS.prodArmada, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
-                dataProdArm = results.data.filter(r => r.NOPOL);
+                dataProdArm = results.data.filter(r => r.LAMBUNG);
                 let html = '';
                 const cols = ['LAMBUNG', 'NO POL', 'STATUS', 'MERK', 'TAHUN', 'UMUR', 'JENIS', 'DEPT', 'TOTAL KM TEMPUH', 'AKTIF / HARI', 'TOTAL RITASE', 'TOTAL TOKO', 'AVG TOKO', 'AVG RITASE'];
                 dataProdArm.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c]||''}</td>`).join('') + '</tr>'; });
