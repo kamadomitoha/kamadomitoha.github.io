@@ -772,13 +772,13 @@
             let dataFiltered = dataProdArm;
             if(jenisFilter !== "ALL" && nilaiFilter !== "ALL") { dataFiltered = dataProdArm.filter(r => r[jenisFilter] === nilaiFilter); }
 
-            let topKm = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL KM TEMPUH');
-            let topRit = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL RITASE');
-            let topToko = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL TOKO');
+            let topKm = getTop10Data(dataFiltered, 'LAMBUNG', 'TOTAL KM TEMPUH');
+            let topRit = getTop10Data(dataFiltered, 'LAMBUNG', 'TOTAL RITASE');
+            let topToko = getTop10Data(dataFiltered, 'LAMBUNG', 'TOTAL TOKO');
 
-            chArmKm = drawTop10Chart('chartArmKm', chArmKm, topKm.map(d=>d.NOPOL), topKm.map(d=>parseFloat(d['TOTAL KM TEMPUH'])), warnaTop10Arm);
-            chArmRit = drawTop10Chart('chartArmRit', chArmRit, topRit.map(d=>d.NOPOL), topRit.map(d=>parseFloat(d['TOTAL RITASE'])), warnaTop10Arm);
-            chArmToko = drawTop10Chart('chartArmToko', chArmToko, topToko.map(d=>d.NOPOL), topToko.map(d=>parseFloat(d['TOTAL TOKO'])), warnaTop10Arm);
+            chArmKm = drawTop10Chart('chartArmKm', chArmKm, topKm.map(d=>d.LAMBUNG), topKm.map(d=>parseFloat(d['TOTAL KM TEMPUH'])), warnaTop10Arm);
+            chArmRit = drawTop10Chart('chartArmRit', chArmRit, topRit.map(d=>d.LAMBUNG), topRit.map(d=>parseFloat(d['TOTAL RITASE'])), warnaTop10Arm);
+            chArmToko = drawTop10Chart('chartArmToko', chArmToko, topToko.map(d=>d.LAMBUNG), topToko.map(d=>parseFloat(d['TOTAL TOKO'])), warnaTop10Arm);
         }
 
         // ==========================================
@@ -802,8 +802,8 @@
         function loadKendaraan() {
             if(!SPREADSHEET_LINKS.kendaraan) return;
             Papa.parse(SPREADSHEET_LINKS.kendaraan, { download:true, header:true, skipEmptyLines:true, complete: res => {
-                dataKen = res.data.filter(r=>r.NOPOL);
-                let h=''; dataKen.forEach(r => { h+=`<tr><td>${r.NOPOL||''}</td><td>${r.LAMBUNG||''}</td><td class="${(r.STATUS||'').toUpperCase()==='AKTIF'?'cell-hijau':''}">${r.STATUS||''}</td><td>${r.MERK||''}</td><td>${r.TAHUN||''}</td><td class="${parseInt(r.UMUR)>=15?'cell-merah':(parseInt(r.UMUR)>=10?'cell-kuning':'cell-hijau')}">${r.UMUR||''}</td><td>${r.JENIS||''}</td><td>${r.DEPT||''}</td></tr>`;});
+                dataKen = res.data.filter(r=>r.LAMBUNG);
+                let h=''; dataKen.forEach(r => { h+=`<tr><td>${r.LAMBUNG||''}</td><td>${r.NOPOL||''}</td><td class="${(r.STATUS||'').toUpperCase()==='AKTIF'?'cell-hijau':''}">${r.STATUS||''}</td><td>${r.MERK||''}</td><td>${r.TAHUN||''}</td><td class="${parseInt(r.UMUR)>=15?'cell-merah':(parseInt(r.UMUR)>=10?'cell-kuning':'cell-hijau')}">${r.UMUR||''}</td><td>${r.JENIS||''}</td><td>${r.DEPT||''}</td></tr>`;});
                 if ($.fn.DataTable.isDataTable('#tblKendaraan')) $('#tblKendaraan').DataTable().clear().destroy();
                 document.getElementById('bodyKendaraan').innerHTML=h; $('#tblKendaraan').DataTable({ scrollX: true });
                 
