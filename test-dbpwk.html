@@ -3,163 +3,1233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Armada Operasional</title>
+    <title>Database PWK</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
     <style>
-        /* Gaya khusus untuk tabel agar mirip Excel */
-        .table th, .table td { vertical-align: middle; white-space: nowrap; }
-        .cell-hijau { background-color: #28a745 !important; color: white; font-weight: bold; }
-        .cell-kuning { background-color: #ffc107 !important; color: black; font-weight: bold; }
-        .cell-merah { background-color: #dc3545 !important; color: white; font-weight: bold; }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .sidebar { min-height: 100vh; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        .nav-pills .nav-link { color: #495057; padding: 12px 20px; margin-bottom: 5px; border-radius: 8px; font-weight: 500; transition: all 0.3s;}
+        .nav-pills .nav-link:hover { background-color: #f8f9fa; color: #0d6efd; }
+        .nav-pills .nav-link.active { background-color: #0d6efd; color: white; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2); }
+        .nav-pills .nav-link i { margin-right: 10px; font-size: 1.1rem; }
+        .menu-label { font-size: 0.75rem; font-weight: bold; color: #8b8b8b; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 10px 20px; }
+        .content-area { padding: 30px; }
+        .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; }
+        
+        /* Pewarnaan Sel */
+        .cell-hijau { background-color: #28a745 !important; color: white !important; font-weight: bold; text-align: center;}
+        .cell-kuning { background-color: #ffc107 !important; color: black !important; font-weight: bold; text-align: center;}
+        .cell-merah { background-color: #dc3545 !important; color: white !important; font-weight: bold; text-align: center;}
+        
+        /* Tabel agar tidak turun baris jika kolom banyak */
+        td, th { vertical-align: middle; }
+        .table-nowrap th, .table-nowrap td { white-space: nowrap; }
+        
+        .chart-container-small { height: 250px; position: relative; }
+        .chart-container-tall { height: 350px; position: relative; }
     </style>
 </head>
-<body class="bg-light">
-
-    <div class="container-fluid py-4 px-4">
-        <h2 class="text-center mb-4">Status Kendaraan Operasional</h2>
-
-        <div class="row mb-4">
-            <div class="col-md-6 mb-3">
-                <div class="card shadow-sm p-3 bg-white rounded">
-                    <h5 class="card-title text-center">Status Kendaraan (Aktif vs P3AT)</h5>
-                    <canvas id="chartStatus"></canvas>
+<body>
+<div class="container-fluid p-0">
+        <div class="row g-0">
+            
+            <div class="col-md-3 col-lg-2 sidebar pt-4">
+                <h5 class="text-center fw-bold text-primary mb-4">
+                    <i class="bi bi-database-fill-check"></i> G080<br><span class="text-dark fs-6">DC PURWAKARTA</span>
+                </h5>
+                <div class="nav flex-column nav-pills px-2" id="v-pills-tab" role="tablist">
+                    <div class="menu-label">Visualisasi</div>
+                    <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#nav-chart" type="button"><i class="bi bi-bar-chart-fill"></i> REKAP MASTER</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
+                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
+                     <div class="menu-label mt-3">Database Master</div>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-toko" type="button"><i class="bi bi-shop"></i> Master Toko</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-area" type="button"><i class="bi bi-map text-success"></i> Master Area</button>
+                    <div class="menu-label mt-3">Produktivitas</div>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-driver" type="button"><i class="bi bi-trophy-fill text-warning"></i> Produktivitas Driver</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-armada" type="button"><i class="bi bi-speedometer text-info"></i> Produktivitas Armada</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-fraud-berhenti" type="button"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Fraud Speed-Berhenti</button>
+                    <div class="menu-label">SO Armada & BBM</div>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-surat" type="button"><i class="bi bi-file-earmark-text text-danger"></i> Surat STNK & KIR</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
                 </div>
             </div>
-            <div class="col-md-6 mb-3">
-                <div class="card shadow-sm p-3 bg-white rounded">
-                    <h5 class="card-title text-center">Komposisi Merk Kendaraan</h5>
-                    <canvas id="chartMerk"></canvas>
+
+<div class="col-md-9 col-lg-10 content-area" style="height: 100vh; overflow-y: auto;">
+                <div class="tab-content">
+                    
+                    <div class="tab-pane fade show active" id="nav-chart" role="tabpanel">
+                        
+                        <div class="mb-5 border-bottom pb-4">
+                            <h4 class="mb-3 text-primary">
+                            <i class="bi bi-truck"></i> Master Kendaraan
+                            <span id="totalKendaraan" class="badge bg-primary ms-2 fs-6" style="display: none;"></span>
+                        <span id="badgeStatusKendaraan"></span>    
+                        </h4>
+                            <div class="alert alert-secondary mb-3" id="alertUploadKendaraan"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                            <div class="row" id="areaGrafikKendaraan" style="display: none;">
+<div class="col-12 mb-3">
+        <div class="card p-2 shadow-sm bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-auto fw-bold ms-2">Filter (Status):</div>
+                <div class="col-md-4">
+                    <select id="filterStatusKendaraan" class="form-select form-select-sm" onchange="renderChartsKendaraan()">
+                        <option value="ALL">Tampilkan Semua</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+                                <div class="col-md-6 mb-3"><div class="card p-3 shadow-sm text-center"><h6>Komposisi Armada</h6><div class="btn-group btn-group-sm mb-3 mx-auto"><button class="btn btn-outline-primary active" id="btn-KEN-MERK" onclick="ubahKategoriPieKendaraan('MERK')">Merk</button><button class="btn btn-outline-primary" id="btn-KEN-DEPT" onclick="ubahKategoriPieKendaraan('DEPT')">Kiriman</button><button class="btn btn-outline-primary" id="btn-KEN-JENIS" onclick="ubahKategoriPieKendaraan('JENIS')">Tipe</button></div><div class="chart-container-small"><canvas id="chartKomposisiKendaraan"></canvas></div></div></div>
+                                <div class="col-md-6 mb-3"><div class="card p-3 shadow-sm text-center"><h6>Umur Kendaraan</h6><div class="chart-container-small"><canvas id="chartUmurKendaraan"></canvas></div></div></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 border-bottom pb-4">
+                            <h4 class="mb-3 text-success">
+                             <i class="bi bi-person-badge-fill"></i> Master Driver
+                             <span id="totalDriver" class="badge bg-success ms-2 fs-6" style="display: none;"></span>
+                            </h4>
+                            <div class="alert alert-secondary mb-3" id="alertUploadDriver"><div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                            <div class="row" id="areaGrafikDriver" style="display: none;">
+                                <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6>Profil Driver</h6><div class="btn-group btn-group-sm mb-3 mx-auto"><button class="btn btn-outline-success active" id="btn-DRV-KIRIMAN" onclick="ubahKategoriPieDriver('KIRIMAN')">Kiriman</button><button class="btn btn-outline-success" id="btn-DRV-SIM" onclick="ubahKategoriPieDriver('SIM')">SIM</button><button class="btn btn-outline-success" id="btn-DRV-BAJU" onclick="ubahKategoriPieDriver('BAJU')">Baju</button></div><div class="chart-container-small"><canvas id="chartKomposisiDriver"></canvas></div></div></div>
+                                <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6>Celana</h6><div class="chart-container-small"><canvas id="chartCelanaDriver"></canvas></div></div></div>
+                                <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6>Tahun</h6><div class="chart-container-small"><canvas id="chartTahunDriver"></canvas></div></div></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 border-bottom pb-4">
+                            <h4 class="mb-3 text-warning"><i class="bi bi-trophy-fill"></i> Top 10 Produktivitas Driver</h4>
+                            <div class="alert alert-secondary mb-3" id="alertUploadProdDriver"><div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                            <div id="areaGrafikProdDriver" style="display: none;">
+                                <div class="card p-3 mb-3 shadow-sm bg-light">
+                                    <div class="row align-items-center"><div class="col-md-auto fw-bold">Filter (Kiriman):</div><div class="col-md-4"><select id="filterKirimanDriver" class="form-select form-select-sm" onchange="renderChartsProdDriver()"><option value="ALL">Semua</option></select></div></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 POINT</h6><div class="chart-container-tall"><canvas id="chartDrvPoint"></canvas></div></div></div>
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 RITASE</h6><div class="chart-container-tall"><canvas id="chartDrvRitase"></canvas></div></div></div>
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 RATA-RATA RIT</h6><div class="chart-container-tall"><canvas id="chartDrvRata"></canvas></div></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-5 pb-4">
+                            <h4 class="mb-3 text-info"><i class="bi bi-speedometer"></i> Top 10 Produktivitas Armada</h4>
+                            <div class="alert alert-secondary mb-3" id="alertUploadProdArmada"><div class="spinner-border spinner-border-sm text-info me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                            <div id="areaGrafikProdArmada" style="display: none;">
+                                <div class="card p-3 mb-3 shadow-sm bg-light">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-auto fw-bold">Filter:</div>
+                                        <div class="col-md-3"><select id="jenisFilterArmada" class="form-select form-select-sm" onchange="updateOpsiFilterArmada()"><option value="ALL">Tanpa Filter (Semua)</option><option value="DEPT">Berdasarkan DEPT</option><option value="JENIS">Berdasarkan JENIS</option><option value="MERK">Berdasarkan MERK</option></select></div>
+                                        <div class="col-md-3"><select id="nilaiFilterArmada" class="form-select form-select-sm" style="display: none;" onchange="renderChartsProdArmada()"></select></div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 TOTAL KM TEMPUH</h6><div class="chart-container-tall"><canvas id="chartArmKm"></canvas></div></div></div>
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 TOTAL RITASE</h6><div class="chart-container-tall"><canvas id="chartArmRit"></canvas></div></div></div>
+                                    <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 TOTAL TOKO</h6><div class="chart-container-tall"><canvas id="chartArmToko"></canvas></div></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+ 
+                        <div class="tab-pane fade" id="nav-chart-so" role="tabpanel">
+                            <h4 class="mb-4 text-success"><i class="bi bi-shield-check"></i> Visualisasi SO Armada</h4>
+
+                            <div class="card p-4 shadow-sm mb-4 border-top border-danger border-3">
+                                <h5 class="mb-4 text-danger"><i class="bi bi-file-earmark-text"></i> Status Kepatuhan Surat (STNK & KIR)</h5>
+                                <div class="alert alert-secondary" id="alertUploadSoSurat"><div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                                
+                                <div id="areaGrafikSoSurat" style="display: none;">
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6><span class="badge bg-dark">1</span> Indikator Status KIR</h6>
+                                            <div class="progress mb-2" id="progKir"></div>
+                                            <div class="d-flex justify-content-between small fw-bold">
+                                                <span class="text-success" id="txtKirOk">OK: 0%</span>
+                                                <span class="text-warning" id="txtKirMendekati">Mendekati: 0%</span>
+                                                <span class="text-danger" id="txtKirTelat">Telat: 0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>KIR vs SS (Sinkronisasi Sistem)</h6>
+                                            <div class="progress mb-2" id="progKirSs"></div>
+                                            <div class="d-flex justify-content-between small fw-bold">
+                                                <span class="text-success" id="txtKirSsTrue">TRUE: 0%</span>
+                                                <span class="text-danger" id="txtKirSsFalse">FALSE: 0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card p-3 bg-light mb-4">
+                                        <h6 class="text-danger">Daftar Lambung Warning KIR (Telat / Mendekati)</h6>
+                                        <div class="chart-container-small"><canvas id="chartListKir"></canvas></div>
+                                    </div>
+
+                                    <hr class="mb-4">
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <h6><span class="badge bg-dark">2</span> Indikator Status STNK</h6>
+                                            <div class="progress mb-2" id="progStnk"></div>
+                                            <div class="d-flex justify-content-between small fw-bold">
+                                                <span class="text-success" id="txtStnkOk">OK: 0%</span>
+                                                <span class="text-warning" id="txtStnkMendekati">Mendekati: 0%</span>
+                                                <span class="text-danger" id="txtStnkTelat">Telat: 0%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6>STNK vs SS (Sinkronisasi Sistem)</h6>
+                                            <div class="progress mb-2" id="progStnkSs"></div>
+                                            <div class="d-flex justify-content-between small fw-bold">
+                                                <span class="text-success" id="txtStnkSsTrue">TRUE: 0%</span>
+                                                <span class="text-danger" id="txtStnkSsFalse">FALSE: 0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card p-3 bg-light">
+                                        <h6 class="text-danger">Daftar Lambung Warning STNK (Telat / Mendekati)</h6>
+                                        <div class="chart-container-small"><canvas id="chartListStnk"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card p-4 shadow-sm border-top border-primary border-3">
+                                <h5 class="mb-4 text-primary"><i class="bi bi-camera"></i> Status SO Foto Armada (Unit Aktif)</h5>
+                                <div class="alert alert-secondary" id="alertUploadSoFoto"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                                
+                                <div id="areaGrafikSoFoto" style="display: none;" class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h6>Progress Pelaksanaan SO (Khusus Armada Aktif)</h6>
+                                        <div class="progress mb-2" style="height: 40px; font-size: 1.1rem;" id="progSoFoto"></div>
+                                        <div class="d-flex justify-content-between fw-bold mt-2">
+                                            <span class="text-success" id="txtSoSudah">SUDAH SO: 0 Armada (0%)</span>
+                                            <span class="text-danger" id="txtSoBelum">BELUM SO: 0 Armada (0%)</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4">
+                                        <div style="height: 200px;"><canvas id="chartPieSoFoto"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-pane fade" id="nav-chart-bbm" role="tabpanel">
+                             <h4 class="mb-4 text-danger"><i class="bi bi-fuel-pump-fill"></i> Visualisasi & Rekap Rasio BBM</h4>
+                            <div class="alert alert-secondary" id="alertUploadBbm"><div class="spinner-border spinner-border-sm text-danger me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+                        <div id="areaGrafikBbm" style="display: none;"></div>
+                                   
+                            <div class="card p-4 shadow-sm mb-4 border-top border-danger border-3">
+                                <h5 class="mb-3 text-danger">Perhitungan % Bahan Bakar Kendaraan (Penilaian DC of the Month)</h5>
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered text-center align-middle">
+                                        <thead class="table-danger">
+                                            <tr><th>TIPE</th><th>Ratio BBM (Standar)</th><th>KM Tempuh</th><th>Liter</th><th>Rupiah (PnL DC)</th></tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td class="fw-bold">L300</td><td id="bbmStdL300">0</td><td id="bbmKmL300">0</td><td id="bbmLtrL300">0</td><td id="bbmRpL300">0</td></tr>
+                                            <tr><td class="fw-bold">Engkel</td><td id="bbmStdEngkel">0</td><td id="bbmKmEngkel">0</td><td id="bbmLtrEngkel">0</td><td id="bbmRpEngkel">0</td></tr>
+                                            <tr><td class="fw-bold">Double</td><td id="bbmStdDouble">0</td><td id="bbmKmDouble">0</td><td id="bbmLtrDouble">0</td><td id="bbmRpDouble">0</td></tr>
+                                            <tr class="table-light fw-bold">
+                                                <td colspan="3" class="text-end">TOTAL KESELURUHAN :</td><td id="bbmLtrTotal" class="text-primary">0</td><td id="bbmRpTotal" class="text-primary">0</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="p-3 bg-light rounded border">
+                                    <div class="row mb-2"><div class="col-md-5 fw-bold">Harga Solar</div><div class="col-md-7">= Rp 6.800</div></div>
+                                    <div class="row mb-2"><div class="col-md-5 fw-bold">Total Biaya Bahan Bakar Aktual</div><div class="col-md-7 text-primary fw-bold" id="bbmAktual">= 0</div></div>
+                                    <div class="row mb-2"><div class="col-md-5 fw-bold">Biaya Bahan Bakar Kendaraan (PnL DC)</div><div class="col-md-7 text-primary fw-bold" id="bbmPnl">= 0</div></div>
+                                    <div class="row mb-2"><div class="col-md-5 fw-bold">Perbandingan BBM KM vs PnL</div><div class="col-md-7 text-success fw-bold" id="bbmRatio">= 0</div></div>
+                                    <hr>
+                                    <div class="row"><div class="col-md-5 fw-bold fs-5">POINT DC:</div><div class="col-md-7 fw-bold fs-5 text-danger" id="bbmPoint">= 0</div></div>
+                                </div>
+                            </div>
+
+                            <div class="card p-4 shadow-sm border-top border-warning border-3">
+                                <h5 class="mb-3 text-warning">Daftar Armada dengan Target "TIDAK DAPAT"</h5>
+                                
+                                <div class="row mb-3 align-items-center bg-light p-2 rounded">
+                                    <div class="col-md-auto fw-bold">Filter Berdasarkan:</div>
+                                    <div class="col-md-3">
+                                        <select id="jenisFilterBbm" class="form-select form-select-sm" onchange="updateOpsiFilterBbm()">
+                                            <option value="ALL">Tanpa Filter (Tampilkan Semua)</option>
+                                            <option value="MERK">MERK</option>
+                                            <option value="JENIS">JENIS</option>
+                                            <option value="DEPT">DEPT</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <select id="nilaiFilterBbm" class="form-select form-select-sm" style="display: none;" onchange="renderListTdkDapat()"></select>
+                                    </div>
+                                </div>
+                                
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped table-hover text-center table-nowrap">
+                                        <table id="tblListTdkDapat" class="table table-sm table-striped table-hover text-center table-nowrap">
+                                        <thead class="table-warning">
+                                            <tr><th>LAMBUNG</th><th>NOPOL</th><th>MERK</th><th>JENIS</th><th>DEPT</th><th>STANDAR</th><th>RASIO</th><th>TARGET</th></tr>
+                                        </thead>
+                                        <tbody id="bodyListTdkDapat">
+                                            <tr><td colspan="8">Memuat data...</td></tr>
+                                        </tbody>
+                                        </table>
+                                    </table>
+                                </div>
+                                
+                            </div>
+                            
+                        </div>
+                      
+<div class="tab-pane fade" id="nav-chart-fraud" role="tabpanel">
+    <h4 class="mb-4 text-warning"><i class="bi bi-speedometer2"></i> Visualisasi Rekap Fraud & Speeding</h4>
+    <div class="alert alert-secondary" id="alertUploadFraudVisual"><div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+    
+    <div id="areaGrafikFraud" style="display: none;">
+        
+        <div class="row mb-4">
+            <div class="col-md-6 mb-2">
+                <div class="card bg-danger text-white p-3 text-center shadow-sm h-100">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon"></i> DATA SPEED > 0 (SANKSI)</h6>
+                    <h3 id="txtSpeedLebih" class="fw-bold mb-0">0 <span class="fs-6 fw-normal">(0%)</span></h3>
+                </div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <div class="card bg-success text-white p-3 text-center shadow-sm h-100">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-check-circle"></i> DATA SPEED = 0 (AMAN)</h6>
+                    <h3 id="txtSpeedNol" class="fw-bold mb-0">0 <span class="fs-6 fw-normal">(0%)</span></h3>
                 </div>
             </div>
         </div>
 
-        <div class="card shadow-sm p-3 bg-white rounded overflow-auto">
-            <h5 class="card-title mb-3">Database Armada</h5>
-            <table class="table table-bordered table-hover text-center table-sm">
-                <thead class="table-light">
-                    <tr id="tableHeader">
-                        </tr>
-                </thead>
-                <tbody id="tableBody">
-                    </tbody>
-            </table>
+<h5 class="mb-3 text-secondary"><i class="bi bi-pie-chart-fill"></i> Klasifikasi Kasus Fraud</h5>
+        <div class="row mb-4">
+            <div class="col-md-6 mb-2">
+                <div class="card bg-dark text-white p-3 text-center shadow-sm h-100 border-0 rounded-3">
+                    <h6 class="fw-bold mb-1 text-uppercase text-light">TOTAL FRAUD</h6>
+                    <h3 id="txtFraudKasus" class="fw-bold mb-0">0 <span class="fs-6 fw-normal text-light">(0%)</span></h3>
+                </div>
+            </div>
+            <div class="col-md-6 mb-2">
+                <div class="card bg-info text-dark p-3 text-center shadow-sm h-100 border-0 rounded-3">
+                    <h6 class="fw-bold mb-1 text-uppercase">TOTAL NON FRAUD</h6>
+                    <h3 id="txtNonFraudKasus" class="fw-bold mb-0">0 <span class="fs-6 fw-normal text-dark">(0%)</span></h3>
+                </div>
+            </div>
+        </div>
+
+        <h5 class="mb-3 text-secondary"><i class="bi bi-list-columns-reverse"></i> Rincian Kendala & Alasan Berhenti</h5>
+        <div class="row mb-4 text-center">
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-primary border-4 h-100"><div class="text-muted small fw-bold">MENEPI ISTIRAHAT</div><h5 id="txtIstirahat" class="mb-0 fw-bold mt-1 text-primary">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-primary border-4 h-100"><div class="text-muted small fw-bold">MENEPI MAKAN</div><h5 id="txtMakan" class="mb-0 fw-bold mt-1 text-primary">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-primary border-4 h-100"><div class="text-muted small fw-bold">BENGKEL LUAR</div><h5 id="txtBan" class="mb-0 fw-bold mt-1 text-primary">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-primary border-4 h-100"><div class="text-muted small fw-bold">MENEPI SHOLAT</div><h5 id="txtSholat" class="mb-0 fw-bold mt-1 text-primary">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-warning border-4 h-100"><div class="text-muted small fw-bold">MACET</div><h5 id="txtMacet" class="mb-0 fw-bold mt-1 text-warning">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-danger border-4 h-100"><div class="text-muted small fw-bold">GPS ERROR</div><h5 id="txtGps" class="mb-0 fw-bold mt-1 text-danger">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-danger border-4 h-100"><div class="text-muted small fw-bold">ARMADA TROUBLE</div><h5 id="txtTrouble" class="mb-0 fw-bold mt-1 text-danger">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-success border-4 h-100"><div class="text-muted small fw-bold">BANTU ARMADA</div><h5 id="txtBantu" class="mb-0 fw-bold mt-1 text-success">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+            <div class="col-md-4 col-lg-3 mb-3"><div class="card p-2 shadow-sm border-start border-info border-4 h-100"><div class="text-muted small fw-bold">KIRIMAN KHUSUS</div><h5 id="txtKhusus" class="mb-0 fw-bold mt-1 text-info">0 <span class="fs-6 fw-normal text-muted">(0%)</span></h5></div></div>
+        </div>
+
+        <div class="card p-4 shadow-sm border-top border-danger border-3 mb-4">
+            <h5 class="mb-3 text-danger"><i class="bi bi-graph-up-arrow"></i> Top 10 Frekuensi Speeding Tertinggi</h5>
+            <div class="table-responsive">
+                <table id="tblTopSpeeding" class="table table-sm table-striped table-hover text-center table-nowrap">
+                    <thead class="table-danger">
+                        <tr><th>NAMA</th><th>NIK</th><th>STATUS</th><th>KIRIMAN</th><th>SANKSI</th><th>DATA SPEED</th><th>FREKUENSI SPEEDING</th><th>TOP SPEED</th></tr>
+                    </thead>
+                    <tbody id="bodyTopSpeeding"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm border-top border-success border-3 mb-4">
+            <h5 class="mb-3 text-success"><i class="bi bi-emoji-smile"></i> Daftar Driver Aman (Frekuensi Speeding = 0)</h5>
+            <div class="table-responsive">
+                <table id="tblZeroSpeeding" class="table table-sm table-striped table-hover text-center table-nowrap">
+                    <thead class="table-success">
+                        <tr><th>NAMA</th><th>NIK</th><th>STATUS</th><th>KIRIMAN</th><th>SANKSI</th><th>DATA SPEED</th><th>FREKUENSI SPEEDING</th><th>TOP SPEED</th></tr>
+                    </thead>
+                    <tbody id="bodyZeroSpeeding"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+                        
+<div class="tab-pane fade" id="nav-kendaraan" role="tabpanel">
+                        <h4 class="mb-3 text-primary">
+    <i class="bi bi-truck"></i> Master Kendaraan
+    <span id="totalKendaraan2" class="badge bg-primary ms-2 fs-6" style="display: none;"></span>
+    
+</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblKendaraan" class="table table-striped table-bordered table-sm text-center table-nowrap"><thead class="table-dark"><tr><th>NOPOL</th><th>LAMBUNG</th><th>STATUS</th><th>MERK</th><th>TAHUN</th><th>UMUR</th><th>JENIS</th><th>DEPT</th></tr></thead><tbody id="bodyKendaraan"></tbody></table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-driver" role="tabpanel">
+                        <h4 class="mb-4">Data Master Driver</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblDriver" class="table table-striped table-bordered table-sm text-center table-nowrap"><thead class="table-success"><tr><th>NIK</th><th>NAMA</th><th>KIRIMAN</th><th>SIM</th><th>BAJU</th><th>CELANA</th><th>TAHUN</th></tr></thead><tbody id="bodyDriver"></tbody></table>
+                        </div>
+                    </div>
+<div class="tab-pane fade" id="nav-toko" role="tabpanel">
+    <h4 class="mb-3 text-primary"><i class="bi bi-shop"></i> Data Master Toko</h4>
+    <div class="alert alert-secondary mb-3" id="alertUploadToko"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+    
+    <div id="areaDashboardToko" style="display: none;" class="mb-4">
+        <div class="row mb-3 align-items-stretch">
+            <div class="col-md-3 mb-2">
+                <div class="card text-white bg-primary p-3 shadow-sm text-center h-100 d-flex justify-content-center">
+                    <h6 class="mb-1">Total Titik Toko</h6>
+                    <h2 id="totalToko" class="fw-bold mb-0">0</h2>
+                </div>
+            </div>
+            <div class="col-md-9 mb-2">
+                <div class="card p-3 shadow-sm h-100">
+                    <h6 class="text-secondary fw-bold mb-3"><i class="bi bi-geo-alt-fill text-danger"></i> Jumlah Toko per Kategori Wilayah</h6>
+                    <div id="kategoriWilayahContainer" class="d-flex flex-wrap gap-2">
+                        </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card p-3 shadow-sm">
+                    <h6 class="text-center fw-bold mb-3">Sebaran Toko Berdasarkan KAB/KOTA</h6>
+                    <div class="chart-container-small"><canvas id="chartKabKota"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card p-4 shadow-sm table-responsive">
+        <table id="tblToko" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-primary">
+                <tr>
+                    <th>Kode Toko</th>
+                    <th>NAMA TOKO</th>
+                    <th>OPENING</th>
+                    <th>UMUR TOKO (TAHUN)</th>
+                    <th>JARAK TEMPUH</th>
+                    <th>WAKTU TEMPUH (HARI:JAM:MENIT)</th>
+                    <th>KATEGORI WILAYAH</th>
+                    <th>KELURAHAN</th>
+                    <th>KECAMATAN</th>
+                    <th>KAB/KOTA</th>
+                    <th>KODE POS</th>
+                    <th>KOORDINAT GPS</th>
+                </tr>
+            </thead>
+            <tbody id="bodyToko">
+                <tr><td colspan="12">Sedang memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="tab-pane fade" id="nav-area" role="tabpanel">
+    <h4 class="mb-3 text-success"><i class="bi bi-map"></i> Data Master Area</h4>
+    <div class="alert alert-secondary mb-3" id="alertUploadArea"><div class="spinner-border spinner-border-sm text-success me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
+    
+    <div id="areaDashboardArea" style="display: none;" class="mb-4">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card p-3 shadow-sm text-center h-100">
+                    <h6 class="mb-3 text-secondary fw-bold">Sebaran Jabatan</h6>
+                    <div class="chart-container-small"><canvas id="chartJabatan"></canvas></div>
+                </div>
+            </div>
+           <div class="col-md-4 mb-3">
+    <div class="card p-3 shadow-sm text-center h-100">
+        <h6 class="mb-3 text-secondary fw-bold">Distribusi Toko per AS (Area Supervisor)</h6>
+        <div id="containerButtonAS" class="d-flex flex-wrap justify-content-center align-content-start gap-2 mt-2" style="max-height: 250px; overflow-y: auto;">
+            <small class="text-muted">Data akan muncul di sini</small>
+        </div>
+    </div>
+</div>
+            <div class="col-md-4 mb-3">
+                <div class="card p-3 shadow-sm text-center h-100">
+                    <h6 class="mb-3 text-secondary fw-bold">Distribusi Toko per AM (Area Manager)</h6>
+                    <div class="chart-container-small"><canvas id="chartAM"></canvas></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card p-4 shadow-sm table-responsive">
+        <table id="tblArea" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-success">
+                <tr>
+                    <th>KODE</th>
+                    <th>NAMA TOKO</th>
+                    <th>NIK</th>
+                    <th>NAMA CHIEF OF STORE</th>
+                    <th>JABATAN</th>
+                    <th>NO HP TOKO</th>
+                    <th>NOMOR HP AS</th>
+                    <th>AS</th>
+                    <th>NAMA AS</th>
+                    <th>AM</th>
+                    <th>NAMA AM</th>
+                </tr>
+            </thead>
+            <tbody id="bodyArea">
+                <tr><td colspan="11">Sedang memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+                    <div class="tab-pane fade" id="nav-prod-driver" role="tabpanel">
+                        <h4 class="mb-4 text-warning">Data Produktivitas Driver</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblProdDriver" class="table table-striped table-bordered table-sm text-center table-nowrap">
+                                <thead class="table-warning">
+                                    <tr>
+                                        <th>NAMA DRIVER</th><th>NIK</th><th>KIRIMAN</th><th>POINT</th><th>RITASE</th><th>RATA-RATA RIT</th>
+                                        <th>HADIR</th><th>OFF</th><th>DIOFF</th><th>ALPA</th><th>LP</th><th>CUTI</th>
+                                        <th>CTU</th><th>SAKIT</th><th>D</th><th>STB</th><th>SMD</th><th>TOTAL</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyProdDriver"><tr><td colspan="18">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="nav-prod-armada" role="tabpanel">
+                        <h4 class="mb-4 text-info">Data Produktivitas Armada</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblProdArmada" class="table table-striped table-bordered table-sm text-center table-nowrap">
+                                <thead class="table-info">
+                                    <tr>
+                                        <th>NOPOL</th><th>LAMBUNG</th><th>STATUS</th><th>MERK</th><th>TAHUN</th><th>UMUR</th><th>JENIS</th><th>DEPT</th>
+                                        <th>TOTAL KM TEMPUH</th><th>AKTIF / HARI</th><th>TOTAL RITASE</th><th>TOTAL TOKO</th><th>AVG TOKO</th><th>AVG RITASE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyProdArmada"><tr><td colspan="14">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                     <div class="tab-pane fade" id="nav-so-surat" role="tabpanel">
+                        <h4 class="mb-4 text-danger">Data Surat STNK & KIR</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblSoSurat" class="table table-striped table-bordered table-sm text-center table-nowrap">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th>NOPOL</th><th>KD LAMBUNG</th><th>UPDATE TGL KIR</th><th>JATUH TEMPO KIR (in hari)</th>
+                                        <th>CEK KIR</th><th>UPDATE TGL STNK</th><th>JATUH TEMPO STNK(in hari)</th>
+                                        <th>CEK STNK</th><th>CEK KIR VS SS</th><th>CEK STNK VS SS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodySoSurat"><tr><td colspan="10">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                        </div>
+
+
+                        <div class="tab-pane fade" id="nav-so-foto" role="tabpanel">
+                        <h4 class="mb-4 text-primary">Data SO Foto Armada</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblSoFoto" class="table table-striped table-bordered table-sm text-center table-nowrap">
+                                <thead class="table-primary">
+                                    <tr>
+                                        <th>CAB INDUK</th><th>RLM</th><th>LM</th><th>No Lambung</th><th>Lokasi Armada</th>
+                                        <th>Jenis Kiriman</th><th>Type Kendaraan</th><th>Merk</th><th>STATUS</th><th>CEK</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodySoFoto"><tr><td colspan="10">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                            
+
+                    </div>
+<div class="tab-pane fade" id="nav-bbm" role="tabpanel">
+                        <h4 class="mb-4 text-danger">Data Rasio BBM</h4>
+                        <div class="card p-4 shadow-sm table-responsive">
+                            <table id="tblBbm" class="table table-striped table-bordered table-sm text-center table-nowrap">
+                                <thead class="table-danger">
+                                    <tr>
+                                        <th>NOPOL</th><th>LAMBUNG</th><th>MERK</th><th>TYPE</th><th>TAHUN</th><th>JENIS</th><th>DEPT</th>
+                                        <th>Isi BBM Liter</th><th>Kilometer Pakai</th><th>Total Rupiah</th><th>Tgl Bon Terakhir</th>
+                                        <th>STANDAR</th><th>TARGET</th><th>RASIO</th><th>CATATAN</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyBbm"><tr><td colspan="15">Sedang memuat data...</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+<div class="tab-pane fade" id="nav-fraud-berhenti" role="tabpanel">
+    <h4 class="mb-4 text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Data Fraud Speed-Berhenti</h4>
+    <div class="card p-4 shadow-sm table-responsive">
+        <table id="tblFraudBerhenti" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-danger">
+                <tr>
+                    <th>NAMA</th><th>NIK</th><th>STATUS</th><th>KIRIMAN</th><th>SANKSI</th>
+                    <th>DATA SPEED</th><th>FREKUENSI SPEEDING</th><th>TOP SPEED</th>
+                    <th>MENEPI ISTIRAHAT</th><th>MENEPI MAKAN</th><th>BENGKEL LUAR</th>
+                    <th>MENEPI SHOLAT</th><th>FRAUD</th><th>MACET</th><th>GPS ERROR</th>
+                    <th>ARMADA TROUBLE</th><th>BANTU ARMADA</th><th>KIRIMAN KHUSUS</th><th>NON FRAUD</th>
+                </tr>
+            </thead>
+            <tbody id="bodyFraudBerhenti"><tr><td colspan="19">Sedang memuat data...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+            </div>
+
         </div>
     </div>
 
-    <script>
-        // GANTI DENGAN LINK CSV GOOGLE SHEETS ANDA
-        const googleSheetsCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS7xmfcsygPQSwthTtc-xv1ymw8e6kELoeRhsfqD6Nvmq_XIRCRIwcBVQr2-6goRYodYDYQiZV6vG8u/pub?gid=485712193&single=true&output=csv';
 
-        function muatData() {
-            Papa.parse(googleSheetsCsvUrl, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    const data = results.data;
-                    tampilkanTabel(data);
-                    tampilkanGrafik(data);
-                }
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script>
+        // ==========================================
+        // KONFIGURASI LINK SPREADSHEET (Format CSV)
+        // ==========================================
+        // Ganti URL di dalam tanda kutip dengan link CSV "Publikasikan ke Web" milik Anda.
+        const SPREADSHEET_LINKS = {
+            kendaraan: "", // Contoh: "https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv"
+            driver: "",
+            toko: "",
+            area: "",
+            prodDriver: "",
+            prodArmada: "",
+            fraud: "",
+            soSurat: "",
+            soFoto: "",
+            bbm: ""
+        };
+
+        // === KONFIGURASI UMUM CHART ===
+        Chart.defaults.font.size = 11;
+        const warnaTop10 = '#ffc107'; 
+        const warnaTop10Arm = '#0dcaf0'; 
+
+        // === VARIABEL GLOBAL CHART ===
+        let dataKen = [], dataDrv = [], dataProdDrv = [], dataProdArm = [];
+        let chKenPie=null, chKenUmur=null, chDrvPie=null, chDrvCel=null, chDrvThn=null;
+        let chDrvPt=null, chDrvRit=null, chDrvRata=null, chArmKm=null, chArmRit=null, chArmToko=null;
+
+        // FUNGSI BANTUAN
+        function drawTop10Chart(ctxId, chartObj, labels, dataPoints, color) {
+            if(chartObj) chartObj.destroy();
+            return new Chart(document.getElementById(ctxId).getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: dataPoints, backgroundColor: color, borderRadius: 4 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } }
             });
         }
+        function getTop10Data(dataArray, nameCol, metricCol) {
+            return [...dataArray].filter(d => d[metricCol] && !isNaN(parseFloat(d[metricCol])))
+                .sort((a,b) => parseFloat(b[metricCol]) - parseFloat(a[metricCol])).slice(0, 10);
+        }
 
-        function tampilkanTabel(data) {
-            const headerRow = document.getElementById('tableHeader');
-            const bodyContainer = document.getElementById('tableBody');
-
-            // Susunan kolom sesuai gambar Anda
-            const kolomTarget = ['NOPOL', 'LAMBUNG', 'STATUS', 'MERK', 'TAHUN', 'UMUR', 'JENIS', 'DEPT'];
-            
-            // Render Header
-            headerRow.innerHTML = kolomTarget.map(k => `<th>${k}</th>`).join('');
-
-            // Render Isi Tabel dengan Pewarnaan Otomatis
-            bodyContainer.innerHTML = data.map(row => {
-                let htmlRow = '<tr>';
+        // ==========================================
+        // 1. SISTEM PRODUKTIVITAS DRIVER
+        // ==========================================
+        function loadProdDriver() {
+            if(!SPREADSHEET_LINKS.prodDriver) return;
+            Papa.parse(SPREADSHEET_LINKS.prodDriver, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataProdDrv = results.data.filter(r => r['NAMA DRIVER']);
+                let html = '';
+                const cols = ['NAMA DRIVER', 'NIK', 'KIRIMAN', 'POINT', 'RITASE', 'RATA-RATA RIT', 'HADIR', 'OFF', 'DIOFF', 'ALPA', 'LP', 'CUTI', 'CTU', 'SAKIT', 'D', 'STB', 'SMD', 'TOTAL'];
+                dataProdDrv.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c]||'0'}</td>`).join('') + '</tr>'; });
                 
-                kolomTarget.forEach(k => {
-                    let nilai = row[k] ? row[k].trim() : '';
-                    let kelasWarna = '';
+                if ($.fn.DataTable.isDataTable('#tblProdDriver')) $('#tblProdDriver').DataTable().clear().destroy();
+                document.getElementById('bodyProdDriver').innerHTML = html;
+                $('#tblProdDriver').DataTable({ scrollX: true });
 
-                    // Logika warna untuk kolom STATUS
-                    if (k === 'STATUS' && nilai.toUpperCase() === 'AKTIF') {
-                        kelasWarna = 'cell-hijau';
-                    }
-                    
-                    // Logika warna untuk kolom UMUR
-                    if (k === 'UMUR' && nilai !== '') {
-                        let umur = parseInt(nilai);
-                        if (umur >= 15) {
-                            kelasWarna = 'cell-merah';
-                        } else if (umur >= 10) {
-                            kelasWarna = 'cell-kuning';
-                        } else {
-                            kelasWarna = 'cell-hijau';
-                        }
-                    }
+                let unikKiriman = [...new Set(dataProdDrv.map(item => item.KIRIMAN ? item.KIRIMAN.trim() : '').filter(v => v))];
+                let dropdown = document.getElementById('filterKirimanDriver');
+                dropdown.innerHTML = '<option value="ALL">Tampilkan Semua</option>';
+                unikKiriman.forEach(k => dropdown.innerHTML += `<option value="${k}">${k}</option>`);
 
-                    htmlRow += `<td class="${kelasWarna}">${nilai}</td>`;
+                document.getElementById('alertUploadProdDriver').style.display = 'none';
+                document.getElementById('areaGrafikProdDriver').style.display = 'block';
+                renderChartsProdDriver();
+            }});
+        }
+
+        function renderChartsProdDriver() {
+            let filterVal = document.getElementById('filterKirimanDriver').value;
+            let dataFiltered = filterVal === "ALL" ? dataProdDrv : dataProdDrv.filter(r => r.KIRIMAN === filterVal);
+            let topPt = getTop10Data(dataFiltered, 'NAMA DRIVER', 'POINT');
+            let topRit = getTop10Data(dataFiltered, 'NAMA DRIVER', 'RITASE');
+            let topRata = getTop10Data(dataFiltered, 'NAMA DRIVER', 'RATA-RATA RIT');
+
+            chDrvPt = drawTop10Chart('chartDrvPoint', chDrvPt, topPt.map(d=>d['NAMA DRIVER']), topPt.map(d=>parseFloat(d.POINT)), warnaTop10);
+            chDrvRit = drawTop10Chart('chartDrvRitase', chDrvRit, topRit.map(d=>d['NAMA DRIVER']), topRit.map(d=>parseFloat(d.RITASE)), warnaTop10);
+            chDrvRata = drawTop10Chart('chartDrvRata', chDrvRata, topRata.map(d=>d['NAMA DRIVER']), topRata.map(d=>parseFloat(d['RATA-RATA RIT'])), warnaTop10);
+        }
+
+        // ==========================================
+        // 2. SISTEM PRODUKTIVITAS ARMADA
+        // ==========================================
+        function loadProdArmada() {
+            if(!SPREADSHEET_LINKS.prodArmada) return;
+            Papa.parse(SPREADSHEET_LINKS.prodArmada, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataProdArm = results.data.filter(r => r.NOPOL);
+                let html = '';
+                const cols = ['NOPOL', 'LAMBUNG', 'STATUS', 'MERK', 'TAHUN', 'UMUR', 'JENIS', 'DEPT', 'TOTAL KM TEMPUH', 'AKTIF / HARI', 'TOTAL RITASE', 'TOTAL TOKO', 'AVG TOKO', 'AVG RITASE'];
+                dataProdArm.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c]||''}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblProdArmada')) $('#tblProdArmada').DataTable().clear().destroy();
+                document.getElementById('bodyProdArmada').innerHTML = html;
+                $('#tblProdArmada').DataTable({ scrollX: true });
+
+                document.getElementById('alertUploadProdArmada').style.display = 'none';
+                document.getElementById('areaGrafikProdArmada').style.display = 'block';
+                updateOpsiFilterArmada();
+            }});
+        }
+
+        function updateOpsiFilterArmada() {
+            let jenis = document.getElementById('jenisFilterArmada').value;
+            let valDropdown = document.getElementById('nilaiFilterArmada');
+            if(jenis === "ALL") { valDropdown.style.display = 'none'; } else {
+                valDropdown.style.display = 'block';
+                let unikVal = [...new Set(dataProdArm.map(item => item[jenis] ? item[jenis].trim() : '').filter(v => v))];
+                valDropdown.innerHTML = `<option value="ALL">Semua ${jenis}</option>`;
+                unikVal.forEach(k => valDropdown.innerHTML += `<option value="${k}">${k}</option>`);
+            }
+            renderChartsProdArmada();
+        }
+
+        function renderChartsProdArmada() {
+            let jenisFilter = document.getElementById('jenisFilterArmada').value;
+            let nilaiFilter = document.getElementById('nilaiFilterArmada').value;
+            let dataFiltered = dataProdArm;
+            if(jenisFilter !== "ALL" && nilaiFilter !== "ALL") { dataFiltered = dataProdArm.filter(r => r[jenisFilter] === nilaiFilter); }
+
+            let topKm = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL KM TEMPUH');
+            let topRit = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL RITASE');
+            let topToko = getTop10Data(dataFiltered, 'NOPOL', 'TOTAL TOKO');
+
+            chArmKm = drawTop10Chart('chartArmKm', chArmKm, topKm.map(d=>d.NOPOL), topKm.map(d=>parseFloat(d['TOTAL KM TEMPUH'])), warnaTop10Arm);
+            chArmRit = drawTop10Chart('chartArmRit', chArmRit, topRit.map(d=>d.NOPOL), topRit.map(d=>parseFloat(d['TOTAL RITASE'])), warnaTop10Arm);
+            chArmToko = drawTop10Chart('chartArmToko', chArmToko, topToko.map(d=>d.NOPOL), topToko.map(d=>parseFloat(d['TOTAL TOKO'])), warnaTop10Arm);
+        }
+
+        // ==========================================
+        // 3. SISTEM MASTER KENDARAAN & DRIVER
+        // ==========================================
+        const clPie = ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0','#6f42c1','#fd7e14','#20c997'];
+        function drawPie(ctx, chart, data, key) {
+            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
+            if(chart) chart.destroy();
+            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'doughnut', data:{labels:Object.keys(res), datasets:[{data:Object.values(res), backgroundColor:clPie}]}, options:{responsive:true, maintainAspectRatio:false} });
+        }
+        function drawBar(ctx, chart, data, key, color) {
+            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
+            let lbs = Object.keys(res).sort((a,b)=>a-b);
+            if(chart) chart.destroy();
+            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'bar', data:{labels:lbs, datasets:[{data:lbs.map(l=>res[l]), backgroundColor:color}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
+        }
+        
+        let activeKategoriPieKen = 'MERK'; 
+        
+        function loadKendaraan() {
+            if(!SPREADSHEET_LINKS.kendaraan) return;
+            Papa.parse(SPREADSHEET_LINKS.kendaraan, { download:true, header:true, skipEmptyLines:true, complete: res => {
+                dataKen = res.data.filter(r=>r.NOPOL);
+                let h=''; dataKen.forEach(r => { h+=`<tr><td>${r.NOPOL||''}</td><td>${r.LAMBUNG||''}</td><td class="${(r.STATUS||'').toUpperCase()==='AKTIF'?'cell-hijau':''}">${r.STATUS||''}</td><td>${r.MERK||''}</td><td>${r.TAHUN||''}</td><td class="${parseInt(r.UMUR)>=15?'cell-merah':(parseInt(r.UMUR)>=10?'cell-kuning':'cell-hijau')}">${r.UMUR||''}</td><td>${r.JENIS||''}</td><td>${r.DEPT||''}</td></tr>`;});
+                if ($.fn.DataTable.isDataTable('#tblKendaraan')) $('#tblKendaraan').DataTable().clear().destroy();
+                document.getElementById('bodyKendaraan').innerHTML=h; $('#tblKendaraan').DataTable({ scrollX: true });
+                
+                document.getElementById('alertUploadKendaraan').style.display='none'; 
+                document.getElementById('areaGrafikKendaraan').style.display='flex';
+                
+                document.getElementById('totalKendaraan').innerText = dataKen.length + " Total";
+                document.getElementById('totalKendaraan').style.display = 'inline-block';
+                document.getElementById('totalKendaraan2').innerText = dataKen.length + " Total";
+                document.getElementById('totalKendaraan2').style.display = 'inline-block';
+
+                let countStatus = {};
+                dataKen.forEach(r => {
+                    let st = (r.STATUS || 'KOSONG').trim().toUpperCase();
+                    countStatus[st] = (countStatus[st] || 0) + 1;
+                });
+                let htmlBadgeStatus = '';
+                for (let key in countStatus) {
+                    let badgeClass = (key === 'AKTIF') ? 'bg-success' : 'bg-secondary';
+                    htmlBadgeStatus += `<span class="badge ${badgeClass} ms-2 fs-6 border border-light">${key}: ${countStatus[key]}</span>`;
+                }
+                document.getElementById('badgeStatusKendaraan').innerHTML = htmlBadgeStatus;
+
+                let unikStatus = [...new Set(dataKen.map(item => item.STATUS ? item.STATUS.trim() : '').filter(v => v))];
+                let dropdownStatus = document.getElementById('filterStatusKendaraan');
+                dropdownStatus.innerHTML = '<option value="ALL">Tampilkan Semua</option>';
+                unikStatus.forEach(s => dropdownStatus.innerHTML += `<option value="${s}">${s}</option>`);
+
+                activeKategoriPieKen = 'MERK'; 
+                renderChartsKendaraan();
+            }});
+        }
+
+        function renderChartsKendaraan() {
+            let filterVal = document.getElementById('filterStatusKendaraan').value;
+            let dataFiltered = filterVal === "ALL" ? dataKen : dataKen.filter(r => (r.STATUS || '').trim() === filterVal);
+            chKenPie = drawPie('chartKomposisiKendaraan', chKenPie, dataFiltered, activeKategoriPieKen);
+            chKenUmur = drawBar('chartUmurKendaraan', chKenUmur, dataFiltered, 'UMUR', '#0d6efd');
+        }
+
+        function ubahKategoriPieKendaraan(k) { 
+            activeKategoriPieKen = k; 
+            ['MERK','DEPT','JENIS'].forEach(b => document.getElementById('btn-KEN-'+b).classList.remove('active')); 
+            document.getElementById('btn-KEN-'+k).classList.add('active'); 
+            renderChartsKendaraan(); 
+        }
+
+        function loadDriver() {
+            if(!SPREADSHEET_LINKS.driver) return;
+            Papa.parse(SPREADSHEET_LINKS.driver, { download:true, header:true, skipEmptyLines:true, complete: res => {
+                dataDrv = res.data.filter(r=>r.NAMA);
+                let h=''; dataDrv.forEach(r => { h+=`<tr><td>${r.NIK||''}</td><td>${r.NAMA||''}</td><td>${r.KIRIMAN||''}</td><td>${r.SIM||''}</td><td>${r.BAJU||''}</td><td>${r.CELana||r.CELANA||''}</td><td>${r.TAHUN||''}</td></tr>`;});
+                if ($.fn.DataTable.isDataTable('#tblDriver')) $('#tblDriver').DataTable().clear().destroy();
+                document.getElementById('bodyDriver').innerHTML=h; $('#tblDriver').DataTable({ scrollX: true });
+                document.getElementById('alertUploadDriver').style.display='none'; document.getElementById('areaGrafikDriver').style.display='flex';
+                document.getElementById('totalDriver').innerText = dataDrv.length + " Total Data";
+                document.getElementById('totalDriver').style.display = 'inline-block';
+                
+                ubahKategoriPieDriver('KIRIMAN'); chDrvCel = drawBar('chartCelanaDriver', chDrvCel, dataDrv, 'CELANA', '#198754'); chDrvThn = drawBar('chartTahunDriver', chDrvThn, dataDrv, 'TAHUN', '#ffc107');
+            }});
+        }
+
+        function ubahKategoriPieDriver(k) { ['KIRIMAN','SIM','BAJU'].forEach(b => document.getElementById('btn-DRV-'+b).classList.remove('active')); document.getElementById('btn-DRV-'+k).classList.add('active'); chDrvPie = drawPie('chartKomposisiDriver', chDrvPie, dataDrv, k); }
+
+        // === VARIABEL GLOBAL SO ARMADA ===
+        let dataSoSurat = [], dataSoFoto = [];
+        let chListKir = null, chListStnk = null, chPieSo = null;
+
+        // ==========================================
+        // 4. SISTEM SO SURAT STNK & KIR
+        // ==========================================
+        function loadSoSurat() {
+            if(!SPREADSHEET_LINKS.soSurat) return;
+            Papa.parse(SPREADSHEET_LINKS.soSurat, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataSoSurat = results.data.filter(r => r.NOPOL || r['KD LAMBUNG']);
+                let html = '';
+                const cols = ['NOPOL', 'KD LAMBUNG', 'UPDATE TGL KIR', 'JATUH TEMPO KIR (in hari)', 'CEK KIR', 'UPDATE TGL STNK', 'JATUH TEMPO STNK(in hari)', 'CEK STNK', 'CEK KIR VS SS', 'CEK STNK VS SS'];
+                
+                dataSoSurat.forEach(r => {
+                    html += '<tr>';
+                    cols.forEach(c => {
+                        let val = (r[c] || '').trim();
+                        let cls = '';
+                        if(val === 'OK' || val === 'TRUE') cls = 'cell-hijau';
+                        else if(val === 'TELAT' || val === 'FALSE') cls = 'cell-merah';
+                        else if(val === 'MENDEKATI JATUH TEMPO') cls = 'cell-kuning';
+                        html += `<td class="${cls}">${val}</td>`;
+                    });
+                    html += '</tr>';
                 });
                 
-                htmlRow += '</tr>';
-                return htmlRow;
-            }).join('');
+                if ($.fn.DataTable.isDataTable('#tblSoSurat')) $('#tblSoSurat').DataTable().clear().destroy();
+                document.getElementById('bodySoSurat').innerHTML = html;
+                $('#tblSoSurat').DataTable({ scrollX: true });
+
+                document.getElementById('alertUploadSoSurat').style.display = 'none';
+                document.getElementById('areaGrafikSoSurat').style.display = 'block';
+                renderVisualSoSurat();
+            }});
         }
 
-        function tampilkanGrafik(data) {
-            // Hitung data untuk Grafik Status
-            let countAktif = 0;
-            let countP3AT = 0;
+        function hitungPersentase(dataArray, kolom) {
+            let total = 0; let counts = {};
+            dataArray.forEach(r => { let val = (r[kolom] || '').trim().toUpperCase(); if(val) { total++; counts[val] = (counts[val] || 0) + 1; } });
+            return { total, counts };
+        }
+
+        function renderVisualSoSurat() {
+            let stKir = hitungPersentase(dataSoSurat, 'CEK KIR');
+            let pctKirOk = stKir.total ? (((stKir.counts['OK']||0)/stKir.total)*100).toFixed(1) : 0;
+            let pctKirMen = stKir.total ? (((stKir.counts['MENDEKATI JATUH TEMPO']||0)/stKir.total)*100).toFixed(1) : 0;
+            let pctKirTel = stKir.total ? (((stKir.counts['TELAT']||0)/stKir.total)*100).toFixed(1) : 0;
             
-            // Hitung data untuk Grafik Merk
-            let merkCount = {};
+            document.getElementById('progKir').innerHTML = `<div class="progress-bar bg-success" style="width: ${pctKirOk}%">${pctKirOk}%</div><div class="progress-bar bg-warning text-dark" style="width: ${pctKirMen}%">${pctKirMen}%</div><div class="progress-bar bg-danger" style="width: ${pctKirTel}%">${pctKirTel}%</div>`;
+            document.getElementById('txtKirOk').innerText = `OK: ${pctKirOk}%`;
+            document.getElementById('txtKirMendekati').innerText = `Mendekati: ${pctKirMen}%`;
+            document.getElementById('txtKirTelat').innerText = `Telat: ${pctKirTel}%`;
 
-            data.forEach(row => {
-                // Hitung Status
-                if(row.STATUS) {
-                    let status = row.STATUS.trim().toUpperCase();
-                    if(status === 'AKTIF') countAktif++;
-                    else if (status === 'P3AT') countP3AT++;
-                }
+            let stKirSs = hitungPersentase(dataSoSurat, 'CEK KIR VS SS');
+            let pctKirSsTrue = stKirSs.total ? (((stKirSs.counts['TRUE']||0)/stKirSs.total)*100).toFixed(1) : 0;
+            let pctKirSsFalse = stKirSs.total ? (((stKirSs.counts['FALSE']||0)/stKirSs.total)*100).toFixed(1) : 0;
+            document.getElementById('progKirSs').innerHTML = `<div class="progress-bar bg-success" style="width: ${pctKirSsTrue}%">${pctKirSsTrue}%</div><div class="progress-bar bg-danger" style="width: ${pctKirSsFalse}%">${pctKirSsFalse}%</div>`;
+            document.getElementById('txtKirSsTrue').innerText = `TRUE: ${pctKirSsTrue}%`;
+            document.getElementById('txtKirSsFalse').innerText = `FALSE: ${pctKirSsFalse}%`;
 
-                // Hitung Merk
-                if(row.MERK) {
-                    let merk = row.MERK.trim().toUpperCase();
-                    merkCount[merk] = (merkCount[merk] || 0) + 1;
-                }
-            });
+            let stStnk = hitungPersentase(dataSoSurat, 'CEK STNK');
+            let pctStnkOk = stStnk.total ? (((stStnk.counts['OK']||0)/stStnk.total)*100).toFixed(1) : 0;
+            let pctStnkMen = stStnk.total ? (((stStnk.counts['MENDEKATI JATUH TEMPO']||0)/stStnk.total)*100).toFixed(1) : 0;
+            let pctStnkTel = stStnk.total ? (((stStnk.counts['TELAT']||0)/stStnk.total)*100).toFixed(1) : 0;
+            
+            document.getElementById('progStnk').innerHTML = `<div class="progress-bar bg-success" style="width: ${pctStnkOk}%">${pctStnkOk}%</div><div class="progress-bar bg-warning text-dark" style="width: ${pctStnkMen}%">${pctStnkMen}%</div><div class="progress-bar bg-danger" style="width: ${pctStnkTel}%">${pctStnkTel}%</div>`;
+            document.getElementById('txtStnkOk').innerText = `OK: ${pctStnkOk}%`;
+            document.getElementById('txtStnkMendekati').innerText = `Mendekati: ${pctStnkMen}%`;
+            document.getElementById('txtStnkTelat').innerText = `Telat: ${pctStnkTel}%`;
 
-            // 1. Gambar Grafik Status (Pie Chart)
-            new Chart(document.getElementById('chartStatus').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: ['AKTIF', 'P3AT'],
-                    datasets: [{
-                        data: [countAktif, countP3AT],
-                        backgroundColor: ['#28a745', '#dc3545']
-                    }]
-                },
-                options: { maintainAspectRatio: false }
-            });
+            let stStnkSs = hitungPersentase(dataSoSurat, 'CEK STNK VS SS');
+            let pctStnkSsTrue = stStnkSs.total ? (((stStnkSs.counts['TRUE']||0)/stStnkSs.total)*100).toFixed(1) : 0;
+            let pctStnkSsFalse = stStnkSs.total ? (((stStnkSs.counts['FALSE']||0)/stStnkSs.total)*100).toFixed(1) : 0;
+            document.getElementById('progStnkSs').innerHTML = `<div class="progress-bar bg-success" style="width: ${pctStnkSsTrue}%">${pctStnkSsTrue}%</div><div class="progress-bar bg-danger" style="width: ${pctStnkSsFalse}%">${pctStnkSsFalse}%</div>`;
+            document.getElementById('txtStnkSsTrue').innerText = `TRUE: ${pctStnkSsTrue}%`;
+            document.getElementById('txtStnkSsFalse').innerText = `FALSE: ${pctStnkSsFalse}%`;
 
-            // 2. Gambar Grafik Merk (Bar Chart)
-            new Chart(document.getElementById('chartMerk').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(merkCount),
-                    datasets: [{
-                        label: 'Jumlah Kendaraan',
-                        data: Object.values(merkCount),
-                        backgroundColor: '#0d6efd'
-                    }]
-                },
-                options: { maintainAspectRatio: false }
-            });
+            let warningKir = dataSoSurat.filter(r => { let v = (r['CEK KIR']||'').toUpperCase(); return v==='TELAT' || v==='MENDEKATI JATUH TEMPO'; }).sort((a,b) => parseFloat(a['JATUH TEMPO KIR (in hari)']) - parseFloat(b['JATUH TEMPO KIR (in hari)']));
+            if(chListKir) chListKir.destroy();
+            chListKir = new Chart(document.getElementById('chartListKir').getContext('2d'), { type: 'bar', data: { labels: warningKir.map(d => d['KD LAMBUNG']), datasets: [{ label: 'Hari Menuju Jatuh Tempo KIR', data: warningKir.map(d => parseFloat(d['JATUH TEMPO KIR (in hari)'])), backgroundColor: warningKir.map(d => (d['CEK KIR']||'').toUpperCase()==='TELAT' ? '#dc3545' : '#ffc107') }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
+
+            let warningStnk = dataSoSurat.filter(r => { let v = (r['CEK STNK']||'').toUpperCase(); return v==='TELAT' || v==='MENDEKATI JATUH TEMPO'; }).sort((a,b) => parseFloat(a['JATUH TEMPO STNK(in hari)']) - parseFloat(b['JATUH TEMPO STNK(in hari)']));
+            if(chListStnk) chListStnk.destroy();
+            chListStnk = new Chart(document.getElementById('chartListStnk').getContext('2d'), { type: 'bar', data: { labels: warningStnk.map(d => d['KD LAMBUNG']), datasets: [{ label: 'Hari Menuju Jatuh Tempo STNK', data: warningStnk.map(d => parseFloat(d['JATUH TEMPO STNK(in hari)'])), backgroundColor: warningStnk.map(d => (d['CEK STNK']||'').toUpperCase()==='TELAT' ? '#dc3545' : '#ffc107') }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false } });
         }
 
-        window.onload = muatData;
+        // ==========================================
+        // 5. SISTEM SO FOTO ARMADA
+        // ==========================================
+        function loadSoFoto() {
+            if(!SPREADSHEET_LINKS.soFoto) return;
+            Papa.parse(SPREADSHEET_LINKS.soFoto, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataSoFoto = results.data.filter(r => r['No Lambung']);
+                let html = '';
+                const cols = ['CAB INDUK', 'RLM', 'LM', 'No Lambung', 'Lokasi Armada', 'Jenis Kiriman', 'Type Kendaraan', 'Merk', 'STATUS', 'CEK'];
+                dataSoFoto.forEach(r => {
+                    html += '<tr>';
+                    cols.forEach(c => {
+                        let val = (r[c] || '').trim();
+                        let cls = '';
+                        if(c === 'STATUS' && val.toUpperCase() === 'AKTIF') cls = 'cell-hijau';
+                        if(c === 'CEK' && val.toUpperCase() === 'SUDAH SO') cls = 'cell-hijau';
+                        if(c === 'CEK' && val.toUpperCase() === 'BELUM SO') cls = 'cell-merah';
+                        html += `<td class="${cls}">${val}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                
+                if ($.fn.DataTable.isDataTable('#tblSoFoto')) $('#tblSoFoto').DataTable().clear().destroy();
+                document.getElementById('bodySoFoto').innerHTML = html;
+                $('#tblSoFoto').DataTable({ scrollX: true });
+
+                document.getElementById('alertUploadSoFoto').style.display = 'none';
+                document.getElementById('areaGrafikSoFoto').style.display = 'flex';
+                renderVisualSoFoto();
+            }});
+        }
+
+        function renderVisualSoFoto() {
+            let armadaAktif = dataSoFoto.filter(r => (r['STATUS']||'').trim().toUpperCase() === 'AKTIF');
+            let totalAktif = armadaAktif.length;
+            let sudahSo = armadaAktif.filter(r => (r['CEK']||'').trim().toUpperCase() === 'SUDAH SO').length;
+            let belumSo = armadaAktif.filter(r => (r['CEK']||'').trim().toUpperCase() === 'BELUM SO').length;
+
+            let pctSudah = totalAktif ? ((sudahSo / totalAktif) * 100).toFixed(1) : 0;
+            let pctBelum = totalAktif ? ((belumSo / totalAktif) * 100).toFixed(1) : 0;
+
+            document.getElementById('progSoFoto').innerHTML = `<div class="progress-bar bg-success" style="width: ${pctSudah}%">${pctSudah}%</div><div class="progress-bar bg-danger" style="width: ${pctBelum}%">${pctBelum}%</div>`;
+            document.getElementById('txtSoSudah').innerText = `SUDAH SO: ${sudahSo} Unit (${pctSudah}%)`;
+            document.getElementById('txtSoBelum').innerText = `BELUM SO: ${belumSo} Unit (${pctBelum}%)`;
+
+            if(chPieSo) chPieSo.destroy();
+            chPieSo = new Chart(document.getElementById('chartPieSoFoto').getContext('2d'), { type: 'pie', data: { labels: ['SUDAH SO', 'BELUM SO'], datasets: [{ data: [sudahSo, belumSo], backgroundColor: ['#28a745', '#dc3545'] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } } });
+        }
+    
+        // ==========================================
+        // 6. SISTEM DATA RASIO BBM & REKAP
+        // ==========================================
+        let dataBbm = [];
+        const fmtRp = (num) => "Rp " + num.toLocaleString('id-ID');
+        const fmtNum = (num) => num.toLocaleString('id-ID', { maximumFractionDigits: 2 });
+
+        function loadBbm() {
+            if(!SPREADSHEET_LINKS.bbm) return;
+            Papa.parse(SPREADSHEET_LINKS.bbm, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataBbm = results.data.filter(r => r.LAMBUNG || r.NOPOL);
+                let html = '';
+                const cols = ['NOPOL', 'LAMBUNG', 'MERK', 'TYPE', 'TAHUN', 'JENIS', 'DEPT', 'Isi BBM Liter', 'Kilometer Pakai', 'Total Rupiah', 'Tgl Bon Terakhir', 'STANDAR', 'TARGET', 'RASIO', 'CATATAN'];
+                
+                dataBbm.forEach(r => {
+                    html += '<tr>';
+                    cols.forEach(c => {
+                        let val = (r[c] || '').trim();
+                        let cls = '';
+                        if(c === 'TARGET') {
+                            if(val.toUpperCase() === 'DAPAT') cls = 'cell-hijau';
+                            else if(val.toUpperCase() === 'TIDAK DAPAT') cls = 'cell-merah';
+                        }
+                        html += `<td class="${cls}">${val}</td>`;
+                    });
+                    html += '</tr>';
+                });
+                
+                if ($.fn.DataTable.isDataTable('#tblBbm')) $('#tblBbm').DataTable().clear().destroy();
+                document.getElementById('bodyBbm').innerHTML = html;
+                $('#tblBbm').DataTable({ scrollX: true });
+
+                document.getElementById('alertUploadBbm').style.display = 'none';
+                document.getElementById('areaGrafikBbm').style.display = 'block';
+                
+                kalkulasiDcOfTheMonth();
+                updateOpsiFilterBbm(); 
+            }});
+        }
+
+        function kalkulasiDcOfTheMonth() {
+            let rekap = { 'L300': { sumStd: 0, countStd: 0, km: 0, rp: 0 }, 'ENGKEL': { sumStd: 0, countStd: 0, km: 0, rp: 0 }, 'DOUBLE': { sumStd: 0, countStd: 0, km: 0, rp: 0 } };
+            dataBbm.forEach(r => {
+                let jns = (r.JENIS || '').toUpperCase(); let standar = parseFloat(r['STANDAR']) || 0; let km = parseFloat(r['Kilometer Pakai']) || 0; let rp = parseFloat(r['Total Rupiah']) || 0;
+                let tipeKategori = null;
+                if(jns.includes('L300')) tipeKategori = 'L300'; else if(jns.includes('ENGKEL')) tipeKategori = 'ENGKEL'; else if(jns.includes('DOUBLE')) tipeKategori = 'DOUBLE';
+                if(tipeKategori) { if(standar > 0) { rekap[tipeKategori].sumStd += standar; rekap[tipeKategori].countStd++; } rekap[tipeKategori].km += km; rekap[tipeKategori].rp += rp; }
+            });
+
+            let totalLiter = 0, totalRupiah = 0;
+            ['L300', 'ENGKEL', 'DOUBLE'].forEach(tipe => {
+                let idPrefix = tipe.charAt(0).toUpperCase() + tipe.slice(1).toLowerCase();
+                let avgStd = rekap[tipe].countStd > 0 ? (rekap[tipe].sumStd / rekap[tipe].countStd) : 0;
+                let liter = avgStd > 0 ? (rekap[tipe].km / avgStd) : 0;
+                
+                document.getElementById(`bbmStd${idPrefix}`).innerText = fmtNum(avgStd);
+                document.getElementById(`bbmKm${idPrefix}`).innerText = fmtNum(rekap[tipe].km);
+                document.getElementById(`bbmLtr${idPrefix}`).innerText = fmtNum(liter);
+                document.getElementById(`bbmRp${idPrefix}`).innerText = fmtRp(rekap[tipe].rp);
+                totalLiter += liter; totalRupiah += rekap[tipe].rp;
+            });
+
+            document.getElementById('bbmLtrTotal').innerText = fmtNum(totalLiter); document.getElementById('bbmRpTotal').innerText = fmtRp(totalRupiah);
+            let hargaSolar = 6800; let aktual = totalLiter * hargaSolar; let pnl = totalRupiah; let ratio = pnl > 0 ? (aktual / pnl) : 0;
+            
+            document.getElementById('bbmAktual').innerText = "= " + fmtRp(aktual); document.getElementById('bbmPnl').innerText = "= " + fmtRp(pnl); document.getElementById('bbmRatio').innerText = "= " + fmtNum(ratio);
+            let poin = 0; if(ratio >= 1) poin = 100; else if(ratio >= 0.9) poin = 75; else if(ratio >= 0.8) poin = 50;
+            document.getElementById('bbmPoint').innerText = `= ${poin} POINT`;
+        }
+
+        function updateOpsiFilterBbm() {
+            let jenis = document.getElementById('jenisFilterBbm').value;
+            let valDropdown = document.getElementById('nilaiFilterBbm');
+            if(jenis === "ALL") { valDropdown.style.display = 'none'; } else {
+                valDropdown.style.display = 'block';
+                let unikVal = [...new Set(dataBbm.map(item => item[jenis] ? item[jenis].trim() : '').filter(v => v))];
+                valDropdown.innerHTML = `<option value="ALL">Semua ${jenis}</option>`;
+                unikVal.forEach(k => valDropdown.innerHTML += `<option value="${k}">${k}</option>`);
+            }
+            renderListTdkDapat();
+        }
+
+        function renderListTdkDapat() {
+            let jenisFilter = document.getElementById('jenisFilterBbm').value; let nilaiFilter = document.getElementById('nilaiFilterBbm').value;
+            let dataFiltered = dataBbm.filter(r => (r['TARGET'] || '').toUpperCase() === 'TIDAK DAPAT');
+            if(jenisFilter !== "ALL" && nilaiFilter !== "ALL") { dataFiltered = dataFiltered.filter(r => r[jenisFilter] === nilaiFilter); }
+
+            let html = '';
+            if(dataFiltered.length === 0) { html = '<tr><td colspan="8" class="text-muted">Tidak ada armada pada kategori ini</td></tr>'; } else {
+                dataFiltered.forEach(r => { html += `<tr><td class="fw-bold">${r.LAMBUNG||'-'}</td><td>${r.NOPOL||'-'}</td><td>${r.MERK||'-'}</td><td>${r.JENIS||'-'}</td><td>${r.DEPT||'-'}</td><td>${r.STANDAR||'0'}</td><td>${r.RASIO||'0'}</td><td class="cell-merah">${r.TARGET||'-'}</td></tr>`; });
+            }
+            if ($.fn.DataTable.isDataTable('#tblListTdkDapat')) { $('#tblListTdkDapat').DataTable().destroy(); }
+            document.getElementById('bodyListTdkDapat').innerHTML = html;
+            $('#tblListTdkDapat').DataTable({ "paging": false, "info": false, "language": { "search": "Cari lambung:" } });
+        }
+            
+        // ==========================================
+        // 7. SISTEM MASTER TOKO
+        // ==========================================
+        let dataToko = [];
+        let chKabKota = null;
+
+        function loadToko() {
+            if(!SPREADSHEET_LINKS.toko) return;
+            Papa.parse(SPREADSHEET_LINKS.toko, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataToko = results.data.filter(r => r['Kode Toko'] || r['NAMA TOKO']);
+                let html = ''; const cols = ['Kode Toko', 'NAMA TOKO', 'OPENING', 'UMUR TOKO (TAHUN)', 'JARAK TEMPUH', 'WAKTU TEMPUH (HARI:JAM:MENIT)', 'KATEGORI WILAYAH', 'KELURAHAN', 'KECAMATAN', 'KAB/KOTA', 'KODE POS', 'KOORDINAT GPS'];
+                dataToko.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c] || '-'}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblToko')) $('#tblToko').DataTable().clear().destroy();
+                document.getElementById('bodyToko').innerHTML = html; 
+                $('#tblToko').DataTable({ scrollX: true });
+                
+                document.getElementById('alertUploadToko').style.display = 'none';
+                document.getElementById('areaDashboardToko').style.display = 'block';
+                document.getElementById('totalToko').innerText = dataToko.length;
+                
+                let countWilayah = {}, countKabKota = {};
+                dataToko.forEach(r => {
+                    let wil = (r['KATEGORI WILAYAH'] || 'TIDAK TERDEFINISI').trim().toUpperCase(); let kab = (r['KAB/KOTA'] || 'TIDAK TERDEFINISI').trim().toUpperCase();
+                    if(wil !== '') countWilayah[wil] = (countWilayah[wil] || 0) + 1;
+                    if(kab !== '') countKabKota[kab] = (countKabKota[kab] || 0) + 1;
+                });
+                
+                let badgeHtml = ''; const badgeColors = ['bg-success', 'bg-danger', 'bg-warning text-dark', 'bg-info text-dark', 'bg-secondary']; let colorIdx = 0;
+                let sortedWilayah = Object.entries(countWilayah).sort((a,b) => b[1] - a[1]);
+                sortedWilayah.forEach(([wilayah, jumlah]) => {
+                    let cl = badgeColors[colorIdx % badgeColors.length];
+                    badgeHtml += `<span class="badge ${cl} px-3 py-2 fs-6 shadow-sm border border-light">${wilayah} : ${jumlah} Toko</span>`;
+                    colorIdx++;
+                });
+                document.getElementById('kategoriWilayahContainer').innerHTML = badgeHtml;
+                
+                let sortedKabKota = Object.entries(countKabKota).sort((a,b) => b[1] - a[1]);
+                let labelsKab = sortedKabKota.map(item => item[0]), dataKab = sortedKabKota.map(item => item[1]);
+                if(chKabKota) chKabKota.destroy();
+                chKabKota = new Chart(document.getElementById('chartKabKota').getContext('2d'), { type: 'bar', data: { labels: labelsKab, datasets: [{ label: 'Jumlah Toko', data: dataKab, backgroundColor: '#0d6efd', borderRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } } } } });
+            }});
+        }
+
+        // ==========================================
+        // 8. SISTEM MASTER AREA
+        // ==========================================
+        let dataArea = [];
+        let chJabatan = null, chAm = null;
+        const warnaChartArea = ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0','#6f42c1','#fd7e14','#20c997', '#6c757d', '#adb5bd'];
+
+        function loadArea() {
+            if(!SPREADSHEET_LINKS.area) return;
+            Papa.parse(SPREADSHEET_LINKS.area, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataArea = results.data.filter(r => r['KODE'] || r['NAMA TOKO']);
+                let html = ''; const cols = ['KODE', 'NAMA TOKO', 'NIK', 'NAMA CHIEF OF STORE', 'JABATAN', 'NO HP TOKO', 'NOMOR HP AS', 'AS', 'NAMA AS', 'AM', 'NAMA AM'];
+                dataArea.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c] || '-'}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblArea')) $('#tblArea').DataTable().clear().destroy();
+                document.getElementById('bodyArea').innerHTML = html; 
+                $('#tblArea').DataTable({ scrollX: true });
+                
+                document.getElementById('alertUploadArea').style.display = 'none'; document.getElementById('areaDashboardArea').style.display = 'block';
+                
+                let countJabatan = {}, dataAS = {}, countAM = {};
+                dataArea.forEach(r => {
+                    let jab = (r['JABATAN'] || 'KOSONG').trim().toUpperCase();
+                    let kodeAs = (r['AS'] || '').trim(), namaAs = (r['NAMA AS'] || '').trim();
+                    if (kodeAs) { if (!dataAS[kodeAs]) { dataAS[kodeAs] = { nama: namaAs, jumlah: 0 }; } dataAS[kodeAs].jumlah += 1; }
+                    let kodeAm = (r['AM'] || '').trim(), namaAm = (r['NAMA AM'] || '').trim();
+                    let amGabung = kodeAm ? `${kodeAm} - ${namaAm}` : '';
+                    if(jab) countJabatan[jab] = (countJabatan[jab] || 0) + 1;
+                    if(amGabung) countAM[amGabung] = (countAM[amGabung] || 0) + 1;
+                });
+                
+                function renderAreaChart(ctxId, chartObj, dataCount, type) {
+                    if(chartObj) chartObj.destroy();
+                    let sortedData = Object.entries(dataCount).sort((a,b) => b[1] - a[1]);
+                    let labels = sortedData.map(item => item[0]), data = sortedData.map(item => item[1]);
+                    let config = { type: type, data: { labels: labels, datasets: [{ data: data, backgroundColor: warnaChartArea, borderRadius: type === 'bar' ? 4 : 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: type === 'doughnut', position: 'bottom' } } } };
+                    if(type === 'bar') { config.options.scales = { y: { beginAtZero: true, ticks: { stepSize: 1 } }, x: { ticks: { display: false } } }; config.options.plugins.tooltip = { callbacks: { title: (ctx) => ctx[0].label } }; }
+                    return new Chart(document.getElementById(ctxId).getContext('2d'), config);
+                }
+
+                chJabatan = renderAreaChart('chartJabatan', chJabatan, countJabatan, 'doughnut'); chAm = renderAreaChart('chartAM', chAm, countAM, 'bar');
+
+                let asHtml = '';
+                Object.keys(dataAS).sort().forEach(kode => {
+                    let detail = dataAS[kode];
+                    asHtml += `<button class="btn btn-outline-success btn-sm fw-bold shadow-sm" title="Nama AS: ${detail.nama || 'Tidak diketahui'}">${kode} <span class="badge bg-success ms-1">${detail.jumlah}</span></button>`;
+                });
+                if (asHtml === '') asHtml = '<small class="text-muted">Data AS tidak ditemukan.</small>';
+                document.getElementById('containerButtonAS').innerHTML = asHtml;
+            }});
+        }
+
+        // ==========================================
+        // 9. SISTEM FRAUD SPEEDING-BERHENTI
+        // ==========================================
+        let dataFraud = [];
+
+        function loadFraud() {
+            if(!SPREADSHEET_LINKS.fraud) return;
+            Papa.parse(SPREADSHEET_LINKS.fraud, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
+                dataFraud = results.data.filter(r => r['NAMA']); 
+                let htmlFraud = ''; const colsFraud = ['NAMA', 'NIK', 'STATUS', 'KIRIMAN', 'SANKSI', 'DATA SPEED', 'FREKUENSI SPEEDING', 'TOP SPEED', 'MENEPI ISTIRAHAT', 'MENEPI MAKAN', 'BENGKEL LUAR', 'MENEPI SHOLAT', 'FRAUD', 'MACET', 'GPS ERROR', 'ARMADA TROUBLE', 'BANTU ARMADA', 'KIRIMAN KHUSUS', 'NON FRAUD'];
+                dataFraud.forEach(r => { htmlFraud += '<tr>' + colsFraud.map(c => `<td>${r[c] || '0'}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblFraudBerhenti')) $('#tblFraudBerhenti').DataTable().clear().destroy();
+                document.getElementById('bodyFraudBerhenti').innerHTML = htmlFraud;
+                $('#tblFraudBerhenti').DataTable({ scrollX: true });
+                
+                document.getElementById('alertUploadFraudVisual').style.display = 'none';
+                document.getElementById('areaGrafikFraud').style.display = 'block';
+                
+                let totalData = dataFraud.length, speedLebih = 0, speedNol = 0;
+                dataFraud.forEach(r => { let dSpeed = parseFloat(r['DATA SPEED']) || 0; if (dSpeed > 0) speedLebih++; else speedNol++; });
+                
+                let pctLebih = totalData ? ((speedLebih / totalData) * 100).toFixed(1) : 0, pctNol = totalData ? ((speedNol / totalData) * 100).toFixed(1) : 0;
+                document.getElementById('txtSpeedLebih').innerHTML = `${speedLebih} <span class="fs-6 fw-normal">(${pctLebih}%)</span>`;
+                document.getElementById('txtSpeedNol').innerHTML = `${speedNol} <span class="fs-6 fw-normal">(${pctNol}%)</span>`;
+                
+                let sumFraud = 0, sumNonFraud = 0;
+                let reasons = { 'MENEPI ISTIRAHAT': 0, 'MENEPI MAKAN': 0, 'BENGKEL LUAR': 0, 'MENEPI SHOLAT': 0, 'MACET': 0, 'GPS ERROR': 0, 'ARMADA TROUBLE': 0, 'BANTU ARMADA': 0, 'KIRIMAN KHUSUS': 0 };
+
+                dataFraud.forEach(r => {
+                    sumFraud += parseFloat(r['FRAUD']) || 0; sumNonFraud += parseFloat(r['NON FRAUD']) || 0;
+                    for(let key in reasons) { reasons[key] += parseFloat(r[key]) || 0; }
+                });
+
+                let totalKlasifikasi = sumFraud + sumNonFraud;
+                let pctFraud = totalKlasifikasi ? ((sumFraud / totalKlasifikasi) * 100).toFixed(1) : 0;
+                let pctNonFraud = totalKlasifikasi ? ((sumNonFraud / totalKlasifikasi) * 100).toFixed(1) : 0;
+
+                document.getElementById('txtFraudKasus').innerHTML = `${sumFraud} <span class="fs-6 fw-normal text-light">(${pctFraud}%)</span>`;
+                document.getElementById('txtNonFraudKasus').innerHTML = `${sumNonFraud} <span class="fs-6 fw-normal text-dark">(${pctNonFraud}%)</span>`;
+
+                let totalReasons = 0; for(let key in reasons) { totalReasons += reasons[key]; }
+                const idMap = { 'MENEPI ISTIRAHAT': 'txtIstirahat', 'MENEPI MAKAN': 'txtMakan', 'BENGKEL LUAR': 'txtBan', 'MENEPI SHOLAT': 'txtSholat', 'MACET': 'txtMacet', 'GPS ERROR': 'txtGps', 'ARMADA TROUBLE': 'txtTrouble', 'BANTU ARMADA': 'txtBantu', 'KIRIMAN KHUSUS': 'txtKhusus' };
+
+                for(let key in reasons) {
+                    let val = reasons[key], pct = totalReasons ? ((val / totalReasons) * 100).toFixed(1) : 0;
+                    document.getElementById(idMap[key]).innerHTML = `${val} <span class="fs-6 fw-normal text-muted">(${pct}%)</span>`;
+                }
+
+                let sortedByFrekuensi = [...dataFraud].sort((a, b) => { return (parseFloat(b['FREKUENSI SPEEDING']) || 0) - (parseFloat(a['FREKUENSI SPEEDING']) || 0); });
+                let top10 = sortedByFrekuensi.slice(0, 10), htmlTop10 = ''; const colsRekap = ['NAMA', 'NIK', 'STATUS', 'KIRIMAN', 'SANKSI', 'DATA SPEED', 'FREKUENSI SPEEDING', 'TOP SPEED'];
+                
+                top10.forEach(r => { let fSpeed = parseFloat(r['FREKUENSI SPEEDING']) || 0; let isDanger = fSpeed > 0 ? 'class="cell-merah"' : ''; htmlTop10 += '<tr>' + colsRekap.map(c => `<td ${c === 'FREKUENSI SPEEDING' ? isDanger : ''}>${r[c] || '0'}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblTopSpeeding')) $('#tblTopSpeeding').DataTable().clear().destroy();
+                document.getElementById('bodyTopSpeeding').innerHTML = htmlTop10;
+                $('#tblTopSpeeding').DataTable({ scrollX: true, searching: false, paging: false, info: false });
+                
+                let zeroSpeeding = dataFraud.filter(r => (parseFloat(r['FREKUENSI SPEEDING']) || 0) === 0), htmlZero = '';
+                zeroSpeeding.forEach(r => { htmlZero += '<tr>' + colsRekap.map(c => `<td>${r[c] || '0'}</td>`).join('') + '</tr>'; });
+                
+                if ($.fn.DataTable.isDataTable('#tblZeroSpeeding')) $('#tblZeroSpeeding').DataTable().clear().destroy();
+                document.getElementById('bodyZeroSpeeding').innerHTML = htmlZero;
+                $('#tblZeroSpeeding').DataTable({ scrollX: true });
+            }});
+        }
+
+        // ==========================================
+        // EKSEKUSI PEMUATAN DATA OTOMATIS SAAT HALAMAN DIBUKA
+        // ==========================================
+        window.onload = function() {
+            // Jika ada link yang masih kosong, fungsi load tidak akan error (akan dibatalkan di dalam).
+            loadKendaraan();
+            loadDriver();
+            loadToko();
+            loadArea();
+            loadProdDriver();
+            loadProdArmada();
+            loadSoSurat();
+            loadSoFoto();
+            loadBbm();
+            loadFraud();
+        };
+
     </script>
 </body>
 </html>
