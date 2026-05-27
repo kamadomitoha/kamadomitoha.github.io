@@ -160,7 +160,8 @@
                             <div class="alert alert-secondary mb-3" id="alertUploadProdDriver"><div class="spinner-border spinner-border-sm text-warning me-2" role="status"></div>Sedang memuat data dari Spreadsheet...</div>
                             <div id="areaGrafikProdDriver" style="display: none;">
                                 <div class="card p-3 mb-3 shadow-sm bg-light">
-                                    <div class="row align-items-center"><div class="col-12 col-md-auto fw-bold ms-2 mb-2 mb-md-0">Filter (Kiriman):</div><div class="col-12 col-md-4"><select id="filterKirimanDriver" class="form-select form-select-sm" onchange="renderChartsProdDriver()"><option value="ALL">Semua</option></select></div></div>
+                                    <div class="row align-items-center"><div class="col-12 col-md-auto fw-bold ms-2 mb-2 mb-md-0">Filter:</div><div class="col-12 col-md-4"><select id="filterKirimanDriver" class="form-select form-select-sm" onchange="updateOpsiFilterDriver()"><option value="ALL">Semua</option><option value="KIRIMAN">Merk</option></select></div></div>
+                                    <div class="col-12 col-md-3"><select id="nilaiFilterDriver" class="form-select form-select-sm" style="display: none;" onchange="renderChartsProdDriver()"></select></div>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4 mb-3"><div class="card p-3 shadow-sm text-center"><h6 class="mb-3">Top 10 POINT</h6><div class="chart-container-tall"><canvas id="chartDrvPoint"></canvas></div></div></div>
@@ -717,8 +718,20 @@
 
                 document.getElementById('alertUploadProdDriver').style.display = 'none';
                 document.getElementById('areaGrafikProdDriver').style.display = 'block';
-                renderChartsProdDriver();
+                updateOpsiFilterDriver();
             }});
+        }
+
+function updateOpsiFilterDriver() {
+            let jenis = document.getElementById('jenisFilterDriver').value;
+            let valDropdown = document.getElementById('nilaiFilterDriver');
+            if(jenis === "ALL") { valDropdown.style.display = 'none'; } else {
+                valDropdown.style.display = 'block';
+                let unikVal = [...new Set(dataProdDrv.map(item => item[jenis] ? item[jenis].trim() : '').filter(v => v))];
+                valDropdown.innerHTML = `<option value="ALL">Semua ${jenis}</option>`;
+                unikVal.forEach(k => valDropdown.innerHTML += `<option value="${k}">${k}</option>`);
+            }
+            renderChartsProdDriver();
         }
 
         function renderChartsProdDriver() {
