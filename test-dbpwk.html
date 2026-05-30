@@ -1304,6 +1304,8 @@ function updateOpsiFilterDriver() {
 
                 chJabatan = renderAreaChart('chartJabatan', chJabatan, countJabatan, 'doughnut'); chAm = renderAreaChart('chartAM', chAm, countAM, 'bar');
 
+                // ... (Script chJabatan dan chAm tetap dibiarkan) ...
+
                 let asHtml = '';
                 Object.keys(dataAS).sort().forEach(kode => {
                     let detail = dataAS[kode];
@@ -1311,7 +1313,8 @@ function updateOpsiFilterDriver() {
                 });
                 if (asHtml === '') asHtml = '<small class="text-muted">Data AS tidak ditemukan.</small>';
                 document.getElementById('containerButtonAS').innerHTML = asHtml;
-            // TAMBAHKAN LOGIKA RENDER BUTTON AM-AS DI SINI
+
+                // TAMBAHKAN LOGIKA RENDER BUTTON AM-AS DI SINI
                 let amAsHtml = '';
                 Object.keys(mapAmToAs).sort().forEach(amKode => {
                     let amDetail = mapAmToAs[amKode];
