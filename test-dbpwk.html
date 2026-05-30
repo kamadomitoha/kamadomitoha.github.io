@@ -553,6 +553,17 @@
         </div>
     </div>
 
+<div id="mobileInfoPanel" class="alert alert-success shadow-sm d-none mb-3 border-start border-5 border-success" style="white-space: pre-wrap; font-size: 0.95rem;">
+        </div>
+
+    <div class="d-flex justify-content-end mb-2">
+        <button type="button" class="btn btn-danger btn-sm shadow-sm" onclick="resetFilterArea()">
+            <i class="bi bi-arrow-counterclockwise"></i> Tampilkan Semua Data (Reset)
+        </button>
+    </div>
+
+    <div class="card p-4 shadow-sm table-responsive">
+    
     <div class="card p-4 shadow-sm table-responsive">
         <table id="tblArea" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-success">
@@ -1276,6 +1287,28 @@ function updateOpsiFilterDriver() {
                     infoPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } else {
                     document.getElementById('tblArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+        };
+
+// Fungsi untuk mereset semua filter ke kondisi awal
+        window.resetFilterArea = function() {
+            if ($.fn.DataTable.isDataTable('#tblArea')) {
+                let table = $('#tblArea').DataTable();
+                
+                // Hapus filter pencarian DataTable
+                table.search('').columns().search('').draw();
+                
+                // Kembalikan state aktif menjadi null
+                window.activeFilterArea = { source: null, label: null };
+                
+                // Hilangkan warna aktif pada semua tombol AS dan AM
+                $('#containerButtonAS button, #containerButtonAmAs button').removeClass('active text-white');
+                
+                // Sembunyikan Kotak Info Mobile jika sedang terbuka
+                let infoPanel = document.getElementById('mobileInfoPanel');
+                if (infoPanel) {
+                    infoPanel.classList.add('d-none');
                 }
             }
         };
