@@ -707,7 +707,18 @@
                 dataProdDrv = results.data.filter(r => r['NAMA DRIVER']);
                 let html = '';
                 const cols = ['NAMA DRIVER', 'NIK', 'KIRIMAN', 'POINT', 'RITASE', 'RATA-RATA RIT', 'HADIR', 'OFF', 'DIOFF', 'ALPA', 'LP', 'CUTI', 'CTU', 'SAKIT', 'D', 'STB', 'SMD', 'TOTAL'];
-                dataProdDrv.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c]||'0'}</td>`).join('') + '</tr>'; });
+                dataProdDrv.forEach(r => { 
+    html += '<tr>' + cols.map(c => {
+        let val = r[c] || '0';
+        // Ubah koma menjadi titik KHUSUS untuk sistem pengurutan DataTables
+        let sortVal = val;
+        if (typeof val === 'string' && val.includes(',')) {
+            sortVal = val.replace(',', '.'); 
+        }
+        // Tambahkan atribut data-order pada tag <td>
+        return `<td data-order="${sortVal}">${val}</td>`;
+    }).join('') + '</tr>'; 
+}); 
                 
                 if ($.fn.DataTable.isDataTable('#tblProdDriver')) $('#tblProdDriver').DataTable().clear().destroy();
                 document.getElementById('bodyProdDriver').innerHTML = html;
@@ -1126,8 +1137,19 @@ function updateOpsiFilterDriver() {
             Papa.parse(SPREADSHEET_LINKS.toko, { download: true, header: true, skipEmptyLines: true, complete: function(results) {
                 dataToko = results.data.filter(r => r['Kode Toko'] || r['NAMA TOKO']);
                 let html = ''; const cols = ['Kode Toko', 'NAMA TOKO', 'OPENING', 'UMUR TOKO (TAHUN)', 'JARAK TEMPUH', 'WAKTU TEMPUH (HARI:JAM:MENIT)', 'KATEGORI WILAYAH', 'KELURAHAN', 'KECAMATAN', 'KAB/KOTA', 'KODE POS', 'KOORDINAT GPS'];
-                dataToko.forEach(r => { html += '<tr>' + cols.map(c => `<td>${r[c] || '-'}</td>`).join('') + '</tr>'; });
-                
+                dataToko.forEach(r => { 
+    html += '<tr>' + cols.map(c => {
+        let val = r[c] || '0';
+        // Ubah koma menjadi titik KHUSUS untuk sistem pengurutan DataTables
+        let sortVal = val;
+        if (typeof val === 'string' && val.includes(',')) {
+            sortVal = val.replace(',', '.'); 
+        }
+        // Tambahkan atribut data-order pada tag <td>
+        return `<td data-order="${sortVal}">${val}</td>`;
+    }).join('') + '</tr>'; 
+});
+
                 if ($.fn.DataTable.isDataTable('#tblToko')) $('#tblToko').DataTable().clear().destroy();
                 document.getElementById('bodyToko').innerHTML = html; 
                 $('#tblToko').DataTable({ scrollX: true });
