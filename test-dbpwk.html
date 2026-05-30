@@ -88,8 +88,14 @@
             
             <div class="col-md-3 col-lg-2 sidebar pt-4">
                 <h5 class="text-center fw-bold text-primary mb-4">
-                    <i class="bi bi-database-fill-check"></i> G080<br><span class="text-dark fs-6">DC PURWAKARTA</span>
-                </h5>
+    <i class="bi bi-database-fill-check"></i> G080<br>
+    <span class="text-dark fs-6">DC PURWAKARTA</span><br>
+    <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem; line-height: 1.4;">
+        <span id="dynamic-greeting" class="fw-bold text-primary"></span><br>
+        <i class="bi bi-geo-alt-fill text-danger"></i> Purwakarta, Jawa Barat<br>
+        <i class="bi bi-clock"></i> <span id="dynamic-time"></span> WIB
+    </div>
+</h5>
                 <div class="nav flex-column nav-pills px-2" id="v-pills-tab" role="tablist">
                     <div class="menu-label">Visualisasi</div>
                     <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#nav-chart" type="button"><i class="bi bi-bar-chart-fill"></i> REKAP MASTER</button>
@@ -1300,21 +1306,65 @@ function updateOpsiFilterDriver() {
             }});
         }
 
+
+// ==========================================
+// FUNGSI WAKTU & SALAM OTOMATIS
+// ==========================================
+function updateTimeAndGreeting() {
+    const now = new Date();
+    const hour = now.getHours();
+    
+    // 1. Logika Salam Otomatis
+    let greeting = "";
+    if (hour >= 0 && hour < 11) {
+        greeting = "Selamat Pagi 🌤️";
+    } else if (hour >= 11 && hour < 15) {
+        greeting = "Selamat Siang ☀️";
+    } else if (hour >= 15 && hour < 18) {
+        greeting = "Selamat Sore 🌇";
+    } else {
+        greeting = "Selamat Malam 🌙";
+    }
+    
+    // 2. Format Tanggal & Waktu (Cth: Sabtu, 30 Mei 2026 - 20:46:55)
+    const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const dateStr = now.toLocaleDateString('id-ID', optionsDate);
+    
+    const timeStr = now.toLocaleTimeString('id-ID', {
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: false 
+    }).replace(/\./g, ':'); // Pastikan formatnya HH:MM:SS
+
+    // 3. Masukkan ke dalam HTML
+    if(document.getElementById('dynamic-greeting')) {
+        document.getElementById('dynamic-greeting').innerText = greeting;
+    }
+    if(document.getElementById('dynamic-time')) {
+        document.getElementById('dynamic-time').innerText = `${dateStr} - ${timeStr}`;
+    }
+}
+
+// Jalankan fungsi setiap 1 detik (1000 ms) agar waktu berjalan real-time
+setInterval(updateTimeAndGreeting, 1000);
+
         // ==========================================
         // EKSEKUSI PEMUATAN DATA OTOMATIS SAAT HALAMAN DIBUKA
         // ==========================================
         window.onload = function() {
             // Jika ada link yang masih kosong, fungsi load tidak akan error (akan dibatalkan di dalam).
-            loadKendaraan();
-            loadDriver();
-            loadToko();
-            loadArea();
-            loadProdDriver();
-            loadProdArmada();
-            loadSoSurat();
-            loadSoFoto();
-            loadBbm();
-            loadFraud();
+            updateTimeAndGreeting(); // <--- Tambahkan baris ini
+    loadKendaraan();
+    loadDriver();
+    loadToko();
+    loadArea();
+    loadProdDriver();
+    loadProdArmada();
+    loadSoSurat();
+    loadSoFoto();
+    loadBbm();
+    loadFraud();
         };
 
     </script>
