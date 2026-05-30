@@ -1207,15 +1207,39 @@ function updateOpsiFilterDriver() {
                 
                 document.getElementById('alertUploadArea').style.display = 'none'; document.getElementById('areaDashboardArea').style.display = 'block';
                 
-                let countJabatan = {}, dataAS = {}, countAM = {};
+              let countJabatan = {}, dataAS = {}, dataAM_temp = {};
                 dataArea.forEach(r => {
                     let jab = (r['JABATAN'] || 'KOSONG').trim().toUpperCase();
+                    let kodeToko = (r['KODE'] || '').trim(); // Mengambil data KODE Toko
+
+                    // Pengelompokan AS berdasarkan KODE unik
                     let kodeAs = (r['AS'] || '').trim(), namaAs = (r['NAMA AS'] || '').trim();
-                    if (kodeAs) { if (!dataAS[kodeAs]) { dataAS[kodeAs] = { nama: namaAs, jumlah: 0 }; } dataAS[kodeAs].jumlah += 1; }
+                    if (kodeAs) { 
+                        if (!dataAS[kodeAs]) { dataAS[kodeAs] = { nama: namaAs, setKode: new Set() }; } 
+                        if (kodeToko) dataAS[kodeAs].setKode.add(kodeToko); // Masukkan KODE ke Set
+                    }
+
+                    // Pengelompokan AM berdasarkan KODE unik
                     let kodeAm = (r['AM'] || '').trim(), namaAm = (r['NAMA AM'] || '').trim();
                     let amGabung = kodeAm ? `${kodeAm} - ${namaAm}` : '';
+                    if(amGabung) {
+                        if (!dataAM_temp[amGabung]) { dataAM_temp[amGabung] = new Set(); }
+                        if (kodeToko) dataAM_temp[amGabung].add(kodeToko); // Masukkan KODE ke Set
+                    }
+
+                    // Jabatan tetap dihitung per baris seperti biasa
                     if(jab) countJabatan[jab] = (countJabatan[jab] || 0) + 1;
-                    if(amGabung) countAM[amGabung] = (countAM[amGabung] || 0) + 1;
+                });
+
+                // Mengubah ukuran (size) dari Set menjadi angka jumlah untuk AS
+                Object.keys(dataAS).forEach(kode => {
+                    dataAS[kode].jumlah = dataAS[kode].setKode.size;
+                });
+
+                // Mengubah ukuran (size) dari Set menjadi angka jumlah untuk AM
+                let countAM = {};
+                Object.keys(dataAM_temp).forEach(am => {
+                    countAM[am] = dataAM_temp[am].size;
                 });
                 
                 function renderAreaChart(ctxId, chartObj, dataCount, type) {
