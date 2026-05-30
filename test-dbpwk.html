@@ -1279,10 +1279,6 @@ function updateOpsiFilterDriver() {
                 });
 
                 // Menghitung jumlah toko
-                Object.keys(dataAS).forEach(kode => { dataAS[kode].jumlah = dataAS[kode].setKode.size; });
-                let countAM = {}; Object.keys(dataAM_temp).forEach(am => { countAM[am] = dataAM_temp[am].size; });
-
-                // Mengubah ukuran (size) dari Set menjadi angka jumlah untuk AS
                 Object.keys(dataAS).forEach(kode => {
                     dataAS[kode].jumlah = dataAS[kode].setKode.size;
                 });
