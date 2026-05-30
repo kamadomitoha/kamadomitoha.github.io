@@ -333,7 +333,7 @@
                                 </div>
                                 
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-striped table-hover text-center table-nowrap">
+                                    
                                         <table id="tblListTdkDapat" class="table table-sm table-striped table-hover text-center table-nowrap">
                                         <thead class="table-warning">
                                             <tr><th>LAMBUNG</th><th>NOPOL</th><th>MERK</th><th>JENIS</th><th>DEPT</th><th>STANDAR</th><th>RASIO</th><th>TARGET</th></tr>
@@ -1553,6 +1553,11 @@ setInterval(updateTimeAndGreeting, 1000);
     loadBbm();
     loadFraud();
         };
+
+// Memaksa DataTables menyesuaikan ukuran saat tab Bootstrap diklik
+$('button[data-bs-toggle="pill"]').on('shown.bs.tab', function (e) {
+    $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+});
 
     </script>
 </body>
