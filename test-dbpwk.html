@@ -92,7 +92,7 @@
     <span class="text-dark fs-6">DC PURWAKARTA</span><br>
     <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem; line-height: 1.4;">
         <span id="dynamic-greeting" class="fw-bold text-primary"></span><br>
-        <i class="bi bi-geo-alt-fill text-danger"></i> Purwakarta, Jawa Barat<br>
+        <i class="bi bi-geo-alt-fill text-danger"></i> <span id="dynamic-location">Mendeteksi lokasi...</span><br>
         <i class="bi bi-clock"></i> <span id="dynamic-time"></span> WIB
     </div>
 </h5>
@@ -1326,6 +1326,58 @@ function updateTimeAndGreeting() {
         greeting = "Selamat Malam 🌙";
     }
     
+// ==========================================
+// FUNGSI MENDETEKSI LOKASI REAL USER
+// ==========================================
+function getUserLocation() {
+    const locationSpan = document.getElementById('dynamic-location');
+
+    // Cek apakah browser mendukung fitur lokasi
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+
+                try {
+                    // Menggunakan API OpenStreetMap (Nominatim) gratis untuk ubah koordinat jadi alamat
+                    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`);
+                    const data = await response.json();
+
+                    // Ambil nama kota/kabupaten dan provinsi dari respon API
+                    const alamat = data.address;
+                    const kota = alamat.city || alamat.regency || alamat.town || alamat.county || 'Kota tidak diketahui';
+                    const provinsi = alamat.state || 'Provinsi tidak diketahui';
+
+                    // Tampilkan ke web
+                    locationSpan.innerText = `${kota}, ${provinsi}`;
+                } catch (error) {
+                    locationSpan.innerText = "Gagal memuat alamat";
+                }
+            },
+            function(error) {
+                // Jika user menolak izin lokasi (Block/Deny) atau terjadi error
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        locationSpan.innerText = "Izin lokasi ditolak";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        locationSpan.innerText = "Lokasi tidak tersedia";
+                        break;
+                    case error.TIMEOUT:
+                        locationSpan.innerText = "Waktu deteksi habis";
+                        break;
+                    default:
+                        locationSpan.innerText = "Gagal mendeteksi lokasi";
+                        break;
+                }
+            }
+        );
+    } else {
+        locationSpan.innerText = "Browser tidak mendukung lokasi";
+    }
+}
+
     // 2. Format Tanggal & Waktu (Cth: Sabtu, 30 Mei 2026 - 20:46:55)
     const optionsDate = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const dateStr = now.toLocaleDateString('id-ID', optionsDate);
@@ -1355,6 +1407,7 @@ setInterval(updateTimeAndGreeting, 1000);
         window.onload = function() {
             // Jika ada link yang masih kosong, fungsi load tidak akan error (akan dibatalkan di dalam).
             updateTimeAndGreeting(); // <--- Tambahkan baris ini
+            getUserLocation(); // <--- Tambahkan baris ini
     loadKendaraan();
     loadDriver();
     loadToko();
