@@ -542,6 +542,17 @@
         <i class="bi bi-info-circle-fill me-2"></i> <strong>Interaktif:</strong> Klik pada potongan diagram (Chart) atau pada tombol area di atas untuk memfilter tabel di bawah secara otomatis. Klik item yang sama sekali lagi untuk mereset/menghapus filter.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+
+<div id="mobileInfoPanel" class="alert alert-success shadow-sm d-none mb-3 border-start border-5 border-success" style="white-space: pre-wrap; font-size: 0.95rem;">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <i class="bi bi-card-list me-2"></i><strong id="mobileInfoTitle" class="text-success">Rincian Data:</strong><br>
+                <span id="mobileInfoContent" class="text-dark"></span>
+            </div>
+            <button type="button" class="btn-close btn-sm" onclick="document.getElementById('mobileInfoPanel').classList.add('d-none')"></button>
+        </div>
+    </div>
+
     <div class="card p-4 shadow-sm table-responsive">
         <table id="tblArea" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-success">
@@ -1213,41 +1224,59 @@ function updateOpsiFilterDriver() {
         window.filterTableArea = function(source, label, btnElement = null) {
             let table = $('#tblArea').DataTable();
             
-            // Hapus efek warna/aktif dari semua tombol filter (jika ada)
+            // Variabel untuk menargetkan Kotak Info
+            let infoPanel = document.getElementById('mobileInfoPanel');
+            let infoContent = document.getElementById('mobileInfoContent');
+            
             $('#containerButtonAS button, #containerButtonAmAs button').removeClass('active text-white');
 
-            // Cek apakah item yang sama diklik 2x (artinya user ingin mereset filter)
             if (window.activeFilterArea.source === source && window.activeFilterArea.label === label) {
-                table.search('').columns().search('').draw(); // Reset tabel
+                // RESET FILTER
+                table.search('').columns().search('').draw(); 
                 window.activeFilterArea = { source: null, label: null };
+                infoPanel.classList.add('d-none'); // Sembunyikan Kotak Info saat di-reset
             } else {
-                // Bersihkan filter sebelumnya terlebih dahulu
+                // TERAPKAN FILTER
                 table.search('').columns().search('').draw();
-                
-                // Gunakan Escape Regex agar spasi/karakter khusus dibaca dengan benar
                 let safeLabel = $.fn.dataTable.util.escapeRegex(label);
 
+                // Fungsi bantuan untuk menampilkan Kotak Info
+                function tampilkanInfo(elemen) {
+                    if(elemen && elemen.getAttribute('title')) {
+                        infoContent.innerText = elemen.getAttribute('title');
+                        infoPanel.classList.remove('d-none');
+                    }
+                }
+
                 if (source === 'chartJabatan') {
-                    // Filter kolom ke-4 (JABATAN) dengan kecocokan persis (Exact Match ^...$)
                     table.column(4).search('^' + safeLabel + '$', true, false).draw();
+                    infoPanel.classList.add('d-none'); // Sembunyikan info jika chart yg diklik
                 } else if (source === 'chartAM') {
-                    // Filter kolom ke-9 (AM), format label chart: "KODE - NAMA", kita ambil KODE-nya saja
                     let amKode = $.fn.dataTable.util.escapeRegex(label.split(' - ')[0]);
                     table.column(9).search('^' + amKode + '$', true, false).draw();
+                    infoPanel.classList.add('d-none');
                 } else if (source === 'btnAS') {
-                    // Filter kolom ke-7 (AS)
                     table.column(7).search('^' + safeLabel + '$', true, false).draw();
-                    if(btnElement) $(btnElement).addClass('active text-white');
+                    if(btnElement) {
+                        $(btnElement).addClass('active text-white');
+                        tampilkanInfo(btnElement); // Tampilkan text hover
+                    }
                 } else if (source === 'btnAM') {
-                    // Filter kolom ke-9 (AM)
                     table.column(9).search('^' + safeLabel + '$', true, false).draw();
-                    if(btnElement) $(btnElement).addClass('active text-white');
+                    if(btnElement) {
+                        $(btnElement).addClass('active text-white');
+                        tampilkanInfo(btnElement); // Tampilkan text hover
+                    }
                 }
                 
                 window.activeFilterArea = { source: source, label: label };
 
-                // Otomatis scroll perlahan ke arah tabel agar user sadar data sudah terfilter
-                document.getElementById('tblArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Scroll ke arah Kotak Info / Tabel agar langsung terlihat
+                if(!infoPanel.classList.contains('d-none')) {
+                    infoPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    document.getElementById('tblArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         };
 
