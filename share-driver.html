@@ -97,22 +97,22 @@
             background-color: #34495e; /* Efek hover pada header */
         }
         
-        /* Ikon panah sorting bawaan (atas-bawah) */
+       /* Ikon panah sorting bawaan (atas-bawah) */
         th::after {
-            content: '\\21D5'; 
+            content: ' ⇕'; 
             font-size: 12px;
             margin-left: 8px;
             opacity: 0.4;
         }
         /* Ikon saat disortir ke atas (Ascending) */
         th.asc::after {
-            content: '\\25B2'; 
+            content: ' ▲'; 
             opacity: 1;
             color: #f1c40f;
         }
         /* Ikon saat disortir ke bawah (Descending) */
         th.desc::after {
-            content: '\\25BC'; 
+            content: ' ▼'; 
             opacity: 1;
             color: #f1c40f;
         }
@@ -140,7 +140,7 @@
     <h2>Data Performa Driver</h2>
 
     <div class="search-container">
-        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari NIK atau Nama Driver (Contoh: Alif)...">
+       <input type="text" id="searchInput" oninput="filterTable()" placeholder="Ketik beberapa angka NIK atau huruf Nama...">
     </div>
 
     <div class="tab">
@@ -191,10 +191,13 @@
             filterTable(); // Refresh filter
         }
 
-        // Fitur Pencarian (Search Bar)
+        // Fitur Pencarian (Search Bar) Super Cepat & Responsif
         function filterTable() {
             let input = document.getElementById("searchInput");
-            let filter = input.value.toUpperCase();
+            let filterText = input.value.toUpperCase().trim();
+            // Memecah kata kunci jika ada spasi (misal mengetik "001 Alif")
+            let filterWords = filterText.split(/\s+/); 
+            
             let activeTab = document.querySelector(".tabcontent[style*='display: block']").id;
             let tbodyId = activeTab === 'Point' ? 'bodyPoint' : 'bodyRitase';
             let tr = document.getElementById(tbodyId).getElementsByTagName("tr");
@@ -203,14 +206,28 @@
                 let tdNik = tr[i].getElementsByTagName("td")[0];
                 let tdNama = tr[i].getElementsByTagName("td")[1];
                 
-                if (tdNik || tdNama) {
+                if (tdNik && tdNama) {
                     let txtValueNik = tdNik.textContent || tdNik.innerText;
                     let txtValueNama = tdNama.textContent || tdNama.innerText;
                     
-                    if (txtValueNik.toUpperCase().indexOf(filter) > -1 || txtValueNama.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
+                    // Gabungkan teks NIK dan NAMA untuk kemudahan pencarian
+                    let combinedText = (txtValueNik + " " + txtValueNama).toUpperCase();
+                    
+                    let isMatch = true;
+                    // Cek apakah potongan kata/angka yang diketik ada di dalam gabungan teks
+                    if (filterText !== "") {
+                        for(let j = 0; j < filterWords.length; j++) {
+                            if (combinedText.indexOf(filterWords[j]) === -1) {
+                                isMatch = false;
+                                break; // Jika ada 1 kata yang tidak cocok, langsung sembunyikan baris
+                            }
+                        }
+                    }
+                    
+                    if (isMatch) {
+                        tr[i].style.display = ""; // Tampilkan baris
                     } else {
-                        tr[i].style.display = "none";
+                        tr[i].style.display = "none"; // Sembunyikan baris
                     }
                 }
             }
