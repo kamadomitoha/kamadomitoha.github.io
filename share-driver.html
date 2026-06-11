@@ -22,10 +22,10 @@
             border: 1px solid #ccc;
             background-color: #e0e0e0;
             border-radius: 5px 5px 0 0;
+            display: flex;
         }
         .tab button {
             background-color: inherit;
-            float: left;
             border: none;
             outline: none;
             cursor: pointer;
@@ -33,6 +33,7 @@
             transition: 0.3s;
             font-size: 16px;
             font-weight: bold;
+            flex-grow: 1;
         }
         .tab button:hover {
             background-color: #ddd;
@@ -41,6 +42,22 @@
             background-color: #3498db;
             color: white;
         }
+        
+        /* Style untuk Search Bar */
+        .search-container {
+            margin: 15px 0;
+            text-align: right;
+        }
+        .search-container input {
+            padding: 10px 15px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
         /* Style untuk Konten Tab */
         .tabcontent {
             display: none;
@@ -49,33 +66,72 @@
             border-top: none;
             background-color: white;
             border-radius: 0 0 5px 5px;
-            overflow-x: auto; /* Agar tabel bisa di-scroll horizontal */
+            overflow-x: auto; 
         }
+        
         /* Style untuk Tabel */
         table {
             border-collapse: collapse;
             width: 100%;
-            min-width: 1200px; /* Minimal lebar agar angka 1-31 tidak terlalu dempet */
+            min-width: 1300px; 
             font-size: 14px;
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 8px 10px;
             text-align: center;
         }
+        
+        /* Modifikasi Header untuk Sorting */
         th {
             background-color: #2c3e50;
             color: white;
+            white-space: nowrap;
             position: sticky;
             top: 0;
+            cursor: pointer; /* Kursor berubah jadi pointer (tangan) saat di-hover */
+            user-select: none; /* Mencegah teks terblok saat di-double-click */
+            transition: background-color 0.2s;
         }
-        td.text-left {
+        th:hover {
+            background-color: #34495e; /* Efek hover pada header */
+        }
+        
+        /* Ikon panah sorting bawaan (atas-bawah) */
+        th::after {
+            content: '\\21D5'; 
+            font-size: 12px;
+            margin-left: 8px;
+            opacity: 0.4;
+        }
+        /* Ikon saat disortir ke atas (Ascending) */
+        th.asc::after {
+            content: '\\25B2'; 
+            opacity: 1;
+            color: #f1c40f;
+        }
+        /* Ikon saat disortir ke bawah (Descending) */
+        th.desc::after {
+            content: '\\25BC'; 
+            opacity: 1;
+            color: #f1c40f;
+        }
+
+        /* Kolom 1 (NIK) dan Kolom 2 (NAMA) rata kiri */
+        table th:nth-child(1), table td:nth-child(1),
+        table th:nth-child(2), table td:nth-child(2) {
             text-align: left;
+            white-space: nowrap; 
         }
+        table th:nth-child(2), table td:nth-child(2) {
+            min-width: 180px; 
+        }
+
         .loading {
             text-align: center;
             font-style: italic;
             color: #7f8c8d;
+            margin: 20px 0;
         }
     </style>
 </head>
@@ -83,14 +139,17 @@
 
     <h2>Data Performa Driver</h2>
 
+    <div class="search-container">
+        <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari NIK atau Nama Driver (Contoh: Alif)...">
+    </div>
+
     <div class="tab">
         <button class="tablinks active" onclick="openTab(event, 'Point')">Pencapaian Point</button>
         <button class="tablinks" onclick="openTab(event, 'Ritase')">Ritase Driver</button>
     </div>
 
     <div id="Point" class="tabcontent" style="display:block;">
-        <h3>Tabel Hasil Pencapaian Point</h3>
-        <div id="loadingPoint" class="loading">Memuat data CSV...</div>
+        <div id="loadingPoint" class="loading">Memuat data CSV Spreadsheet...</div>
         <table id="tablePoint">
             <thead id="headPoint">
                 </thead>
@@ -100,8 +159,7 @@
     </div>
 
     <div id="Ritase" class="tabcontent">
-        <h3>Tabel Hasil Ritase</h3>
-        <div id="loadingRitase" class="loading">Memuat data CSV...</div>
+        <div id="loadingRitase" class="loading">Memuat data CSV Spreadsheet...</div>
         <table id="tableRitase">
             <thead id="headRitase">
                 </thead>
@@ -111,11 +169,12 @@
     </div>
 
     <script>
-        // GANTI URL DI BAWAH INI DENGAN LINK CSV PUBLISH GOOGLE SPREADSHEET ANDA
-        const csvUrlPoint = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=843800816&single=true&output=csv"; 
+        // GANTI URL DI BAWAH INI DENGAN LINK CSV GOOGLE SPREADSHEET ANDA
+       const csvUrlPoint = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=843800816&single=true&output=csv"; 
         const csvUrlRitase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=319911176&single=true&output=csv";
 
-        // Fungsi untuk berpindah Tab
+
+        // Fungsi berpindah Tab
         function openTab(evt, tabName) {
             let i, tabcontent, tablinks;
             tabcontent = document.getElementsByClassName("tabcontent");
@@ -128,37 +187,111 @@
             }
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
+
+            filterTable(); // Refresh filter
         }
 
-        // Template Header Kolom
+        // Fitur Pencarian (Search Bar)
+        function filterTable() {
+            let input = document.getElementById("searchInput");
+            let filter = input.value.toUpperCase();
+            let activeTab = document.querySelector(".tabcontent[style*='display: block']").id;
+            let tbodyId = activeTab === 'Point' ? 'bodyPoint' : 'bodyRitase';
+            let tr = document.getElementById(tbodyId).getElementsByTagName("tr");
+
+            for (let i = 0; i < tr.length; i++) {
+                let tdNik = tr[i].getElementsByTagName("td")[0];
+                let tdNama = tr[i].getElementsByTagName("td")[1];
+                
+                if (tdNik || tdNama) {
+                    let txtValueNik = tdNik.textContent || tdNik.innerText;
+                    let txtValueNama = tdNama.textContent || tdNama.innerText;
+                    
+                    if (txtValueNik.toUpperCase().indexOf(filter) > -1 || txtValueNama.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Fitur Mengurutkan Data (Sorting)
+        function sortTable(thElement, colIndex) {
+            const table = thElement.closest('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            // Cek arah sorting saat ini, lalu balik arahnya
+            let currentDir = thElement.getAttribute('data-dir');
+            let newDir = currentDir === 'asc' ? 'desc' : 'asc';
+            
+            // Hapus status sorting di semua kolom lain dalam tabel yang sama
+            table.querySelectorAll('th').forEach(th => {
+                th.removeAttribute('data-dir');
+                th.classList.remove('asc', 'desc');
+            });
+            
+            // Terapkan arah sorting baru pada kolom yang diklik
+            thElement.setAttribute('data-dir', newDir);
+            thElement.classList.add(newDir);
+            
+            // Lakukan pengurutan (Sorting logic)
+            rows.sort((a, b) => {
+                let valA = a.cells[colIndex].innerText.trim();
+                let valB = b.cells[colIndex].innerText.trim();
+                
+                // Coba konversi teks ke angka agar sorting angkanya akurat (cth: 10 > 2)
+                // Mengganti koma (,) menjadi titik (.) agar dikenali sebagai desimal (opsional, tergantung data Anda)
+                let numA = parseFloat(valA.replace(',', '.'));
+                let numB = parseFloat(valB.replace(',', '.'));
+                
+                // Pastikan yang dibandingkan benar-benar angka dan bukan karakter strip '-'
+                let isNumA = !isNaN(numA) && valA !== '-';
+                let isNumB = !isNaN(numB) && valB !== '-';
+                
+                if (isNumA && isNumB) {
+                    // Sort sebagai Angka
+                    return newDir === 'asc' ? numA - numB : numB - numA;
+                } else {
+                    // Sort sebagai Teks (Huruf)
+                    return newDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+            });
+            
+            // Masukkan kembali baris yang sudah diurutkan ke dalam Tbody
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Template Header Kolom 1-31 (Ditambahkan fungsi onclick sortTable)
         const headers1_31 = Array.from({length: 31}, (_, i) => i + 1);
         
-        // Render Header Tabel Point
+        // Header Point (Total 34 Kolom. NIK=0, Nama=1, Tgl 1-31=2 sd 32, Total=33)
         const headPointTemplate = `
             <tr>
-                <th>NIK</th>
-                <th>NAMA</th>
-                ${headers1_31.map(d => `<th>${d}</th>`).join('')}
-                <th>Total Point</th>
+                <th onclick="sortTable(this, 0)">NIK</th>
+                <th onclick="sortTable(this, 1)">NAMA</th>
+                ${headers1_31.map((d, i) => `<th onclick="sortTable(this, ${i + 2})">${d}</th>`).join('')}
+                <th onclick="sortTable(this, 33)">Total Point</th>
             </tr>`;
         document.getElementById('headPoint').innerHTML = headPointTemplate;
 
-        // Render Header Tabel Ritase
+        // Header Ritase (Total 35 Kolom. NIK=0, Nama=1, Tgl 1-31=2 sd 32, Total=33, Rata2=34)
         const headRitaseTemplate = `
             <tr>
-                <th>NIK</th>
-                <th>NAMA</th>
-                ${headers1_31.map(d => `<th>${d}</th>`).join('')}
-                <th>Total Ritase</th>
-                <th>Rata2 Ritase</th>
+                <th onclick="sortTable(this, 0)">NIK</th>
+                <th onclick="sortTable(this, 1)">NAMA</th>
+                ${headers1_31.map((d, i) => `<th onclick="sortTable(this, ${i + 2})">${d}</th>`).join('')}
+                <th onclick="sortTable(this, 33)">Total Ritase</th>
+                <th onclick="sortTable(this, 34)">Rata2 Ritase</th>
             </tr>`;
         document.getElementById('headRitase').innerHTML = headRitaseTemplate;
 
-        // Fungsi untuk mengambil dan merender Data CSV menggunakan PapaParse
+        // Fetch CSV via PapaParse
         function fetchAndRenderCSV(url, tbodyId, loadingId, expectedColumns) {
             Papa.parse(url, {
                 download: true,
-                header: true, // Ubah ke false jika CSV tidak pakai header bawaan
+                header: true, 
                 skipEmptyLines: true,
                 complete: function(results) {
                     document.getElementById(loadingId).style.display = 'none';
@@ -167,15 +300,11 @@
                     
                     data.forEach(row => {
                         rowsHtml += '<tr>';
-                        // Karena key pada CSV mungkin berbeda-beda, kita akses berdasarkan urutan index (Object.values)
-                        // Pastikan format kolom Google Sheets Anda: NIK | NAMA | 1 | 2 | ... | 31 | Total | (Rata2 untuk ritase)
                         const rowValues = Object.values(row);
                         
                         for (let i = 0; i < expectedColumns; i++) {
-                            // Kolom NAMA dibuat text-left, sisanya center
-                            let alignClass = (i === 1) ? 'class="text-left"' : '';
-                            let cellValue = rowValues[i] !== undefined ? rowValues[i] : '-';
-                            rowsHtml += `<td ${alignClass}>${cellValue}</td>`;
+                            let cellValue = (rowValues[i] !== undefined && rowValues[i] !== "") ? rowValues[i] : '-';
+                            rowsHtml += `<td>${cellValue}</td>`;
                         }
                         rowsHtml += '</tr>';
                     });
@@ -183,18 +312,17 @@
                     document.getElementById(tbodyId).innerHTML = rowsHtml;
                 },
                 error: function(err) {
-                    document.getElementById(loadingId).innerText = "Gagal memuat data. Pastikan link CSV benar dan dapat diakses publik.";
+                    document.getElementById(loadingId).innerText = "Gagal memuat data. Pastikan link CSV benar.";
                     console.error("PapaParse Error:", err);
                 }
             });
         }
 
-        // Panggil fungsi saat halaman selesai dimuat
+        // Render Data saat halaman dimuat
         window.onload = function() {
-            // Jumlah kolom Point: NIK(1) + NAMA(1) + Tgl(31) + Total(1) = 34 Kolom
+            // Point: 34 Kolom
             fetchAndRenderCSV(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
-            
-            // Jumlah kolom Ritase: NIK(1) + NAMA(1) + Tgl(31) + Total(1) + Rata2(1) = 35 Kolom
+            // Ritase: 35 Kolom
             fetchAndRenderCSV(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
         };
     </script>
