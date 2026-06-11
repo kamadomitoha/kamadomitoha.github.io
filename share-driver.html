@@ -222,51 +222,40 @@
             const tbody = table.querySelector('tbody');
             const rows = Array.from(tbody.querySelectorAll('tr'));
             
-            // Cek arah sorting saat ini, lalu balik arahnya
             let currentDir = thElement.getAttribute('data-dir');
             let newDir = currentDir === 'asc' ? 'desc' : 'asc';
             
-            // Hapus status sorting di semua kolom lain dalam tabel yang sama
             table.querySelectorAll('th').forEach(th => {
                 th.removeAttribute('data-dir');
                 th.classList.remove('asc', 'desc');
             });
             
-            // Terapkan arah sorting baru pada kolom yang diklik
             thElement.setAttribute('data-dir', newDir);
             thElement.classList.add(newDir);
             
-            // Lakukan pengurutan (Sorting logic)
             rows.sort((a, b) => {
                 let valA = a.cells[colIndex].innerText.trim();
                 let valB = b.cells[colIndex].innerText.trim();
                 
-                // Coba konversi teks ke angka agar sorting angkanya akurat (cth: 10 > 2)
-                // Mengganti koma (,) menjadi titik (.) agar dikenali sebagai desimal (opsional, tergantung data Anda)
                 let numA = parseFloat(valA.replace(',', '.'));
                 let numB = parseFloat(valB.replace(',', '.'));
                 
-                // Pastikan yang dibandingkan benar-benar angka dan bukan karakter strip '-'
                 let isNumA = !isNaN(numA) && valA !== '-';
                 let isNumB = !isNaN(numB) && valB !== '-';
                 
                 if (isNumA && isNumB) {
-                    // Sort sebagai Angka
                     return newDir === 'asc' ? numA - numB : numB - numA;
                 } else {
-                    // Sort sebagai Teks (Huruf)
                     return newDir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
                 }
             });
             
-            // Masukkan kembali baris yang sudah diurutkan ke dalam Tbody
             rows.forEach(row => tbody.appendChild(row));
         }
 
-        // Template Header Kolom 1-31 (Ditambahkan fungsi onclick sortTable)
+        // Template Header Kolom 1-31
         const headers1_31 = Array.from({length: 31}, (_, i) => i + 1);
         
-        // Header Point (Total 34 Kolom. NIK=0, Nama=1, Tgl 1-31=2 sd 32, Total=33)
         const headPointTemplate = `
             <tr>
                 <th onclick="sortTable(this, 0)">NIK</th>
@@ -276,7 +265,6 @@
             </tr>`;
         document.getElementById('headPoint').innerHTML = headPointTemplate;
 
-        // Header Ritase (Total 35 Kolom. NIK=0, Nama=1, Tgl 1-31=2 sd 32, Total=33, Rata2=34)
         const headRitaseTemplate = `
             <tr>
                 <th onclick="sortTable(this, 0)">NIK</th>
@@ -291,23 +279,24 @@
         function fetchAndRenderCSV(url, tbodyId, loadingId, expectedColumns) {
             Papa.parse(url, {
                 download: true,
-                header: true, 
+                header: false, // PERBAIKAN: Diubah jadi false agar tidak terjadi auto-sort pada JS
                 skipEmptyLines: true,
                 complete: function(results) {
                     document.getElementById(loadingId).style.display = 'none';
                     const data = results.data;
                     let rowsHtml = '';
                     
-                    data.forEach(row => {
+                    // PERBAIKAN: Loop dimulai dari index 1 untuk melewati baris pertama (header bawaan CSV)
+                    for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
+                        let rowValues = data[rowIndex];
                         rowsHtml += '<tr>';
-                        const rowValues = Object.values(row);
                         
                         for (let i = 0; i < expectedColumns; i++) {
                             let cellValue = (rowValues[i] !== undefined && rowValues[i] !== "") ? rowValues[i] : '-';
                             rowsHtml += `<td>${cellValue}</td>`;
                         }
                         rowsHtml += '</tr>';
-                    });
+                    }
 
                     document.getElementById(tbodyId).innerHTML = rowsHtml;
                 },
