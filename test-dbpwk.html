@@ -760,33 +760,64 @@
 
 
 
-// 2. Fungsi Load Presensi
+// Fungsi Utama untuk memproses data
 function loadPresensi() {
-    Papa.parse(SPREADSHEET_LINKS.presensi, { download: true, header: true, complete: function(results) {
-        let data = results.data;
-        let html = '';
-        data.forEach((r, i) => {
-            html += `<tr><td>${i+1}</td><td>${r.Nik}</td><td>${r.Nama}</td><td>${r['Tgl. Presensi']}</td><td>${r.Shift}</td><td>${r.Status}</td><td>${r.AbsID}</td><td>${r['Jam Masuk']}</td><td>${r['Jam Pulang']}</td><td>${r['SHIFT MASUK']}</td><td>${r['SHIFT PULANG']}</td><td>${r.TERLAMBAT}</td><td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td><td>${r['JAM KERJA']}</td></tr>`;
-        });
-        document.getElementById('bodyPresensi').innerHTML = html;
-        $('#tblPresensi').DataTable({ scrollX: true });
-        
-        // Logika untuk Rekap Absensi
-        renderRekapAbsensi(data);
-    }});
-}
-// 3. Fungsi Render Rekap
-function renderRekapAbsensi(data) {
-    // Implementasi logika pengelompokan data sesuai gambar (Hadir, Libur, Force Majeure, NOK)
-    // Gunakan Chart.js untuk menampilkan Chart Pie kategori
-    // Isi tabel Detail Absensi (NIK, NAMA, TERLAMBAT, dst)
+    Papa.parse(SPREADSHEET_LINKS.presensi, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            let data = results.data;
+            processTablePresensi(data);
+            processRekapAbsensi(data);
+        }
+    });
 }
 
-// 4. Panggil di window.onload
-window.onload = function() {
-    // ... load fungsi lainnya
-    loadPresensi();
-};
+// (1) Fungsi untuk Tabel Presensi Issuing
+function processTablePresensi(data) {
+    let tbody = document.getElementById('bodyPresensi');
+    let html = '';
+    data.forEach((r, i) => {
+        html += `<tr>
+            <td>${i+1}</td><td>${r.Nik}</td><td>${r.Nama}</td><td>${r['Tgl. Presensi']}</td>
+            <td>${r.Shift}</td><td>${r.Status}</td><td>${r.AbsID}</td><td>${r['Jam Masuk']}</td>
+            <td>${r['Jam Pulang']}</td><td>${r['SHIFT MASUK']}</td><td>${r['SHIFT PULANG']}</td>
+            <td>${r.TERLAMBAT}</td><td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td>
+            <td>${r.LEMBUR}</td><td>${r['JAM KERJA']}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+    $('#tblPresensi').DataTable(); // Inisialisasi DataTables
+}
+
+// (2) Fungsi untuk Rekap Absensi
+function processRekapAbsensi(data) {
+    // Menghitung kategori
+    let stats = { OK: 0, "FORCE MAJEURE": 0, NOK: 0 };
+    data.forEach(r => {
+        if(stats.hasOwnProperty(r.Status)) stats[r.Status]++;
+    });
+
+    // Render Chart Pie
+    new Chart(document.getElementById('chartPieAbsensi'), {
+        type: 'pie',
+        data: {
+            labels: Object.keys(stats),
+            datasets: [{ data: Object.values(stats), backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
+        }
+    });
+
+    // Render Tabel Detail
+    let tbody = document.getElementById('bodyDetailAbsensi');
+    let html = '';
+    data.forEach(r => {
+        html += `<tr>
+            <td>${r.Nik}</td><td>${r.Nama}</td><td>${r.TERLAMBAT}</td>
+            <td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+}
 
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
