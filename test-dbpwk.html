@@ -755,8 +755,9 @@
             soSurat: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPMlVzgrFmJ8RlDmlHCfnS4P2aud_3X6EQkla0FMYRMINE-O8dFNPhpBC7fCf10FqmGh1XKV9ZQ2df/pub?gid=2102709661&single=true&output=csv",
             soFoto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOZdyaTJZfCBWG67s3-L1HAiFc2Vq5ySSM0zQkReop27vxC_y5T798UzQU7b89iT-Nfl-Raq9_EQQr/pub?gid=0&single=true&output=csv",
             bbm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-ICMXYbruScZhnbJVpp1nfAT_uBeGXw6Fg--NwCnqXFf0fL8KeAVgJHp-Ehu9E9tg3-bJ/pub?gid=563358340&single=true&output=csv",
-            presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv"
-                   };
+            presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv",
+            rekapAbsensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv"      
+        };
 
 
 
@@ -768,7 +769,7 @@ function loadPresensi() {
         complete: function(results) {
             let data = results.data;
             processTablePresensi(data);
-            processRekapAbsensi(data);
+           
         }
     });
 }
@@ -790,6 +791,33 @@ function processTablePresensi(data) {
     $('#tblPresensi').DataTable(); // Inisialisasi DataTables
 }
 
+
+function loadRekapAbsensi() {
+    if(!SPREADSHEET_LINKS.rekapAbsensi) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapAbsensi, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            let data = results.data;
+            
+            // 1. Isi Tabel Detail
+            let tbody = document.getElementById('bodyDetailAbsensi');
+            let html = '';
+            data.forEach(r => {
+                html += `<tr>
+                    <td>${r.NIK}</td><td>${r.NAMA}</td>
+                    <td>${r.TERLAMBAT}</td><td>${r['MASUK AWAL']}</td>
+                    <td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            
+            // Inisialisasi DataTables agar tabel rapi
+            $('#tblDetailAbsensi').DataTable({ scrollX: true });
+        }
+    });
+}
 
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
@@ -1628,7 +1656,7 @@ setInterval(updateTimeAndGreeting, 1000);
     loadBbm();
     loadFraud();
     loadPresensi();
-
+    loadRekapAbsensi();
         };
 
 // Memaksa DataTables menyesuaikan ukuran saat tab Bootstrap diklik
