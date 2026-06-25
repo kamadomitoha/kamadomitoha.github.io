@@ -862,7 +862,21 @@ function loadRekapPelanggaran() {
             tbody.innerHTML = html;
             
             // Inisialisasi DataTables agar tabel rapi
-            $('#tblDetailPelanggaran').DataTable({ scrollX: true });
+            $('#tblDetailPelanggaran').DataTable({ 
+                scrollX: true,
+                pageLength: 25, // Mengatur agar menampilkan 25 baris sekaligus (mencakup 19 baris data Anda)
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]], // Opsi untuk user memilih tampilkan semua
+
+                // Menambahkan fungsi createdRow untuk mendeteksi isi baris
+    "createdRow": function(row, data, dataIndex) {
+        // Asumsi: Kolom 'STATUS' adalah kolom ke-0 (index 0)
+        // Jika nilai kolom pertama adalah "OK", beri warna hijau
+        if (data[0] === "OK") {
+            $(row).css('background-color', '#d4edda'); // Warna hijau muda
+            $(row).css('color', '#155724');          // Warna teks hijau tua
+        }
+    }
+            });
         }
     });
 }
