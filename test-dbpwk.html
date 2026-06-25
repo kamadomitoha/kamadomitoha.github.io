@@ -824,18 +824,6 @@ function processTablePresensi(data) {
 }
 
 
-function loadPresensi() {
-    // Fungsi bantuan untuk fetch CSV dengan Promise
-    const fetchCSV = (url) => {
-        return new Promise((resolve, reject) => {
-            Papa.parse(url, {
-                download: true, header: true,
-                complete: (results) => resolve(results.data),
-                error: (err) => reject(err)
-            });
-        });
-    };
-
     // Jalankan kedua fetch secara bersamaan
     Promise.all([
         fetchCSV(SPREADSHEET_LINKS.presensiUtama),
@@ -845,8 +833,6 @@ function loadPresensi() {
         processTabelKategori(dataUtama); // Gambar 1
         processTabelDetail(dataDetail);  // Gambar 2
     }).catch(err => console.error("Gagal memuat data:", err));
-}
-
 
 
 
@@ -1733,9 +1719,7 @@ setInterval(updateTimeAndGreeting, 1000);
     loadSoFoto();
     loadBbm();
     loadFraud();
-    loadPresensi();
-    loadPresensiUtama();
-    loadPresensiDetail();   
+    loadPresensi();  
 
 };
 
