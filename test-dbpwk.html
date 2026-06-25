@@ -113,7 +113,6 @@
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
                      <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi" type="button"><i class="bi bi-pie-chart text-secondary"></i> Rekap Absensi</button>
                      <div class="menu-label mt-3">Database Master</div>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
@@ -436,51 +435,6 @@
             </div>
         </div>
 
-<div class="tab-pane fade" id="nav-rekap-absensi" role="tabpanel">
-    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Visualisasi Rekap Absensi</h4>
-    
-    <!-- Bagian 1: Tabel Kategori (Gambar 1) -->
-    <div class="row">
-        <div class="col-md-6 mb-3">
-            <div class="card p-3 shadow-sm">
-                <h6 class="fw-bold mb-3">Rekapitulasi Status Absensi</h6>
-                <div class="table-responsive">
-                    <table class="table table-sm table-bordered" id="tblKategoriAbsensi">
-                        <thead class="table-dark">
-                            <tr><th>STATUS</th><th>KATEGORI</th><th>CASE</th></tr>
-                        </thead>
-                        <tbody id="bodyKategoriAbsensi">
-                            <tr><td colspan="3" class="text-center">Memuat data...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- Bisa tambahkan grafik di col-md-6 sebelah sini jika ada -->
-    </div>
-
-    <!-- Bagian 2: Tabel Detail (Gambar 2) -->
-    <div class="card p-3 mt-4 shadow-sm">
-        <h6 class="fw-bold mb-3">Detail Presensi Karyawan</h6>
-        <div class="table-responsive">
-            <table id="tblDetailAbsensi" class="table table-striped table-bordered table-sm text-center">
-                <thead class="table-secondary">
-                    <tr>
-                        <th>NIK</th>
-                        <th>NAMA</th>
-                        <th>TERLAMBAT</th>
-                        <th>MASUK AWAL</th>
-                        <th>PULANG CEPAT</th>
-                        <th>LEMBUR</th>
-                    </tr>
-                </thead>
-                <tbody id="bodyDetailAbsensi">
-                    <tr><td colspan="6" class="text-center">Memuat data...</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
 </div>
 
@@ -786,9 +740,7 @@
             soSurat: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPMlVzgrFmJ8RlDmlHCfnS4P2aud_3X6EQkla0FMYRMINE-O8dFNPhpBC7fCf10FqmGh1XKV9ZQ2df/pub?gid=2102709661&single=true&output=csv",
             soFoto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOZdyaTJZfCBWG67s3-L1HAiFc2Vq5ySSM0zQkReop27vxC_y5T798UzQU7b89iT-Nfl-Raq9_EQQr/pub?gid=0&single=true&output=csv",
             bbm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-ICMXYbruScZhnbJVpp1nfAT_uBeGXw6Fg--NwCnqXFf0fL8KeAVgJHp-Ehu9E9tg3-bJ/pub?gid=563358340&single=true&output=csv",
-            presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv",
-            presensiUtama: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=1932455470&single=true&output=csv",
-            presensiDetail: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv"
+            presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv"
 };
 
 
@@ -824,64 +776,6 @@ function processTablePresensi(data) {
 }
 
 
-    // Jalankan kedua fetch secara bersamaan
-    Promise.all([
-        fetchCSV(SPREADSHEET_LINKS.presensiUtama),
-        fetchCSV(SPREADSHEET_LINKS.presensiDetail)
-    ]).then(([dataUtama, dataDetail]) => {
-        // Setelah keduanya selesai, kirim ke fungsi proses
-        processTabelKategori(dataUtama); // Gambar 1
-        processTabelDetail(dataDetail);  // Gambar 2
-    }).catch(err => console.error("Gagal memuat data:", err));
-
-
-
-// Mengisi Tabel 1 (Kategori)
-function processTabelKategori(data) {
-    let tbody = document.getElementById('bodyKategoriAbsensi');
-    tbody.innerHTML = '';
-    
-    data.forEach(r => {
-        // Sesuaikan nama field dengan header CSV Anda
-        let rowClass = r.CATEGORY === 'OK' ? 'table-primary' : 
-                       (r.CATEGORY === 'FORCE MAJEURE' ? 'table-success' : 'table-danger');
-        
-        tbody.innerHTML += `<tr class="${rowClass}">
-            <td>${r.STATUS}</td>
-            <td>${r.CATEGORY}</td>
-            <td>${r.CASE}</td>
-        </tr>`;
-    });
-}
-
-// Mengisi Tabel 2 (Detail Absensi)
-function processTabelDetail(data) {
-    let tbody = document.getElementById('bodyDetailAbsensi');
-    tbody.innerHTML = '';
-    
-    data.forEach(r => {
-        tbody.innerHTML += `<tr>
-            <td>${r.NIK}</td><td>${r.NAMA}</td><td>${r.TERLAMBAT}</td>
-            <td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
-        </tr>`;
-    });
-    
-    // Refresh/Inisialisasi ulang DataTable
-    if ($.fn.DataTable.isDataTable('#tblDetailAbsensi')) $('#tblDetailAbsensi').DataTable().destroy();
-    $('#tblDetailAbsensi').DataTable();
-}
-
-    // Render Tabel Detail
-    let tbody = document.getElementById('bodyDetailAbsensi');
-    let html = '';
-    data.forEach(r => {
-        html += `<tr>
-            <td>${r.Nik}</td><td>${r.Nama}</td><td>${r.TERLAMBAT}</td>
-            <td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
-        </tr>`;
-    });
-    tbody.innerHTML = html;
-}
 
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
@@ -1720,7 +1614,6 @@ setInterval(updateTimeAndGreeting, 1000);
     loadBbm();
     loadFraud();
     loadPresensi();  
-
 };
 
 // Memaksa DataTables menyesuaikan ukuran saat tab Bootstrap diklik
