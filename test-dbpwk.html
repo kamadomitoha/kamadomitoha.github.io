@@ -114,7 +114,8 @@
                      <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi" type="button"><i class="bi bi-pie-chart text-secondary"></i> Rekap Absensi</button>
-                     <div class="menu-label mt-3">Database Master</div>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran" type="button"><i class="bi bi-pie-chart text-secondary"></i> Rekap Pelanggaran</button> 
+                    <div class="menu-label mt-3">Database Master</div>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-toko" type="button"><i class="bi bi-shop"></i> Master Toko</button>
@@ -646,7 +647,7 @@
 </div>
 
 <div class="tab-pane fade" id="nav-rekap-absensi" role="tabpanel">
-    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Absensi</h4>
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Karyawan</h4>
     <div class="card p-2 p-md-4 shadow-sm table-responsive">
         <table id="tblDetailAbsensi" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-secondary">
@@ -656,6 +657,22 @@
                 </tr>
             </thead>
             <tbody id="bodyDetailAbsensi">
+                <tr><td colspan="6">Sedang memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="tab-pane fade" id="nav-rekap-pelanggaran" role="tabpanel">
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran</h4>
+    <div class="card p-2 p-md-4 shadow-sm table-responsive">
+        <table id="tblDetailPelanggaran" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-secondary">
+                <tr>
+                    <th>STATUS</th><th>CATEGORY</th><th>CASE</th>
+                </tr>
+            </thead>
+            <tbody id="bodyDetailPelanggaran">
                 <tr><td colspan="6">Sedang memuat data...</td></tr>
             </tbody>
         </table>
@@ -759,7 +776,8 @@
             soFoto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOZdyaTJZfCBWG67s3-L1HAiFc2Vq5ySSM0zQkReop27vxC_y5T798UzQU7b89iT-Nfl-Raq9_EQQr/pub?gid=0&single=true&output=csv",
             bbm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-ICMXYbruScZhnbJVpp1nfAT_uBeGXw6Fg--NwCnqXFf0fL8KeAVgJHp-Ehu9E9tg3-bJ/pub?gid=563358340&single=true&output=csv",
             presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv",
-            rekapAbsensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv"      
+            rekapAbsensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv",      
+            rekapPelanggaran: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=1932455470&single=true&output=csv"      
         };
 
 
@@ -818,6 +836,33 @@ function loadRekapAbsensi() {
             
             // Inisialisasi DataTables agar tabel rapi
             $('#tblDetailAbsensi').DataTable({ scrollX: true });
+        }
+    });
+}
+
+function loadRekapPelanggaran() {
+    if(!SPREADSHEET_LINKS.rekapPelanggaran) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapPelanggaran, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            let data = results.data;
+            
+            // 1. Isi Tabel Detail
+            let tbody = document.getElementById('bodyDetailPelanggaran');
+            let html = '';
+            data.forEach(r => {
+                html += `<tr>
+                    <td>${r.STATUS}</td>
+                    <td>${r.CATEGORY}</td>
+                    <td>${r.CASE}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            
+            // Inisialisasi DataTables agar tabel rapi
+            $('#tblDetailPelanggaran').DataTable({ scrollX: true });
         }
     });
 }
@@ -1660,6 +1705,7 @@ setInterval(updateTimeAndGreeting, 1000);
     loadFraud();
     loadPresensi();
     loadRekapAbsensi();
+    loadRekapPelanggaran();
         };
 
 // Memaksa DataTables menyesuaikan ukuran saat tab Bootstrap diklik
