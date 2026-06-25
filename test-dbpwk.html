@@ -871,7 +871,7 @@ function loadRekapPelanggaran() {
     "createdRow": function(row, data, dataIndex) {
         // Asumsi: Kolom 'STATUS' adalah kolom ke-0 (index 0)
         // Jika nilai kolom pertama adalah "OK", beri warna hijau
-        if (data[0] === "OK") {
+        if (data[1] === "OK") {
             $(row).css('background-color', '#d4edda'); // Warna hijau muda
             $(row).css('color', '#155724');          // Warna teks hijau tua
         }
