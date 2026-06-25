@@ -791,18 +791,6 @@ function processTablePresensi(data) {
 }
 
 
-    // Render Tabel Detail
-    let tbody = document.getElementById('bodyDetailAbsensi');
-    let html = '';
-    data.forEach(r => {
-        html += `<tr>
-            <td>${r.Nik}</td><td>${r.Nama}</td><td>${r.TERLAMBAT}</td>
-            <td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
-        </tr>`;
-    });
-    tbody.innerHTML = html;
-}
-
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
         const warnaTop10 = '#ffc107'; 
