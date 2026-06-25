@@ -775,7 +775,18 @@ function loadPresensi() {
         renderRekapAbsensi(data);
     }});
 }
+// 3. Fungsi Render Rekap
+function renderRekapAbsensi(data) {
+    // Implementasi logika pengelompokan data sesuai gambar (Hadir, Libur, Force Majeure, NOK)
+    // Gunakan Chart.js untuk menampilkan Chart Pie kategori
+    // Isi tabel Detail Absensi (NIK, NAMA, TERLAMBAT, dst)
+}
 
+// 4. Panggil di window.onload
+window.onload = function() {
+    // ... load fungsi lainnya
+    loadPresensi();
+};
 
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
