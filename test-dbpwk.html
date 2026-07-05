@@ -138,8 +138,8 @@
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
                      <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi" type="button"><i class="bi bi-pie-chart text-secondary"></i> Rekap Absensi</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran" type="button"><i class="bi bi-pie-chart text-secondary"></i> Rekap Pelanggaran</button> 
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-issuing" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP ISSUING</button> 
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-driver" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP DRIVER</button> 
                     <div class="menu-label mt-3">Database Master</div>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
@@ -148,12 +148,18 @@
                     <div class="menu-label mt-3">Produktivitas</div>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-driver" type="button"><i class="bi bi-trophy-fill text-warning"></i> Produktivitas Driver</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-armada" type="button"><i class="bi bi-speedometer text-info"></i> Produktivitas Armada</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Presensi Issuing</button>
+
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-fraud-berhenti" type="button"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Fraud Speed-Berhenti</button>
                     <div class="menu-label">SO Armada & BBM</div>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-surat" type="button"><i class="bi bi-file-earmark-text text-danger"></i> Surat STNK & KIR</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
+                    <div class="menu-label">Pelanggaran Presensi</div>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-pie-chart text-secondary"></i>Karyawan Issuing</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Issuing</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-pie-chart text-secondary"></i>Karyawan Driver</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-driver" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Driver</button>
+                
                 </div>
             </div>
 
@@ -662,7 +668,7 @@
 <div class="tab-pane fade" id="nav-presensi-issuing" role="tabpanel">
     <h4 class="mb-4 text-primary"><i class="bi bi-calendar-check"></i> Data Presensi Issuing</h4>
     <div class="card p-2 p-md-4 shadow-sm table-responsive">
-        <table id="tblPresensi" class="table table-striped table-bordered table-sm text-center table-nowrap">
+        <table id="tblPresensiIssuing" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-primary">
                 <tr><th>No</th><th>Nik</th><th>Nama</th><th>Tgl. Presensi</th><th>Shift</th><th>Status</th><th>AbsID</th><th>Jam Masuk</th><th>Jam Pulang</th><th>SHIFT MASUK</th><th>SHIFT PULANG</th><th>TERLAMBAT</th><th>MASUK AWAL</th><th>PULANG CEPAT</th><th>LEMBUR</th><th>JAM KERJA</th></tr>
             </thead>
@@ -671,38 +677,88 @@
     </div>
 </div>
 
-<div class="tab-pane fade" id="nav-rekap-absensi" role="tabpanel">
-    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Karyawan</h4>
+<div class="tab-pane fade" id="nav-rekap-absensi-issuing" role="tabpanel">
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran Karyawan Issuing</h4>
     <div class="card p-2 p-md-4 shadow-sm table-responsive">
-        <table id="tblDetailAbsensi" class="table table-striped table-bordered table-sm text-center table-nowrap">
+        <table id="tblDetailAbsensiIssuing" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-secondary">
                 <tr>
                     <th>NIK</th><th>NAMA</th><th>TERLAMBAT</th>
                     <th>MASUK AWAL</th><th>PULANG CEPAT</th><th>LEMBUR</th>
                 </tr>
             </thead>
-            <tbody id="bodyDetailAbsensi">
+            <tbody id="bodyDetailAbsensiIssuing">
                 <tr><td colspan="6">Sedang memuat data...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="tab-pane fade" id="nav-rekap-pelanggaran" role="tabpanel">
-    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran</h4>
+
+<div class="tab-pane fade" id="nav-presensi-driver" role="tabpanel">
+    <h4 class="mb-4 text-primary"><i class="bi bi-calendar-check"></i> Data Presensi Driver</h4>
     <div class="card p-2 p-md-4 shadow-sm table-responsive">
-        <table id="tblDetailPelanggaran" class="table table-striped table-bordered table-sm text-center table-nowrap">
+        <table id="tblPresensiDriver" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-primary">
+                <tr><th>No</th><th>Nik</th><th>Nama</th><th>Tgl. Presensi</th><th>Shift</th><th>Status</th><th>AbsID</th><th>Jam Masuk</th><th>Jam Pulang</th><th>SHIFT MASUK</th><th>SHIFT PULANG</th><th>TERLAMBAT</th><th>MASUK AWAL</th><th>PULANG CEPAT</th><th>LEMBUR</th><th>JAM KERJA</th></tr>
+            </thead>
+            <tbody id="bodyPresensiDriver"><tr><td colspan="16">Memuat data...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="tab-pane fade" id="nav-rekap-absensi-driver" role="tabpanel">
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran Karyawan Driver</h4>
+    <div class="card p-2 p-md-4 shadow-sm table-responsive">
+        <table id="tblDetailAbsensiDriver" class="table table-striped table-bordered table-sm text-center table-nowrap">
             <thead class="table-secondary">
                 <tr>
-                    <th>STATUS</th><th>CATEGORY</th><th>CASE</th>
+                    <th>NIK</th><th>NAMA</th><th>TERLAMBAT</th>
+                    <th>MASUK AWAL</th><th>PULANG CEPAT</th><th>LEMBUR</th>
                 </tr>
             </thead>
-            <tbody id="bodyDetailPelanggaran">
+            <tbody id="bodyDetailAbsensiDriver">
                 <tr><td colspan="6">Sedang memuat data...</td></tr>
             </tbody>
         </table>
     </div>
 </div>
+
+
+<div class="tab-pane fade" id="nav-rekap-pelanggaran-issuing" role="tabpanel">
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran Presensi Issuing</h4>
+    <div class="card p-2 p-md-4 shadow-sm table-responsive">
+        <table id="tblDetailPelanggaranIssuing" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-secondary">
+                <tr>
+                    <th>STATUS</th><th>CATEGORY</th><th>CASE</th>
+                </tr>
+            </thead>
+            <tbody id="bodyDetailPelanggaranIssuing">
+                <tr><td colspan="6">Sedang memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<div class="tab-pane fade" id="nav-rekap-pelanggaran-driver" role="tabpanel">
+    <h4 class="mb-4 text-secondary"><i class="bi bi-pie-chart"></i> Rekap Pelanggaran Presensi Driver</h4>
+    <div class="card p-2 p-md-4 shadow-sm table-responsive">
+        <table id="tblDetailPelanggaranDriver" class="table table-striped table-bordered table-sm text-center table-nowrap">
+            <thead class="table-secondary">
+                <tr>
+                    <th>STATUS</th><th>CATEGORY</th><th>CASE</th>
+                </tr>
+            </thead>
+            <tbody id="bodyDetailPelanggaranDriver">
+                <tr><td colspan="6">Sedang memuat data...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
                      <div class="tab-pane fade" id="nav-so-surat" role="tabpanel">
                         <h4 class="mb-4 text-danger">Data Surat STNK & KIR</h4>
@@ -800,28 +856,31 @@
             soSurat: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRPMlVzgrFmJ8RlDmlHCfnS4P2aud_3X6EQkla0FMYRMINE-O8dFNPhpBC7fCf10FqmGh1XKV9ZQ2df/pub?gid=2102709661&single=true&output=csv",
             soFoto: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQOZdyaTJZfCBWG67s3-L1HAiFc2Vq5ySSM0zQkReop27vxC_y5T798UzQU7b89iT-Nfl-Raq9_EQQr/pub?gid=0&single=true&output=csv",
             bbm: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-ICMXYbruScZhnbJVpp1nfAT_uBeGXw6Fg--NwCnqXFf0fL8KeAVgJHp-Ehu9E9tg3-bJ/pub?gid=563358340&single=true&output=csv",
-            presensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv",
-            rekapAbsensi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv",      
-            rekapPelanggaran: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=1932455470&single=true&output=csv"      
+            presensiIssuing: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=0&single=true&output=csv",
+            rekapAbsensiIssuing: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=194174093&single=true&output=csv",      
+            presensiDriver: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp6wEkqM-e8ivMOLeqscQp1vE4da02E3PkCvGKsncoCTvIeqcKWRBrKWwkANjww627DNpg_25yl3My/pub?gid=0&single=true&output=csv",
+            rekapAbsensiDriver: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp6wEkqM-e8ivMOLeqscQp1vE4da02E3PkCvGKsncoCTvIeqcKWRBrKWwkANjww627DNpg_25yl3My/pub?gid=194174093&single=true&output=csv",      
+            rekapPelanggaranIssuing: "https://docs.google.com/spreadsheets/d/e/2PACX-1vTNUDxnMcyInkGZfmPh2HIV3ghcAYz5VbeAhpvv-oPgu3Ej6Wy1Tj8fw3R-RfqZNll-YVxTPnuuqxbE/pub?gid=1932455470&single=true&output=csv",
+            rekapPelanggaranDriver: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp6wEkqM-e8ivMOLeqscQp1vE4da02E3PkCvGKsncoCTvIeqcKWRBrKWwkANjww627DNpg_25yl3My/pub?gid=1932455470&single=true&output=csv"  
         };
 
 
 
 // Fungsi Utama untuk memproses data
-function loadPresensi() {
-    Papa.parse(SPREADSHEET_LINKS.presensi, {
+function loadPresensiIssuing() {
+    Papa.parse(SPREADSHEET_LINKS.presensiIssuing, {
         download: true,
         header: true,
         complete: function(results) {
             let data = results.data;
-            processTablePresensi(data);
+            processTablePresensiIssuing(data);
            
         }
     });
 }
 
 // (1) Fungsi untuk Tabel Presensi Issuing
-function processTablePresensi(data) {
+function processTablePresensiIssuing(data) {
     let tbody = document.getElementById('bodyPresensi');
     let html = '';
     data.forEach((r, i) => {
@@ -838,9 +897,40 @@ function processTablePresensi(data) {
 }
 
 
-function loadRekapAbsensi() {
-    if(!SPREADSHEET_LINKS.rekapAbsensi) return;
-    Papa.parse(SPREADSHEET_LINKS.rekapAbsensi, {
+// Fungsi Utama untuk memproses data
+function loadPresensiDriver() {
+    Papa.parse(SPREADSHEET_LINKS.presensiDriver, {
+        download: true,
+        header: true,
+        complete: function(results) {
+            let data = results.data;
+            processTablePresensi(data);
+           
+        }
+    });
+}
+
+// (1) Fungsi untuk Tabel Presensi Driver
+function processTablePresensiDriver(data) {
+    let tbody = document.getElementById('bodyPresensi');
+    let html = '';
+    data.forEach((r, i) => {
+        html += `<tr>
+            <td>${i+1}</td><td>${r.Nik}</td><td>${r.Nama}</td><td>${r['Tgl. Presensi']}</td>
+            <td>${r.Shift}</td><td>${r.Status}</td><td>${r.AbsID}</td><td>${r['Jam Masuk']}</td>
+            <td>${r['Jam Pulang']}</td><td>${r['SHIFT MASUK']}</td><td>${r['SHIFT PULANG']}</td>
+            <td>${r.TERLAMBAT}</td><td>${r['MASUK AWAL']}</td><td>${r['PULANG CEPAT']}</td>
+            <td>${r.LEMBUR}</td><td>${r['JAM KERJA']}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+    $('#tblPresensi').DataTable(); // Inisialisasi DataTables
+}
+
+
+function loadRekapAbsensiIssuing() {
+    if(!SPREADSHEET_LINKS.rekapAbsensiIssuing) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapAbsensiIssuing, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -848,7 +938,7 @@ function loadRekapAbsensi() {
             let data = results.data;
             
             // 1. Isi Tabel Detail
-            let tbody = document.getElementById('bodyDetailAbsensi');
+            let tbody = document.getElementById('bodyDetailAbsensiIssuing');
             let html = '';
             data.forEach(r => {
                 html += `<tr>
@@ -860,14 +950,15 @@ function loadRekapAbsensi() {
             tbody.innerHTML = html;
             
             // Inisialisasi DataTables agar tabel rapi
-            $('#tblDetailAbsensi').DataTable({ scrollX: true });
+            $('#tblDetailAbsensiIssuing').DataTable({ scrollX: true });
         }
     });
 }
 
-function loadRekapPelanggaran() {
-    if(!SPREADSHEET_LINKS.rekapPelanggaran) return;
-    Papa.parse(SPREADSHEET_LINKS.rekapPelanggaran, {
+
+function loadRekapAbsensiDriver() {
+    if(!SPREADSHEET_LINKS.rekapAbsensiDriver) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapAbsensiDriver, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -875,7 +966,34 @@ function loadRekapPelanggaran() {
             let data = results.data;
             
             // 1. Isi Tabel Detail
-            let tbody = document.getElementById('bodyDetailPelanggaran');
+            let tbody = document.getElementById('bodyDetailAbsensiDriver');
+            let html = '';
+            data.forEach(r => {
+                html += `<tr>
+                    <td>${r.NIK}</td><td>${r.NAMA}</td>
+                    <td>${r.TERLAMBAT}</td><td>${r['MASUK AWAL']}</td>
+                    <td>${r['PULANG CEPAT']}</td><td>${r.LEMBUR}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            
+            // Inisialisasi DataTables agar tabel rapi
+            $('#tblDetailAbsensiDriver').DataTable({ scrollX: true });
+        }
+    });
+}
+
+function loadRekapPelanggaranIssuing() {
+    if(!SPREADSHEET_LINKS.rekapPelanggaranIssuing) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapPelanggaranIssuing, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            let data = results.data;
+            
+            // 1. Isi Tabel Detail
+            let tbody = document.getElementById('bodyDetailPelanggaranIssuing');
             let html = '';
             data.forEach(r => {
                 html += `<tr>
@@ -887,7 +1005,40 @@ function loadRekapPelanggaran() {
             tbody.innerHTML = html;
             
             // Inisialisasi DataTables agar tabel rapi
-            $('#tblDetailPelanggaran').DataTable({ 
+            $('#tblDetailPelanggaranIssuing').DataTable({ 
+                scrollX: true,
+                pageLength: 25, // Mengatur agar menampilkan 25 baris sekaligus (mencakup 19 baris data Anda)
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]]// Opsi untuk user memilih tampilkan semua
+
+            });
+        }
+    });
+}
+
+
+function loadRekapPelanggaranDriver() {
+    if(!SPREADSHEET_LINKS.rekapPelanggaranDriver) return;
+    Papa.parse(SPREADSHEET_LINKS.rekapPelanggaranDriver, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            let data = results.data;
+            
+            // 1. Isi Tabel Detail
+            let tbody = document.getElementById('bodyDetailPelanggaranDriver');
+            let html = '';
+            data.forEach(r => {
+                html += `<tr>
+                    <td>${r.STATUS}</td>
+                    <td>${r.CATEGORY}</td>
+                    <td>${r.CASE}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+            
+            // Inisialisasi DataTables agar tabel rapi
+            $('#tblDetailPelanggaranDriver').DataTable({ 
                 scrollX: true,
                 pageLength: 25, // Mengatur agar menampilkan 25 baris sekaligus (mencakup 19 baris data Anda)
                 lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]]// Opsi untuk user memilih tampilkan semua
