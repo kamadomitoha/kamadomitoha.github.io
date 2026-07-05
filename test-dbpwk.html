@@ -757,8 +757,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- Tambahkan baris di bawah ini -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script>
@@ -878,7 +877,7 @@ function loadRekapPelanggaran() {
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
 
-        Chart.unregister(ChartDataLabels);
+       Chart.defaults.plugins.datalabels = { display: false };
 
         const warnaTop10 = '#ffc107'; 
         const warnaTop10Arm = '#0dcaf0'; 
@@ -1032,27 +1031,25 @@ function updateOpsiFilterDriver() {
         }, 
         plugins: [ChartDataLabels], // Mengaktifkan plugin datalabels khusus untuk chart ini
         options: {
-            responsive: true, 
-            maintainAspectRatio: false,
-            plugins: {
-                datalabels: {
-                    color: '#ffffff', // Warna teks persentase (putih agar kontras dengan warna chart)
-                    formatter: (value, context) => {
-                        // Mengambil seluruh data pada chart
-                        let dataset = context.dataset.data;
-                        // Menjumlahkan total data
-                        let sum = dataset.reduce((a, b) => a + b, 0);
-                        // Menghitung persentasenya
-                        let percentage = (value * 100 / sum).toFixed(1) + "%";
-                        return percentage;
-                    },
-                    font: {
-                        weight: 'bold',
-                        size: 11 // Disesuaikan dengan font default yang Anda setting
-                    }
-                }
+    responsive: true, 
+    maintainAspectRatio: false,
+    plugins: {
+        datalabels: {
+            display: true, // <-- Tambahkan baris ini agar menyala HANYA di grafik ini
+            color: '#ffffff',
+            formatter: (value, context) => {
+                let dataset = context.dataset.data;
+                let sum = dataset.reduce((a, b) => a + b, 0);
+                let percentage = (value * 100 / sum).toFixed(1) + "%";
+                return percentage;
+            },
+            font: {
+                weight: 'bold',
+                size: 11
             }
-        } 
+        }
+    }
+}
     });
 }
         
