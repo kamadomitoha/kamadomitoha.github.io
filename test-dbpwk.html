@@ -757,8 +757,6 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script>
         // ==========================================
@@ -876,9 +874,6 @@ function loadRekapPelanggaran() {
 
         // === KONFIGURASI UMUM CHART ===
         Chart.defaults.font.size = 11;
-
-       Chart.defaults.plugins.datalabels = { display: false };
-
         const warnaTop10 = '#ffc107'; 
         const warnaTop10Arm = '#0dcaf0'; 
 
@@ -1015,43 +1010,16 @@ function updateOpsiFilterDriver() {
         // ==========================================
         const clPie = ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0','#6f42c1','#fd7e14','#20c997'];
         function drawPie(ctx, chart, data, key) {
-    let res = {}; 
-    data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
-    
-    if(chart) chart.destroy();
-    
-    return new Chart(document.getElementById(ctx).getContext('2d'), { 
-        type: 'doughnut', 
-        data: {
-            labels: Object.keys(res), 
-            datasets: [{
-                data: Object.values(res), 
-                backgroundColor: clPie // Warna akan mengambil variabel clPie yang sudah Anda tetapkan
-            }]
-        }, 
-        plugins: [ChartDataLabels], // Mengaktifkan plugin datalabels khusus untuk chart ini
-        options: {
-    responsive: true, 
-    maintainAspectRatio: false,
-    plugins: {
-        datalabels: {
-            display: true, // <-- Tambahkan baris ini agar menyala HANYA di grafik ini
-            color: '#ffffff',
-            formatter: (value, context) => {
-                let dataset = context.dataset.data;
-                let sum = dataset.reduce((a, b) => a + b, 0);
-                let percentage = (value * 100 / sum).toFixed(1) + "%";
-                return percentage;
-            },
-            font: {
-                weight: 'bold',
-                size: 11
-            }
+            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
+            if(chart) chart.destroy();
+            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'doughnut', data:{labels:Object.keys(res), datasets:[{data:Object.values(res), backgroundColor:clPie}]}, options:{responsive:true, maintainAspectRatio:false} });
         }
-    }
-}
-    });
-}
+        function drawBar(ctx, chart, data, key, color) {
+            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
+            let lbs = Object.keys(res).sort((a,b)=>a-b);
+            if(chart) chart.destroy();
+            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'bar', data:{labels:lbs, datasets:[{data:lbs.map(l=>res[l]), backgroundColor:color}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
+        }
         
         let activeKategoriPieKen = 'MERK'; 
         
