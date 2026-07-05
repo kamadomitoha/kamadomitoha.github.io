@@ -91,6 +91,31 @@
         padding: 0.3rem !important;
     }
 }
+
+
+/* Pastikan sidebar tetap di tempat saat layar di-scroll */
+.sidebar {
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    top: 0;
+    height: 100vh; /* Tinggi penuh layar */
+    overflow-y: auto; /* Agar menu yang panjang bisa di-scroll di dalam sidebar */
+}
+
+/* Pastikan row induk memiliki tinggi 100vh untuk mendukung sticky */
+.container-fluid {
+    height: 100vh;
+    overflow: hidden; /* Mencegah body utama ikut scroll */
+}
+
+.row {
+    height: 100%;
+}
+
+.content-area {
+    height: 100%;
+    overflow-y: auto; /* Hanya area konten yang akan di-scroll */
+}
     </style>
 </head>
 <body>
@@ -625,7 +650,7 @@
                             <table id="tblProdArmada" class="table table-striped table-bordered table-sm text-center table-nowrap">
                                 <thead class="table-info">
                                     <tr>
-                                        <th>NOPOL</th><th>LAMBUNG</th><th>STATUS</th><th>MERK</th><th>TAHUN</th><th>UMUR</th><th>JENIS</th><th>DEPT</th>
+                                        <th>LAMBUNG</th><th>NOPOL</th><th>STATUS</th><th>MERK</th><th>TAHUN</th><th>UMUR</th><th>JENIS</th><th>DEPT</th>
                                         <th>TOTAL KM TEMPUH</th><th>AKTIF / HARI</th><th>TOTAL RITASE</th><th>TOTAL TOKO</th><th>AVG TOKO</th><th>AVG RITASE</th>
                                     </tr>
                                 </thead>
