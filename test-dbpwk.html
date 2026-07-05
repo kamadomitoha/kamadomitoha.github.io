@@ -881,7 +881,7 @@ function loadPresensiIssuing() {
 
 // (1) Fungsi untuk Tabel Presensi Issuing
 function processTablePresensiIssuing(data) {
-    let tbody = document.getElementById('bodyPresensi');
+    let tbody = document.getElementById('bodyPresensiIssuing');
     let html = '';
     data.forEach((r, i) => {
         html += `<tr>
@@ -893,7 +893,7 @@ function processTablePresensiIssuing(data) {
         </tr>`;
     });
     tbody.innerHTML = html;
-    $('#tblPresensi').DataTable(); // Inisialisasi DataTables
+    $('#tblPresensiIssuing').DataTable(); // Inisialisasi DataTables
 }
 
 
@@ -904,7 +904,7 @@ function loadPresensiDriver() {
         header: true,
         complete: function(results) {
             let data = results.data;
-            processTablePresensi(data);
+            processTablePresensiDriver(data);
            
         }
     });
@@ -912,7 +912,7 @@ function loadPresensiDriver() {
 
 // (1) Fungsi untuk Tabel Presensi Driver
 function processTablePresensiDriver(data) {
-    let tbody = document.getElementById('bodyPresensi');
+    let tbody = document.getElementById('bodyPresensiDriver');
     let html = '';
     data.forEach((r, i) => {
         html += `<tr>
@@ -924,7 +924,7 @@ function processTablePresensiDriver(data) {
         </tr>`;
     });
     tbody.innerHTML = html;
-    $('#tblPresensi').DataTable(); // Inisialisasi DataTables
+    $('#tblPresensiDriver').DataTable(); // Inisialisasi DataTables
 }
 
 
