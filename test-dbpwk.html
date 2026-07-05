@@ -155,9 +155,9 @@
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
                     <div class="menu-label">Pelanggaran Presensi</div>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-pie-chart text-secondary"></i>Karyawan Issuing</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Issuing</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Issuing</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-pie-chart text-secondary"></i>Karyawan Driver</button>
+                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Driver</button>
                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-driver" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Driver</button>
                 
                 </div>
@@ -1884,9 +1884,12 @@ setInterval(updateTimeAndGreeting, 1000);
     loadSoFoto();
     loadBbm();
     loadFraud();
-    loadPresensi();
-    loadRekapAbsensi();
-    loadRekapPelanggaran();
+    loadPresensiIssuing();
+    loadPresensiDriver();
+    loadRekapAbsensiIssuing();
+    loadRekapAbsensiDriver();
+    loadRekapPelanggaranIssuing();
+    loadRekapPelanggaranDriver();
         };
 
 // Memaksa DataTables menyesuaikan ukuran saat tab Bootstrap diklik
