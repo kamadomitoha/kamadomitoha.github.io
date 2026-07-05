@@ -757,6 +757,9 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Tambahkan baris di bawah ini -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 
 <script>
         // ==========================================
@@ -865,17 +868,8 @@ function loadRekapPelanggaran() {
             $('#tblDetailPelanggaran').DataTable({ 
                 scrollX: true,
                 pageLength: 25, // Mengatur agar menampilkan 25 baris sekaligus (mencakup 19 baris data Anda)
-                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]], // Opsi untuk user memilih tampilkan semua
+                lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]]// Opsi untuk user memilih tampilkan semua
 
-                // Menambahkan fungsi createdRow untuk mendeteksi isi baris
-    "createdRow": function(row, data, dataIndex) {
-        // Asumsi: Kolom 'STATUS' adalah kolom ke-0 (index 0)
-        // Jika nilai kolom pertama adalah "OK", beri warna hijau
-        if (data[1] === "OK") {
-            $(row).css('background-color', '#d4edda'); // Warna hijau muda
-            $(row).css('color', '#155724');          // Warna teks hijau tua
-        }
-    }
             });
         }
     });
@@ -1019,16 +1013,45 @@ function updateOpsiFilterDriver() {
         // ==========================================
         const clPie = ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0','#6f42c1','#fd7e14','#20c997'];
         function drawPie(ctx, chart, data, key) {
-            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
-            if(chart) chart.destroy();
-            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'doughnut', data:{labels:Object.keys(res), datasets:[{data:Object.values(res), backgroundColor:clPie}]}, options:{responsive:true, maintainAspectRatio:false} });
-        }
-        function drawBar(ctx, chart, data, key, color) {
-            let res = {}; data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
-            let lbs = Object.keys(res).sort((a,b)=>a-b);
-            if(chart) chart.destroy();
-            return new Chart(document.getElementById(ctx).getContext('2d'), { type:'bar', data:{labels:lbs, datasets:[{data:lbs.map(l=>res[l]), backgroundColor:color}]}, options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}}} });
-        }
+    let res = {}; 
+    data.forEach(r => { if(r[key]) res[r[key]] = (res[r[key]]||0)+1; });
+    
+    if(chart) chart.destroy();
+    
+    return new Chart(document.getElementById(ctx).getContext('2d'), { 
+        type: 'doughnut', 
+        data: {
+            labels: Object.keys(res), 
+            datasets: [{
+                data: Object.values(res), 
+                backgroundColor: clPie // Warna akan mengambil variabel clPie yang sudah Anda tetapkan
+            }]
+        }, 
+        plugins: [ChartDataLabels], // Mengaktifkan plugin datalabels khusus untuk chart ini
+        options: {
+            responsive: true, 
+            maintainAspectRatio: false,
+            plugins: {
+                datalabels: {
+                    color: '#ffffff', // Warna teks persentase (putih agar kontras dengan warna chart)
+                    formatter: (value, context) => {
+                        // Mengambil seluruh data pada chart
+                        let dataset = context.dataset.data;
+                        // Menjumlahkan total data
+                        let sum = dataset.reduce((a, b) => a + b, 0);
+                        // Menghitung persentasenya
+                        let percentage = (value * 100 / sum).toFixed(1) + "%";
+                        return percentage;
+                    },
+                    font: {
+                        weight: 'bold',
+                        size: 11 // Disesuaikan dengan font default yang Anda setting
+                    }
+                }
+            }
+        } 
+    });
+}
         
         let activeKategoriPieKen = 'MERK'; 
         
