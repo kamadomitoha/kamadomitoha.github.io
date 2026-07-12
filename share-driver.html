@@ -331,16 +331,41 @@ table {
         <table id="tableRitase">
             <thead id="headRitase">
                <tr>
-        <th onclick="sortTable(this, 0)">NIK</th>
-        <th onclick="sortTable(this, 1)">NAMA</th>
-        <th onclick="sortTable(this, 2)">Total Ritase</th>
-        <th onclick="sortTable(this, 3)">Rata2 Ritase</th>
-        <!-- Lanjutkan untuk kolom 4 sampai 34 -->
-        <script>
-            for(let i=1; i<=31; i++) {
-                document.write(`<th onclick="sortTable(this, ${i+3})">${i}</th>`);
-            }
-        </script>
+        <th>NIK</th>
+        <th>NAMA</th>
+        <th>Total Ritase</th>
+        <th>Rata2 Ritase</th>
+       <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>      
+                <th>6</th>
+                <th>7</th>
+                <th>8</th>
+                <th>9</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+                <th>14</th>
+                <th>15</th>      
+                <th>16</th>
+                <th>17</th>
+                <th>18</th>
+                <th>19</th>
+                <th>20</th>
+                <th>21</th>
+                <th>22</th>
+                <th>23</th>
+                <th>24</th>
+                <th>25</th>      
+                <th>26</th>
+                <th>27</th>
+                <th>28</th>
+                <th>29</th>
+                <th>30</th>
+                <th>31</th>
     </tr>
                 </thead>
             <tbody id="bodyRitase">
@@ -354,15 +379,15 @@ table {
         <thead id="headRasio">
 
              <tr>
-        <th onclick="sortTable(this, 0)">NOPOL</th>
-        <th onclick="sortTable(this, 1)">LAMBUNG</th>
-        <th onclick="sortTable(this, 2)">MERK</th>
-        <th onclick="sortTable(this, 3)">JENIS</th>
-        <th onclick="sortTable(this, 4)">DEPT</th>
-        <th onclick="sortTable(this, 5)">STANDAR</th>
-        <th onclick="sortTable(this, 6)">TAHUN</th>
-        <th onclick="sortTable(this, 7)">RASIO</th>
-        <th onclick="sortTable(this, 8)">TARGET</th>
+        <th>NOPOL</th>
+        <th>">LAMBUNG</th>
+        <th>MERK</th>
+        <th>JENIS</th>
+        <th>DEPT</th>
+        <th>STANDAR</th>
+       <th>TAHUN</th>
+        <th>RASIO</th>
+        <th>TARGET</th>
     </tr>
         </thead>
         <tbody id="bodyRasio"></tbody>
@@ -374,13 +399,13 @@ table {
     <table id="tableSpeeding">
         <thead id="headSpeeding">
             <tr>
-                <th onclick="sortTable(this, 0)">NAMA</th>
-                <th onclick="sortTable(this, 1)">NIK</th>
-                <th onclick="sortTable(this, 2)">STATUS</th>
-                <th onclick="sortTable(this, 3)">KIRIMAN</th>
-                <th onclick="sortTable(this, 4)">DATA SPEED</th>
-                <th onclick="sortTable(this, 5)">FREKUENSI SPEEDING</th>
-                <th onclick="sortTable(this, 6)">TOP SPEED</th>
+                <th>NAMA</th>
+                <th>NIK</th>
+                <th>STATUS</th>
+                <th>KIRIMAN</th>
+                <th>DATA SPEED</th>
+                <th>FREKUENSI SPEEDING</th>
+                <th>TOP SPEED</th>
                 </tr>
         </thead>
         <tbody id="bodySpeeding"></tbody>
@@ -538,6 +563,36 @@ function loadCSV(key, tbodyId, loadingId, columns) {
     });
 }
 
+
+function filterTable() {
+    // Ambil input dari user dan ubah ke huruf kecil
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toLowerCase();
+    
+    // Cari semua tabel yang sedang tampil (tab aktif)
+    let activeTabContent = document.querySelector(".tabcontent[style*='display: block']");
+    if (!activeTabContent) return;
+    
+    let table = activeTabContent.querySelector("table");
+    let tr = table.getElementsByTagName("tr");
+
+    // Loop melalui semua baris tabel (mulai dari index 1 untuk melewati header)
+    for (let i = 1; i < tr.length; i++) {
+        let td = tr[i].getElementsByTagName("td");
+        let found = false;
+        
+        // Cek setiap kolom di baris tersebut
+        for (let j = 0; j < td.length; j++) {
+            if (td[j] && td[j].innerText.toLowerCase().indexOf(filter) > -1) {
+                found = true;
+                break;
+            }
+        }
+        
+        // Tampilkan baris jika ditemukan, sembunyikan jika tidak
+        tr[i].style.display = found ? "" : "none";
+    }
+}
 
     </script>
 
