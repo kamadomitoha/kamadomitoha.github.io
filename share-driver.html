@@ -380,7 +380,7 @@ table {
 
              <tr>
         <th>NOPOL</th>
-        <th>">LAMBUNG</th>
+        <th>LAMBUNG</th>
         <th>MERK</th>
         <th>JENIS</th>
         <th>DEPT</th>
@@ -496,40 +496,29 @@ function openTab(evt, tabName) {
 }
 
 
-function loadCSV(key, tbodyId, loadingId, columns) {
-    const table = document.getElementById(tbodyId).closest('table');
-    const tbody = document.getElementById(tbodyId);
-    const loading = document.getElementById(loadingId);
+// 1. Tambahkan fungsi sortTable
+function sortTable(tableId, colIndex) {
+    const table = document.getElementById(tableId);
+    let rows = Array.from(table.tBodies[0].rows);
+    let asc = table.getAttribute('data-sort-dir') === 'asc' ? false : true;
     
-    if (tbody.innerHTML.trim() !== "") return;
-
-    Papa.parse(SPREADSHEET_LINKS[key], {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            tbody.innerHTML = ''; 
-            results.data.forEach(r => {
-                let row = '<tr>';
-                columns.forEach(colKey => {
-                    row += `<td>${r[colKey] || ''}</td>`;
-                });
-                row += '</tr>';
-                tbody.innerHTML += row;
-            });
-            loading.style.display = 'none';
-
-            // --- OTOMATIS TAMBAHKAN SORTING KE HEADER ---
-            let headers = table.querySelectorAll('th');
-            headers.forEach((th, index) => {
-                th.style.cursor = "pointer";
-                th.onclick = function() { sortTable(table.id, index); };
-            });
+    rows.sort((a, b) => {
+        let valA = a.cells[colIndex].innerText.toLowerCase();
+        let valB = b.cells[colIndex].innerText.toLowerCase();
+        let numA = parseFloat(valA);
+        let numB = parseFloat(valB);
+        
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return asc ? numA - numB : numB - numA;
         }
+        return asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
+
+    rows.forEach(row => table.tBodies[0].appendChild(row));
+    table.setAttribute('data-sort-dir', asc ? 'asc' : 'desc');
 }
 
-
+// 2. Fungsi loadCSV (Hanya satu saja, hapus duplikat di script Anda)
 function loadCSV(key, tbodyId, loadingId, columns) {
     const table = document.getElementById(tbodyId).closest('table');
     const tbody = document.getElementById(tbodyId);
@@ -546,14 +535,14 @@ function loadCSV(key, tbodyId, loadingId, columns) {
             results.data.forEach(r => {
                 let row = '<tr>';
                 columns.forEach(colKey => {
-                    row += `<td>${r[colKey] || ''}</td>`;
+                    // Jika data tidak muncul, coba periksa apakah colKey benar
+                    row += `<td>${r[colKey] !== undefined ? r[colKey] : ''}</td>`;
                 });
                 row += '</tr>';
                 tbody.innerHTML += row;
             });
             loading.style.display = 'none';
 
-            // --- OTOMATIS TAMBAHKAN SORTING KE HEADER ---
             let headers = table.querySelectorAll('th');
             headers.forEach((th, index) => {
                 th.style.cursor = "pointer";
