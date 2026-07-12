@@ -247,7 +247,10 @@ table {
         font-size: 14px;
     }
 
-
+/* Pastikan semua tab tersembunyi secara default */
+.tabcontent {
+    display: none;
+}
     </style>
 </head>
 <body>
@@ -523,12 +526,25 @@ function loadSpeedingData() {
 }
 
 function openTab(evt, tabName) {
-    // ... (kode sembunyikan tab tetap sama) ...
+    let i, tabcontent, tablinks;
 
+    // 1. Sembunyikan semua elemen dengan class="tabcontent"
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+
+    // 2. Hapus class "active" dari semua tombol tablinks
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+
+    // 3. Tampilkan tab yang dipilih dan tambahkan class "active" ke tombol yang diklik
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 
-    // Panggil berdasarkan limit kolom masing-masing tabel
+    // 4. Panggil fungsi pemuat data berdasarkan tab
     if (tabName === 'Point')    loadTableData(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
     if (tabName === 'Ritase')   loadTableData(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
     if (tabName === 'Rasio')    loadTableData(csvUrlRasio, 'bodyRasio', 'loadingRasio', 9);
