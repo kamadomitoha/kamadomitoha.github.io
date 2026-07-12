@@ -58,6 +58,20 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
+
+
+        /* Sembunyikan semua tab content di awal */
+.tabcontent {
+    display: none;
+}
+
+/* Style untuk pesan selamat datang */
+#welcomeMessage {
+    text-align: center;
+    padding: 50px;
+    font-size: 20px;
+    color: #7f8c8d;
+}
         /* Style untuk Konten Tab */
         .tabcontent {
             display: none;
@@ -133,23 +147,50 @@
             color: #7f8c8d;
             margin: 20px 0;
         }
+
+
+        /* Style untuk baris yang diklik */
+.selected-row {
+    background-color: #3498db !important;
+    color: white !important;
+}
+
+/* Memastikan teks di dalam td juga berubah warna jika diperlukan */
+.selected-row td {
+    color: white !important;
+}
+
+/* Membuat baris tabel terasa lebih tebal di HP */
+table tr {
+    cursor: pointer;
+    height: 45px; /* Memberikan tinggi minimum agar mudah di-tap jari */
+}
+
+/* Efek hover untuk desktop agar user tahu baris bisa diklik */
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
     </style>
 </head>
 <body>
 
-    <h2>Data Performa Driver</h2>
+    <h2>Produktivitas Driver</h2>
 
     <div class="search-container">
        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Ketik beberapa angka NIK atau huruf Nama...">
     </div>
 
-    <div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'Point')">Pencapaian Point</button>
-        <button class="tablinks" onclick="openTab(event, 'Ritase')">Ritase Driver</button>
-    </div>
+    
+   <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Point')">POIN</button>
+    <button class="tablinks" onclick="openTab(event, 'Ritase')">RITASE</button>
+    <button class="tablinks" onclick="openTab(event, 'Rasio')">RASIO</button>
+    <button class="tablinks" onclick="openTab(event, 'Speeding')">SPEEDING</button>
+</div>
 
-    <div id="Point" class="tabcontent" style="display:block;">
-        <div id="loadingPoint" class="loading">Memuat data CSV Spreadsheet...</div>
+    <div id="Point" class="tabcontent">
+        <div id="loadingPoint" class="loading">Memuat data CSV Spreadsheet...Silahkan klik menu</div>
         <table id="tablePoint">
             <thead id="headPoint">
                 </thead>
@@ -165,6 +206,24 @@
                 </thead>
             <tbody id="bodyRitase">
                 </tbody>
+  </table>
+</div>
+
+<div id="Rasio" class="tabcontent">
+    <div id="loadingRasio" class="loading">Memuat data Rasio...</div>
+    <table id="tableRasio">
+        <thead id="headRasio"></thead>
+        <tbody id="bodyRasio"></tbody>
+    </table>
+</div>
+
+<div id="Speeding" class="tabcontent">
+    <div id="loadingSpeeding" class="loading">Memuat data Speeding...</div>
+    <table id="tableSpeeding">
+        <thead id="headSpeeding"></thead>
+        <tbody id="bodySpeeding"></tbody>
+  
+
         </table>
     </div>
 
@@ -173,23 +232,54 @@
        const csvUrlPoint = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=843800816&single=true&output=csv"; 
         const csvUrlRitase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=319911176&single=true&output=csv";
 
+const csvUrlRasio = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-ICMXYbruScZhnbJVpp1nfAT_uBeGXw6Fg--NwCnqXFf0fL8KeAVgJHp-Ehu9E9tg3-bJ/pub?gid=563358340&single=true&output=csv";
+const csvUrlSpeeding = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mxYqBevGQttKDUyCExC9L1kLwZQEEoaqdLbzU2x5H4XNU3qjMQpLKyuJUD38c8JRjLAvRV6-nP-B/pub?gid=470135130&single=true&output=csv";
 
-        // Fungsi berpindah Tab
-        function openTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-            }
-            tablinks = document.getElementsByClassName("tablinks");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", "");
-            }
-            document.getElementById(tabName).style.display = "block";
-            evt.currentTarget.className += " active";
 
-            filterTable(); // Refresh filter
-        }
+
+const headRasioTemplate = `
+    <tr>
+        <th>NOPOL</th><th>LAMBUNG</th><th>MERK</th><th>JENIS</th><th>DEPT</th>
+        <th>STANDAR</th><th>TAHUN</th><th>RASIO</th><th>TARGET</th>
+    </tr>`;
+document.getElementById('headRasio').innerHTML = headRasioTemplate;
+
+const headSpeedingTemplate = `
+    <tr>
+        <th>NAMA</th><th>NIK</th><th>STATUS</th><th>KIRIMAN</th>
+        <th>DATA SPEED</th><th>FREKUENSI SPEEDING</th><th>TOP SPEED</th>
+    </tr>`;
+document.getElementById('headSpeeding').innerHTML = headSpeedingTemplate;
+
+// Panggil fungsi render di window.onload
+window.onload = function() {
+    fetchAndRenderCSV(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
+    fetchAndRenderCSV(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
+    fetchAndRenderCSV(csvUrlRasio, 'bodyRasio', 'loadingRasio', 9); // 9 adalah jumlah kolom rasio
+    fetchAndRenderCSV(csvUrlSpeeding, 'bodySpeeding', 'loadingSpeeding', 7); // 7 adalah jumlah kolom speeding
+};
+
+
+      function openTab(evt, tabName) {
+    let i, tabcontent, tablinks;
+        
+    // Sembunyikan pesan selamat datang
+    document.getElementById("welcomeMessage").style.display = "none";
+    
+    tabcontent = document.getElementsByClassName("tabcontent");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+    }
+    tablinks = document.getElementsByClassName("tablinks");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    
+    document.getElementById(tabName).style.display = "block";
+    evt.currentTarget.className += " active";
+
+    filterTable(); 
+}
 
         // Fitur Pencarian (Search Bar) Super Cepat & Responsif
         function filterTable() {
@@ -292,37 +382,47 @@
             </tr>`;
         document.getElementById('headRitase').innerHTML = headRitaseTemplate;
 
-        // Fetch CSV via PapaParse
-        function fetchAndRenderCSV(url, tbodyId, loadingId, expectedColumns) {
-            Papa.parse(url, {
-                download: true,
-                header: false, // PERBAIKAN: Diubah jadi false agar tidak terjadi auto-sort pada JS
-                skipEmptyLines: true,
-                complete: function(results) {
-                    document.getElementById(loadingId).style.display = 'none';
-                    const data = results.data;
-                    let rowsHtml = '';
-                    
-                    // PERBAIKAN: Loop dimulai dari index 1 untuk melewati baris pertama (header bawaan CSV)
-                    for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
-                        let rowValues = data[rowIndex];
-                        rowsHtml += '<tr>';
-                        
-                        for (let i = 0; i < expectedColumns; i++) {
-                            let cellValue = (rowValues[i] !== undefined && rowValues[i] !== "") ? rowValues[i] : '-';
-                            rowsHtml += `<td>${cellValue}</td>`;
-                        }
-                        rowsHtml += '</tr>';
-                    }
-
-                    document.getElementById(tbodyId).innerHTML = rowsHtml;
-                },
-                error: function(err) {
-                    document.getElementById(loadingId).innerText = "Gagal memuat data. Pastikan link CSV benar.";
-                    console.error("PapaParse Error:", err);
+        // Fungsi Fetch CSV yang sudah diperbaiki
+function fetchAndRenderCSV(url, tbodyId, loadingId, expectedColumns) {
+    Papa.parse(url, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+            document.getElementById(loadingId).style.display = 'none';
+            const data = results.data;
+            let rowsHtml = '';
+            
+            for (let rowIndex = 1; rowIndex < data.length; rowIndex++) {
+                let rowValues = data[rowIndex];
+                rowsHtml += '<tr>';
+                for (let i = 0; i < expectedColumns; i++) {
+                    let cellValue = (rowValues[i] !== undefined && rowValues[i] !== "") ? rowValues[i] : '-';
+                    rowsHtml += `<td>${cellValue}</td>`;
                 }
+                rowsHtml += '</tr>';
+            }
+
+            // MASUKKAN LOGIKA DI SINI:
+            const tbody = document.getElementById(tbodyId);
+            tbody.innerHTML = rowsHtml; // Isi HTML-nya dulu
+            
+            // Baru tambahkan event listener-nya
+            tbody.querySelectorAll('tr').forEach(row => {
+                row.addEventListener('click', function() {
+                    // Hapus class 'selected-row' dari semua baris di tbody ini saja
+                    tbody.querySelectorAll('tr').forEach(r => r.classList.remove('selected-row'));
+                    // Tambahkan class 'selected-row' ke baris yang diklik
+                    this.classList.add('selected-row');
+                });
             });
+        },
+        error: function(err) {
+            document.getElementById(loadingId).innerText = "Gagal memuat data.";
+            console.error("PapaParse Error:", err);
         }
+    });
+}
 
         // Render Data saat halaman dimuat
         window.onload = function() {
@@ -330,6 +430,10 @@
             fetchAndRenderCSV(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
             // Ritase: 35 Kolom
             fetchAndRenderCSV(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
+            // Rasio: 9 Kolom
+            fetchAndRenderCSV(csvUrlRasio, 'bodyRasio', 'loadingRasio', 9);
+            // Speeding: 7 Kolom
+            fetchAndRenderCSV(csvUrlSpeeding, 'bodySpeeding', 'loadingSpeeding', 7);
         };
     </script>
 

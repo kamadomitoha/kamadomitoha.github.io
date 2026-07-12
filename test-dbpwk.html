@@ -1027,7 +1027,7 @@ function loadRekapPelanggaranDriver() {
         complete: function(results) {
             let data = results.data;
             
-            // 1. Isi Tabel Detail
+        
             let tbody = document.getElementById('bodyDetailPelanggaranDriver');
             let html = '';
             data.forEach(r => {
@@ -1039,7 +1039,7 @@ function loadRekapPelanggaranDriver() {
             });
             tbody.innerHTML = html;
             
-            // Inisialisasi DataTables agar tabel rapi
+         
             $('#tblDetailPelanggaranDriver').DataTable({ 
                 scrollX: true,
                 pageLength: 25, // Mengatur agar menampilkan 25 baris sekaligus (mencakup 19 baris data Anda)
