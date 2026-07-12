@@ -412,35 +412,6 @@ const csvUrlSpeeding = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mxYqB
 
 
 
-// Fungsi universal untuk memuat data CSV ke tabel
-function loadTableData(url, tbodyId, loadingId, limitCol) {
-    const tbody = document.getElementById(tbodyId);
-    if(tbody.innerHTML !== "") return; // Mencegah download berulang
-
-    Papa.parse(url, {
-        download: true,
-        header: false,
-        skipEmptyLines: true,
-        complete: function(results) {
-            const data = results.data;
-            document.getElementById(loadingId).style.display = 'none';
-
-            let rowsHtml = '';
-            // Mulai dari 1 untuk skip header CSV
-            for (let i = 1; i < data.length; i++) {
-                let row = data[i];
-                rowsHtml += '<tr>';
-                // Batasi jumlah kolom sesuai limitCol agar data tidak bergeser
-                for (let j = 0; j < limitCol; j++) {
-                    let val = (row[j] !== undefined && row[j] !== "") ? row[j] : '0';
-                    rowsHtml += `<td>${val}</td>`;
-                }
-                rowsHtml += '</tr>';
-            }
-            tbody.innerHTML = rowsHtml;
-        }
-    });
-}
 
 function loadPointData() {
     // Cek agar tidak memuat ulang jika sudah ada data
@@ -525,26 +496,65 @@ function loadSpeedingData() {
     });
 }
 
-function openTab(evt, tabName) {
-    let i, tabcontent, tablinks;
+// Hapus semua fungsi loadPointData, loadRitaseData, dll yang lama. 
+// Gunakan HANYA fungsi ini:
 
-    // 1. Sembunyikan semua elemen dengan class="tabcontent"
-    tabcontent = document.getElementsByClassName("tabcontent");
-    for (i = 0; i < tabcontent.length; i++) {
+function loadTableData(url, tbodyId, loadingId, limitCol) {
+    const tbody = document.getElementById(tbodyId);
+    
+    // Jika data sudah ada, jangan download lagi
+    if(tbody && tbody.innerHTML.trim() !== "") return; 
+
+    // Tampilkan indikator loading
+    const loader = document.getElementById(loadingId);
+    if(loader) loader.style.display = 'block';
+
+    Papa.parse(url, {
+        download: true,
+        header: false,
+        skipEmptyLines: true,
+        complete: function(results) {
+            if(loader) loader.style.display = 'none';
+            const data = results.data;
+            let rowsHtml = '';
+            
+            // Loop data mulai dari baris ke-1 (skip header CSV)
+            for (let i = 1; i < data.length; i++) {
+                let row = data[i];
+                rowsHtml += '<tr>';
+                for (let j = 0; j < limitCol; j++) {
+                    let val = (row[j] !== undefined && row[j] !== "") ? row[j] : '0';
+                    rowsHtml += `<td>${val}</td>`;
+                }
+                rowsHtml += '</tr>';
+            }
+            if(tbody) tbody.innerHTML = rowsHtml;
+        },
+        error: function(err) {
+            console.error("Gagal memuat:", err);
+            if(loader) loader.innerText = "Gagal memuat data.";
+        }
+    });
+}
+
+function openTab(evt, tabName) {
+    // 1. Sembunyikan semua tab content
+    let tabcontent = document.getElementsByClassName("tabcontent");
+    for (let i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
     }
 
-    // 2. Hapus class "active" dari semua tombol tablinks
-    tablinks = document.getElementsByClassName("tablinks");
-    for (i = 0; i < tablinks.length; i++) {
+    // 2. Hapus class 'active' dari semua tab links
+    let tablinks = document.getElementsByClassName("tablinks");
+    for (let i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
 
-    // 3. Tampilkan tab yang dipilih dan tambahkan class "active" ke tombol yang diklik
+    // 3. Tampilkan tab yang dipilih
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 
-    // 4. Panggil fungsi pemuat data berdasarkan tab
+    // 4. Panggil pemuat data yang tepat
     if (tabName === 'Point')    loadTableData(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
     if (tabName === 'Ritase')   loadTableData(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
     if (tabName === 'Rasio')    loadTableData(csvUrlRasio, 'bodyRasio', 'loadingRasio', 9);
