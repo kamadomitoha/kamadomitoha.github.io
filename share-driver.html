@@ -469,7 +469,10 @@ function openTab(evt, tabName) {
     }
     // ------------------------------------
 }
+
+
 function loadCSV(key, tbodyId, loadingId, columns) {
+    const table = document.getElementById(tbodyId).closest('table');
     const tbody = document.getElementById(tbodyId);
     const loading = document.getElementById(loadingId);
     
@@ -483,7 +486,6 @@ function loadCSV(key, tbodyId, loadingId, columns) {
             tbody.innerHTML = ''; 
             results.data.forEach(r => {
                 let row = '<tr>';
-                // Gunakan array 'columns' untuk mengambil data berdasarkan nama header yang tepat
                 columns.forEach(colKey => {
                     row += `<td>${r[colKey] || ''}</td>`;
                 });
@@ -491,9 +493,52 @@ function loadCSV(key, tbodyId, loadingId, columns) {
                 tbody.innerHTML += row;
             });
             loading.style.display = 'none';
+
+            // --- OTOMATIS TAMBAHKAN SORTING KE HEADER ---
+            let headers = table.querySelectorAll('th');
+            headers.forEach((th, index) => {
+                th.style.cursor = "pointer";
+                th.onclick = function() { sortTable(table.id, index); };
+            });
         }
     });
 }
+
+
+function loadCSV(key, tbodyId, loadingId, columns) {
+    const table = document.getElementById(tbodyId).closest('table');
+    const tbody = document.getElementById(tbodyId);
+    const loading = document.getElementById(loadingId);
+    
+    if (tbody.innerHTML.trim() !== "") return;
+
+    Papa.parse(SPREADSHEET_LINKS[key], {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+            tbody.innerHTML = ''; 
+            results.data.forEach(r => {
+                let row = '<tr>';
+                columns.forEach(colKey => {
+                    row += `<td>${r[colKey] || ''}</td>`;
+                });
+                row += '</tr>';
+                tbody.innerHTML += row;
+            });
+            loading.style.display = 'none';
+
+            // --- OTOMATIS TAMBAHKAN SORTING KE HEADER ---
+            let headers = table.querySelectorAll('th');
+            headers.forEach((th, index) => {
+                th.style.cursor = "pointer";
+                th.onclick = function() { sortTable(table.id, index); };
+            });
+        }
+    });
+}
+
+
     </script>
 
 </body>
