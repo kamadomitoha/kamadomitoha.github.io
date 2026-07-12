@@ -12,10 +12,25 @@
             background-color: #f4f7f6;
             color: #333;
         }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-        }
+       .header-container {
+        display: flex;
+        justify-content: space-between; /* Membuat judul di kiri dan gambar di kanan */
+        align-items: center;            /* Membuat keduanya sejajar secara vertikal */
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        color: #2c3e50;
+        margin: 0;
+        text-align: left; /* Memastikan judul rata kiri */
+    }
+
+    .header-container img {
+        display: block; /* Menghilangkan spasi bawah pada gambar */
+        max-height: 60px; /* Atur tinggi gambar sesuai kebutuhan */
+        width: auto;
+    }
         /* Style untuk Tab Menu */
         .tab {
             overflow: hidden;
@@ -205,19 +220,7 @@ table {
 
 
 
-/* Mengunci kolom pertama dan kedua agar tetap terlihat saat scroll horizontal */
-table th:nth-child(1), table td:nth-child(1) {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background-color: #2c3e50; /* Warna header */
-    color: white;
-}
-table td:nth-child(1) {
-    background-color: white; /* Warna background cell */
-    color: #333;
-    border-right: 2px solid #ddd;
-}
+
 
 
 
@@ -231,12 +234,33 @@ table td:nth-child(1) {
     font-size: 14px;
 }
 
+.subtitle {
+        font-size: 14px;
+        color: #555;
+        margin-top: 5px;
+        line-height: 1.5;
+        font-weight: 500;
+    }
+    
+    #liveClock {
+        font-family: monospace; /* Agar angka jam tidak bergeser saat berubah */
+        font-size: 14px;
+    }
+
 
     </style>
 </head>
 <body>
-
+<div class="header-container">
     <h2>Produktivitas Driver</h2>
+  
+    <img src="assets/img/Logo_Indomaret.png" alt="Logo" style="height: 50px; width: auto;">
+</div>
+<div id="greeting" style="font-weight: bold; color: #2c3e50;"></div>
+  <div class="subtitle">
+            <div>📍 Purwakarta, Jawa Barat</div>
+            <div id="liveClock">🕒 Memuat waktu...</div>
+        </div>
 
     <div class="search-container">
        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Ketik beberapa angka NIK atau huruf Nama...">
@@ -291,6 +315,38 @@ table td:nth-child(1) {
     </div>
 
     <script>
+
+       function updateClock() {
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting = "";
+
+        // Logika penentuan salam
+        if (hour >= 4 && hour < 11) {
+            greeting = "Selamat Pagi ☀️";
+        } else if (hour >= 11 && hour < 15) {
+            greeting = "Selamat Siang 🌤️";
+        } else if (hour >= 15 && hour < 18) {
+            greeting = "Selamat Sore 🌥️";
+        } else {
+            greeting = "Selamat Malam 🌙";
+        }
+
+        document.getElementById("greeting").innerText = greeting;
+
+        // Update jam dan tanggal
+        const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
+        const dateString = now.toLocaleDateString('id-ID', { 
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
+        });
+        
+        document.getElementById("liveClock").innerHTML = 
+            `🕒 ${dateString} - ${timeString} WIB`;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
         // GANTI URL DI BAWAH INI DENGAN LINK CSV GOOGLE SPREADSHEET ANDA
        const csvUrlPoint = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=843800816&single=true&output=csv"; 
         const csvUrlRitase = "https://docs.google.com/spreadsheets/d/e/2PACX-1vStyXFDgecMHHrxuX7ASAPPRKQIsTg8FtaQA1ot_LEh-KguGoH3DwQFfVT1ldjan9Nj-Gf-zJ53UUnY/pub?gid=319911176&single=true&output=csv";
