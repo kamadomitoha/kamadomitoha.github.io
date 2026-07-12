@@ -411,38 +411,6 @@ const csvUrlRasio = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSkPyf-H_t-
 const csvUrlSpeeding = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7mxYqBevGQttKDUyCExC9L1kLwZQEEoaqdLbzU2x5H4XNU3qjMQpLKyuJUD38c8JRjLAvRV6-nP-B/pub?gid=470135130&single=true&output=csv";
 
 
-
-
-function loadPointData() {
-    // Cek agar tidak memuat ulang jika sudah ada data
-    if(document.getElementById('bodyPoint').innerHTML !== "") return;
-
-    Papa.parse(csvUrlPoint, {
-        download: true,
-        header: false, // Set ke false jika CSV tidak punya baris judul di baris pertama
-        skipEmptyLines: true,
-        complete: function(results) {
-            const data = results.data;
-            const tbody = document.getElementById('bodyPoint');
-            document.getElementById('loadingPoint').style.display = 'none';
-
-            let rowsHtml = '';
-            // i=1 untuk melewati header CSV
-            for (let i = 1; i < data.length; i++) {
-                let row = data[i];
-                rowsHtml += '<tr>';
-                // Kita batasi hanya ambil 34 kolom (NIK, Nama, Total, 1-31)
-                for (let j = 0; j < 34; j++) {
-                    let val = (row[j] !== undefined && row[j] !== "") ? row[j] : '0';
-                    rowsHtml += `<td>${val}</td>`;
-                }
-                rowsHtml += '</tr>';
-            }
-            tbody.innerHTML = rowsHtml;
-        }
-    });
-}
-
 function sortTable(thElement, colIndex) {
     const table = thElement.closest('table');
     const tbody = table.querySelector('tbody');
@@ -470,34 +438,13 @@ function sortTable(thElement, colIndex) {
     rows.forEach(row => tbody.appendChild(row));
 }
 
-function loadRitaseData() {
-    Papa.parse(csvUrlRitase, {
-        download: true,
-        complete: (results) => renderTableData(results.data, 'bodyRitase', 'loadingRitase')
-    });
-}
-
-function loadRasioData() {
-    // Cek apakah data sudah pernah dimuat agar tidak men-download berkali-kali
-    if(document.getElementById('bodyRasio').innerHTML !== "") return; 
-    
-    Papa.parse(csvUrlRasio, {
-        download: true,
-        complete: (results) => renderTableData(results.data, 'bodyRasio', 'loadingRasio')
-    });
-}
-
-function loadSpeedingData() {
-    if(document.getElementById('bodySpeeding').innerHTML !== "") return;
-    
-    Papa.parse(csvUrlSpeeding, {
-        download: true,
-        complete: (results) => renderTableData(results.data, 'bodySpeeding', 'loadingSpeeding')
-    });
-}
-
 // Hapus semua fungsi loadPointData, loadRitaseData, dll yang lama. 
 // Gunakan HANYA fungsi ini:
+
+
+const pointCols = ["NIK", "NAMA", "Total Point", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"];
+
+
 
 function loadTableData(url, tbodyId, loadingId, limitCol) {
     const tbody = document.getElementById(tbodyId);
@@ -555,7 +502,7 @@ function openTab(evt, tabName) {
     evt.currentTarget.className += " active";
 
     // 4. Panggil pemuat data yang tepat
-    if (tabName === 'Point')    loadTableData(csvUrlPoint, 'bodyPoint', 'loadingPoint', 34);
+    if (tabName === 'Point')    loadTableData(csvUrlPoint, 'bodyPoint', 'loadingPoint', pointCols);
     if (tabName === 'Ritase')   loadTableData(csvUrlRitase, 'bodyRitase', 'loadingRitase', 35);
     if (tabName === 'Rasio')    loadTableData(csvUrlRasio, 'bodyRasio', 'loadingRasio', 9);
     if (tabName === 'Speeding') loadTableData(csvUrlSpeeding, 'bodySpeeding', 'loadingSpeeding', 7);
