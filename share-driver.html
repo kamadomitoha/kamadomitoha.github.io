@@ -180,7 +180,9 @@ table tr:hover {
     <div class="search-container">
        <input type="text" id="searchInput" oninput="filterTable()" placeholder="Ketik beberapa angka NIK atau huruf Nama...">
     </div>
-
+<div id="welcomeMessage">
+    Silakan pilih menu tab di bawah untuk melihat performa driver.
+</div>
     
    <div class="tab">
     <button class="tablinks" onclick="openTab(event, 'Point')">POIN</button>
@@ -260,11 +262,11 @@ window.onload = function() {
 };
 
 
-      function openTab(evt, tabName) {
+   function openTab(evt, tabName) {
     let i, tabcontent, tablinks;
         
-    // Sembunyikan pesan selamat datang
-    document.getElementById("welcomeMessage").style.display = "none";
+    // Hapus atau berikan tanda // (komentar) pada baris di bawah ini
+    // document.getElementById("welcomeMessage").style.display = "none";
     
     tabcontent = document.getElementsByClassName("tabcontent");
     for (i = 0; i < tabcontent.length; i++) {
