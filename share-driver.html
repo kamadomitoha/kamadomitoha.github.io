@@ -449,19 +449,30 @@ function openTab(evt, tabName) {
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 
-    // Panggil fungsi loader yang sesuai
-    if (tabName === 'Point') loadCSV('Point', 'bodyPoint', 'loadingPoint');
-    else if (tabName === 'Ritase') loadCSV('Ritase', 'bodyRitase', 'loadingRitase');
-    else if (tabName === 'Rasio') loadCSV('Rasio', 'bodyRasio', 'loadingRasio');
-    else if (tabName === 'Speeding') loadCSV('Speeding', 'bodySpeeding', 'loadingSpeeding');
+    // --- TEMPATKAN KODE DI BAWAH INI ---
+    if (tabName === 'Point') {
+        const cols = ['NIK', 'NAMA', 'Total Point', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'];
+        loadCSV('Point', 'bodyPoint', 'loadingPoint', cols);
+    } 
+    else if (tabName === 'Ritase') {
+        // Sesuaikan array ini dengan header di sheet Ritase Anda
+        const cols = ['NIK', 'NAMA', 'Total Ritase', 'Rata2 Ritase', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'];
+        loadCSV('Ritase', 'bodyRitase', 'loadingRitase', cols);
+    }
+    else if (tabName === 'Rasio') {
+        const cols = ['NOPOL', 'LAMBUNG', 'MERK', 'JENIS', 'DEPT', 'STANDAR', 'TAHUN', 'RASIO', 'TARGET'];
+        loadCSV('Rasio', 'bodyRasio', 'loadingRasio', cols);
+    }
+    else if (tabName === 'Speeding') {
+        const cols = ['NAMA', 'NIK', 'STATUS', 'KIRIMAN', 'DATA SPEED', 'FREKUENSI SPEEDING', 'TOP SPEED'];
+        loadCSV('Speeding', 'bodySpeeding', 'loadingSpeeding', cols);
+    }
+    // ------------------------------------
 }
-
-// Fungsi umum untuk memuat CSV (Agar tidak perlu membuat fungsi satu-satu)
-function loadCSV(key, tbodyId, loadingId) {
+function loadCSV(key, tbodyId, loadingId, columns) {
     const tbody = document.getElementById(tbodyId);
     const loading = document.getElementById(loadingId);
     
-    // Jika data sudah pernah dimuat (tbody tidak kosong), jangan fetch ulang
     if (tbody.innerHTML.trim() !== "") return;
 
     Papa.parse(SPREADSHEET_LINKS[key], {
@@ -472,8 +483,9 @@ function loadCSV(key, tbodyId, loadingId) {
             tbody.innerHTML = ''; 
             results.data.forEach(r => {
                 let row = '<tr>';
-                Object.values(r).forEach(val => {
-                    row += `<td>${val || ''}</td>`;
+                // Gunakan array 'columns' untuk mengambil data berdasarkan nama header yang tepat
+                columns.forEach(colKey => {
+                    row += `<td>${r[colKey] || ''}</td>`;
                 });
                 row += '</tr>';
                 tbody.innerHTML += row;
