@@ -145,8 +145,8 @@
         <div class="sidebar pt-4 pb-4 position-relative show-mobile" id="sidebar">
             <button id="closeSidebarMobile" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 mt-3 me-3 d-md-none"><i class="bi bi-x-lg"></i></button>
             <h5 class="text-center fw-bold text-primary mb-4">
-                <i class="bi bi-database-fill-check"></i> G080<br>
-                <span class="text-dark fs-6">DC PURWAKARTA</span><br>
+                <i class="bi bi-database-fill-check"></i><br>
+                <span class="text-dark fs-6">DASHBOARD MENU</span><br>
                 <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem; line-height: 1.4;">
                     <span id="dynamic-greeting" class="fw-bold text-primary"></span><br>
                     <i class="bi bi-geo-alt-fill text-danger"></i> Purwakarta, Jawa Barat<br>
@@ -155,27 +155,27 @@
             </h5>
             
             <div class="nav flex-column nav-pills px-2" id="v-pills-tab" role="tablist">
-                <div class="menu-label">Visualisasi</div>
+                <div class="menu-label" style="border-bottom : 1px solid rgb(78, 76, 76);">Visualisasi</div>
                 <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#nav-chart" type="button"><i class="bi bi-bar-chart-fill"></i> REKAP MASTER</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-issuing" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP ISSUING</button> 
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-driver" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP DRIVER</button> 
-                <div class="menu-label mt-3">Database Master</div>
+                <div class="menu-label mt-3" style="border-bottom : 1px solid rgb(78, 76, 76);">Database Master</div>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-toko" type="button"><i class="bi bi-shop"></i> Master Toko</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-area" type="button"><i class="bi bi-map text-success"></i> Master Area</button>
-                <div class="menu-label mt-3">Produktivitas</div>
+                <div class="menu-label mt-3" style="border-bottom : 1px solid rgb(78, 76, 76);">Produktivitas</div>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-driver" type="button"><i class="bi bi-trophy-fill text-warning"></i> Produktivitas Driver</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-armada" type="button"><i class="bi bi-speedometer text-info"></i> Produktivitas Armada</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-fraud-berhenti" type="button"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Fraud Speed-Berhenti</button>
-                <div class="menu-label">SO Armada & BBM</div>
+                <div class="menu-label" style="border-bottom : 1px solid rgb(78, 76, 76);">SO Armada & BBM</div>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-surat" type="button"><i class="bi bi-file-earmark-text text-danger"></i> Surat STNK & KIR</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
-                <div class="menu-label">Pelanggaran Presensi</div>
+                <div class="menu-label" style="border-bottom : 1px solid rgb(78, 76, 76);">Pelanggaran Presensi</div>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Issuing</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Issuing</button>
                 <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Driver</button>
@@ -190,18 +190,20 @@
         <div class="content-area flex-grow-1 w-100 bg-light" id="mainContent">
             
             <!-- TOP NAVBAR TOGLE -->
-            <div class="bg-white shadow-sm p-3 mb-4 d-flex align-items-center sticky-top z-3">
+            <div class="bg-dark shadow-sm p-3 mb-4 d-flex align-items-center sticky-top z-3">
+                
                 <button class="btn btn-primary btn-sm me-3 shadow-sm" id="btnToggleSidebar">
                     <i class="bi bi-list fs-5"></i>
                 </button>
-                <h5 class="m-0 fw-bold text-primary d-md-none"><i class="bi bi-database-fill-check"></i> Data Base DC Purwakarta G080</h5>
+            
+                <h5 class="m-0 fw-bold text-primary text-white" ><i class="bi bi-database-fill-check"></i> Data Base DC Purwakarta G080</h5>
             </div>
 
             <div class="container-fluid px-3 px-md-4 pb-5">
                 <div class="tab-content">
                     
                     <div class="tab-pane fade show active" id="nav-chart" role="tabpanel">
-                        
+                     
                         <div class="mb-5 border-bottom pb-4">
                             <h4 class="mb-3 text-primary">
                             <i class="bi bi-truck"></i> Master Kendaraan
