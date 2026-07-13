@@ -13,6 +13,12 @@
     <style>
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
         
+        .d-flex.w-100 {
+    display: flex;
+    flex-direction: row; /* Default desktop */
+    width: 100%;
+}
+
         /* Sidebar Styles */
         .sidebar { 
             width: 260px;
@@ -37,13 +43,14 @@
         .nav-pills .nav-link i { margin-right: 10px; font-size: 1.1rem; }
         .menu-label { font-size: 0.75rem; font-weight: bold; color: #8b8b8b; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 10px 20px; }
         
-        .content-area { 
-            height: 100vh;
-            overflow-y: auto;
-            overflow-x: hidden; /* PERBAIKAN: Mencegah konten melar ke samping (bug ruang kosong) */
-            max-width: 100%; /* PERBAIKAN: Mengunci maksimal lebar area konten */
-            transition: all 0.3s ease;
-        }
+        .content-area {
+    flex-grow: 1;
+    min-width: 0;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: auto;   /* supaya tabel lebar bisa discroll */
+    transition: all .3s ease;
+}
         
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; }
         
@@ -67,28 +74,52 @@
             z-index: 1040;
             display: none;
         }
+@media (max-width: 768px) {
+    /* 1. Paksa wrapper agar tidak mengunci layout */
+    .d-flex.flex-column.flex-md-row {
+        position: static !important;
+        display: block !important; /* Paksa jadi block agar tidak flex di HP */
+    }
 
-        /* Penyesuaian Khusus Layar HP (Mobile Responsiveness) */
-        @media (max-width: 768px) {
-            .sidebar {
-                position: fixed;
-                top: 0; /* PERBAIKAN: Tempelkan ke atas */
-                height: 100vh; /* PERBAIKAN: Pastikan tingginya 100% tinggi layar HP */
-                left: -260px; /* Sembunyikan di luar layar secara default */
-                margin-left: 0 !important;
-            }
-            .sidebar.show-mobile {
-                left: 0; /* Munculkan saat ditoggle */
-            }
-            
-            #sidebarOverlay.show {
-                display: block;
-            }
+    /* 2. Pastikan Sidebar tidak mendesak konten */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: -260px; /* Sembunyi */
+        width: 260px !important;
+        height: 100% !important;
+        margin: 0 !important;
+    }
 
-            .content-area {
-                width: 100%;
-                max-width: 100vw; /* PERBAIKAN: Paksa ukuran layar mengikuti perangkat HP */
-            }
+    .sidebar.show-mobile {
+        left: 0 !important;
+    }
+
+    /* 3. Pastikan konten memenuhi layar */
+    .content-area {
+        width: 100% !important;
+        margin-left: 0 !important;
+        overflow-x: hidden !important;
+    }
+}
+
+/* Efek Overlay agar konten menjadi gelap saat sidebar aktif */
+#sidebarOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Warna hitam transparan 40% */
+    z-index: 1040; /* Harus di bawah sidebar (1050) tapi di atas konten */
+    display: none; /* Default tersembunyi */
+    transition: opacity 0.3s ease;
+}
+
+#sidebarOverlay.show {
+    display: block;
+    opacity: 1;
+}
             
             h4 {
                 font-size: 1.25rem;
@@ -102,14 +133,14 @@
             .table td, .table th {
                 padding: 0.3rem !important;
             }
-        }
+        
     </style>
 </head>
 <body>
-    <div class="d-flex w-100 position-relative">
+<div class="d-flex flex-column flex-md-row w-100 position-relative">
         
         <!-- SIDEBAR -->
-        <div class="sidebar pt-4 pb-4 position-relative" id="sidebar">
+        <div class="sidebar pt-4 pb-4 position-relative show-mobile" id="sidebar">
             <button id="closeSidebarMobile" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 mt-3 me-3 d-md-none"><i class="bi bi-x-lg"></i></button>
             <h5 class="text-center fw-bold text-primary mb-4">
                 <i class="bi bi-database-fill-check"></i> G080<br>
@@ -151,7 +182,7 @@
         </div>
 
         <!-- MOBILE OVERLAY -->
-        <div id="sidebarOverlay"></div>
+        <div id="sidebarOverlay" class="show"></div>
 
         <!-- CONTENT AREA -->
         <div class="content-area flex-grow-1 w-100 bg-light" id="mainContent">
@@ -161,7 +192,7 @@
                 <button class="btn btn-primary btn-sm me-3 shadow-sm" id="btnToggleSidebar">
                     <i class="bi bi-list fs-5"></i>
                 </button>
-                <h5 class="m-0 fw-bold text-primary d-md-none"><i class="bi bi-database-fill-check"></i> DC PWK</h5>
+                <h5 class="m-0 fw-bold text-primary d-md-none"><i class="bi bi-database-fill-check"></i> Data Base DC Purwakarta G080</h5>
             </div>
 
             <div class="container-fluid px-3 px-md-4 pb-5">
