@@ -594,6 +594,24 @@ function filterTable() {
     }
 }
 
+
+// Fungsi untuk memberikan efek highlight (warna biru) pada baris tabel yang diklik
+document.addEventListener("click", function(e) {
+    // Memastikan elemen yang diklik berada di dalam baris (tr) pada area isi tabel (tbody)
+    let targetRow = e.target.closest("tbody tr");
+    
+    if (targetRow) {
+        // Mencari tabel tempat baris tersebut berada
+        let table = targetRow.closest("table");
+        
+        // Menghapus warna biru (class selected-row) dari semua baris lain di tabel tersebut
+        let rows = table.querySelectorAll("tbody tr");
+        rows.forEach(row => row.classList.remove("selected-row"));
+        
+        // Menambahkan warna biru ke baris yang baru saja diklik
+        targetRow.classList.add("selected-row");
+    }
+});
     </script>
 
 </body>

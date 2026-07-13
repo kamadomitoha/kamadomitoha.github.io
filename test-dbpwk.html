@@ -11,14 +11,37 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #ffffff; box-shadow: 2px 0 5px rgba(0,0,0,0.05); }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        
+        /* Sidebar Styles */
+        .sidebar { 
+            width: 260px;
+            min-height: 100vh; 
+            background-color: #ffffff; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
+            transition: all 0.3s ease;
+            z-index: 1050;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        
+        /* Class untuk menyembunyikan sidebar di Desktop */
+        .sidebar.collapsed {
+            margin-left: -260px;
+        }
+
         .nav-pills .nav-link { color: #495057; padding: 12px 20px; margin-bottom: 5px; border-radius: 8px; font-weight: 500; transition: all 0.3s;}
         .nav-pills .nav-link:hover { background-color: #f8f9fa; color: #0d6efd; }
         .nav-pills .nav-link.active { background-color: #0d6efd; color: white; box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2); }
         .nav-pills .nav-link i { margin-right: 10px; font-size: 1.1rem; }
         .menu-label { font-size: 0.75rem; font-weight: bold; color: #8b8b8b; text-transform: uppercase; letter-spacing: 1px; margin: 15px 0 10px 20px; }
-        .content-area { padding: 30px; }
+        
+        .content-area { 
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
+        
         .card { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); margin-bottom: 20px; }
         
         /* Pewarnaan Sel */
@@ -28,157 +51,114 @@
         
         /* Tabel agar tidak turun baris jika kolom banyak */
         td, th { vertical-align: middle; }
-        @media (max-width: 768px) {
-    .table-nowrap th, .table-nowrap td {
-        white-space: normal !important; /* Ubah ke normal di HP */
-    }
-}
+        .table-nowrap th, .table-nowrap td { white-space: nowrap; }
         
         .chart-container-small { height: 250px; position: relative; }
         .chart-container-tall { height: 350px; position: relative; }
 
+        /* Overlay untuk HP saat menu terbuka */
+        #sidebarOverlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+            display: none;
+        }
+
         /* Penyesuaian Khusus Layar HP (Mobile Responsiveness) */
-@media (max-width: 768px) {
-    /* Izinkan konten tabel melipat agar tidak membuat layar melebar */
-    .table-nowrap th, .table-nowrap td {
-        white-space: normal !important; 
-    }
-    
-    /* Pastikan container tabel responsif */
-    .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-}
-    /* 1. Ubah sidebar agar tidak memakan tinggi layar penuh */
-    .sidebar {
-        min-height: auto;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #eaeaea;
-    }
-    
-    /* 2. Ubah menu navigasi menjadi menyamping dan bisa di-scroll (horizontal) */
-    .nav-pills {
-        flex-direction: row !important;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding-bottom: 10px;
-    }
-    
-    .nav-pills .nav-link {
-        display: inline-block;
-        white-space: nowrap; /* Teks menu tidak turun baris */
-        margin-right: 10px;
-        margin-bottom: 0;
-    }
-    
-    /* Sembunyikan label kategori di HP agar menu horizontal lebih rapi */
-    .menu-label {
-        display: none; 
-    }
-    
-    /* 3. Kurangi ruang kosong (padding) di area konten agar layar HP lebih luas */
-    .content-area {
-        padding: 15px !important;
-    }
-    
-    /* 4. Sesuaikan ukuran font judul di HP */
-    h4 {
-        font-size: 1.25rem;
-    }
-}
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px; /* Sembunyikan di luar layar secara default */
+                margin-left: 0 !important;
+            }
+            .sidebar.show-mobile {
+                left: 0; /* Munculkan saat ditoggle */
+            }
+            
+            #sidebarOverlay.show {
+                display: block;
+            }
 
-/* Aturan ini hanya berlaku untuk desktop/tablet besar */
-@media (min-width: 769px) {
-    .content-area {
-        height: 100vh; 
-        overflow-y: auto;
-    }
-}
+            .content-area {
+                width: 100%;
+            }
+            
+            h4 {
+                font-size: 1.25rem;
+            }
 
-@media (max-width: 768px) {
-    /* Mengecilkan ukuran huruf tabel di HP */
-    .table {
-        font-size: 11px; 
-    }
-    /* Mengurangi jarak (padding) di dalam kotak tabel */
-    .table td, .table th {
-        padding: 0.3rem !important;
-    }
-}
-
-
-/* Pastikan sidebar tetap di tempat saat layar di-scroll */
-.sidebar {
-    position: -webkit-sticky; /* Safari */
-    position: sticky;
-    top: 0;
-    height: 100vh; /* Tinggi penuh layar */
-    overflow-y: auto; /* Agar menu yang panjang bisa di-scroll di dalam sidebar */
-}
-
-/* Pastikan row induk memiliki tinggi 100vh untuk mendukung sticky */
-.container-fluid {
-    height: 100vh;
-    overflow: hidden; /* Mencegah body utama ikut scroll */
-}
-
-.row {
-    height: 100%;
-}
-
-.content-area {
-    height: 100%;
-    overflow-y: auto; /* Hanya area konten yang akan di-scroll */
-}
+            /* Mengecilkan ukuran huruf tabel di HP */
+            .table {
+                font-size: 11px; 
+            }
+            /* Mengurangi jarak (padding) di dalam kotak tabel */
+            .table td, .table th {
+                padding: 0.3rem !important;
+            }
+        }
     </style>
 </head>
 <body>
-<div class="container-fluid p-0">
-        <div class="row g-0">
-            
-            <div class="col-md-3 col-lg-2 sidebar pt-4">
-                <h5 class="text-center fw-bold text-primary mb-4">
-    <i class="bi bi-database-fill-check"></i> G080<br>
-    <span class="text-dark fs-6">DC PURWAKARTA</span><br>
-    <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem; line-height: 1.4;">
-        <span id="dynamic-greeting" class="fw-bold text-primary"></span><br>
-        <i class="bi bi-geo-alt-fill text-danger"></i> Purwakarta, Jawa Barat<br>
-        <i class="bi bi-clock"></i> <span id="dynamic-time"></span> WIB
-    </div>
-</h5>
-                <div class="nav flex-column nav-pills px-2" id="v-pills-tab" role="tablist">
-                    <div class="menu-label">Visualisasi</div>
-                    <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#nav-chart" type="button"><i class="bi bi-bar-chart-fill"></i> REKAP MASTER</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
-                     <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-issuing" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP ISSUING</button> 
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-driver" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP DRIVER</button> 
-                    <div class="menu-label mt-3">Database Master</div>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-toko" type="button"><i class="bi bi-shop"></i> Master Toko</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-area" type="button"><i class="bi bi-map text-success"></i> Master Area</button>
-                    <div class="menu-label mt-3">Produktivitas</div>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-driver" type="button"><i class="bi bi-trophy-fill text-warning"></i> Produktivitas Driver</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-armada" type="button"><i class="bi bi-speedometer text-info"></i> Produktivitas Armada</button>
-
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-fraud-berhenti" type="button"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Fraud Speed-Berhenti</button>
-                    <div class="menu-label">SO Armada & BBM</div>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-surat" type="button"><i class="bi bi-file-earmark-text text-danger"></i> Surat STNK & KIR</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
-                    <div class="menu-label">Pelanggaran Presensi</div>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Issuing</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Issuing</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Driver</button>
-                    <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-driver" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Driver</button>
-                
+    <div class="d-flex w-100 position-relative">
+        
+        <!-- SIDEBAR -->
+        <div class="sidebar pt-4 pb-4 position-relative" id="sidebar">
+            <button id="closeSidebarMobile" class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 mt-3 me-3 d-md-none"><i class="bi bi-x-lg"></i></button>
+            <h5 class="text-center fw-bold text-primary mb-4">
+                <i class="bi bi-database-fill-check"></i> G080<br>
+                <span class="text-dark fs-6">DC PURWAKARTA</span><br>
+                <div class="mt-2 text-muted fw-normal" style="font-size: 0.75rem; line-height: 1.4;">
+                    <span id="dynamic-greeting" class="fw-bold text-primary"></span><br>
+                    <i class="bi bi-geo-alt-fill text-danger"></i> Purwakarta, Jawa Barat<br>
+                    <i class="bi bi-clock"></i> <span id="dynamic-time"></span> WIB
                 </div>
+            </h5>
+            
+            <div class="nav flex-column nav-pills px-2" id="v-pills-tab" role="tablist">
+                <div class="menu-label">Visualisasi</div>
+                <button class="nav-link active text-start" data-bs-toggle="pill" data-bs-target="#nav-chart" type="button"><i class="bi bi-bar-chart-fill"></i> REKAP MASTER</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-so" type="button"><i class="bi bi-shield-check text-success"></i> REKAP SO ARMADA</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-bbm" type="button"><i class="bi bi-fuel-pump-fill text-danger"></i> REKAP RASIO BBM</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-chart-fraud" type="button"><i class="bi bi-speedometer2 text-warning"></i> REKAP FRAUD</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-issuing" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP ISSUING</button> 
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-pelanggaran-driver" type="button"><i class="bi bi-fingerprint text-secondary"></i> REKAP DRIVER</button> 
+                <div class="menu-label mt-3">Database Master</div>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-kendaraan" type="button"><i class="bi bi-truck"></i> Master Kendaraan</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-driver" type="button"><i class="bi bi-person-badge-fill"></i> Master Driver</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-toko" type="button"><i class="bi bi-shop"></i> Master Toko</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-area" type="button"><i class="bi bi-map text-success"></i> Master Area</button>
+                <div class="menu-label mt-3">Produktivitas</div>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-driver" type="button"><i class="bi bi-trophy-fill text-warning"></i> Produktivitas Driver</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-prod-armada" type="button"><i class="bi bi-speedometer text-info"></i> Produktivitas Armada</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-fraud-berhenti" type="button"><i class="bi bi-exclamation-triangle-fill text-danger"></i> Fraud Speed-Berhenti</button>
+                <div class="menu-label">SO Armada & BBM</div>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-surat" type="button"><i class="bi bi-file-earmark-text text-danger"></i> Surat STNK & KIR</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-so-foto" type="button"><i class="bi bi-camera text-primary"></i> SO Foto Armada</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-bbm" type="button"><i class="bi bi-droplet-half text-danger"></i> Data Rasio BBM</button>
+                <div class="menu-label">Pelanggaran Presensi</div>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-issuing" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Issuing</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-issuing" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Issuing</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-rekap-absensi-driver" type="button"><i class="bi bi-person-circle text-secondary"></i>Karyawan Driver</button>
+                <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#nav-presensi-driver" type="button"><i class="bi bi-calendar-check text-primary"></i> Data Presensi Driver</button>
+            </div>
+        </div>
+
+        <!-- MOBILE OVERLAY -->
+        <div id="sidebarOverlay"></div>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area flex-grow-1 w-100 bg-light" id="mainContent">
+            
+            <!-- TOP NAVBAR TOGLE -->
+            <div class="bg-white shadow-sm p-3 mb-4 d-flex align-items-center sticky-top z-3">
+                <button class="btn btn-primary btn-sm me-3 shadow-sm" id="btnToggleSidebar">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <h5 class="m-0 fw-bold text-primary d-md-none"><i class="bi bi-database-fill-check"></i> DC PWK</h5>
             </div>
 
-<div class="col-md-9 col-lg-10 content-area">
+            <div class="container-fluid px-3 px-md-4 pb-5">
                 <div class="tab-content">
                     
                     <div class="tab-pane fade show active" id="nav-chart" role="tabpanel">
@@ -402,7 +382,6 @@
                                             <tr><td colspan="8">Memuat data...</td></tr>
                                         </tbody>
                                         </table>
-                                    </table>
                                 </div>
                                 
                             </div>
@@ -613,9 +592,6 @@
             <button type="button" class="btn-close btn-sm" onclick="document.getElementById('mobileInfoPanel').classList.add('d-none')"></button>
         </div>
     </div>
-
-<div id="mobileInfoPanel" class="alert alert-success shadow-sm d-none mb-3 border-start border-5 border-success" style="white-space: pre-wrap; font-size: 0.95rem;">
-        </div>
 
     <div class="d-flex justify-content-end mb-2">
         <button type="button" class="btn btn-danger btn-sm shadow-sm" onclick="resetFilterArea()">
@@ -858,9 +834,7 @@
         // ==========================================
         // KONFIGURASI LINK SPREADSHEET (Format CSV)
         // ==========================================
-        // Ganti URL di dalam tanda kutip dengan link CSV "Publikasikan ke Web" milik Anda.
         const SPREADSHEET_LINKS = {
-            // Contoh: "https://docs.google.com/spreadsheets/d/e/2PACX-.../pub?output=csv"
             kendaraan: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7xmfcsygPQSwthTtc-xv1ymw8e6kELoeRhsfqD6Nvmq_XIRCRIwcBVQr2-6goRYodYDYQiZV6vG8u/pub?gid=485712193&single=true&output=csv", 
             driver: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSONZoBJoC8x_NaheUkPw2nO7xnVtcNWp-7X_bV7arkDZJ0wEHLK9-qOi7jdwF-7pwINat7dYfwD6AL/pub?gid=929771610&single=true&output=csv",
             toko: "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-7cHu02J-79X-xVsRYh8P59K_DV0dbCOwL6F9LqPZkuoMvRSLuKErCUDdHZKArIAuLkHDQ1ggMRk6/pub?gid=0&single=true&output=csv",
@@ -879,7 +853,37 @@
             rekapPelanggaranDriver: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRp6wEkqM-e8ivMOLeqscQp1vE4da02E3PkCvGKsncoCTvIeqcKWRBrKWwkANjww627DNpg_25yl3My/pub?gid=1932455470&single=true&output=csv"  
         };
 
+        // FUNGSI TOGGLE SIDEBAR (Ditambahkan)
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleBtn = document.getElementById('btnToggleSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const closeBtn = document.getElementById('closeSidebarMobile');
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
 
+            function toggleSidebar() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle('show-mobile');
+                    overlay.classList.toggle('show');
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
+            }
+
+            toggleBtn.addEventListener('click', toggleSidebar);
+            closeBtn.addEventListener('click', toggleSidebar);
+            overlay.addEventListener('click', toggleSidebar);
+
+            // Menutup otomatis di layar HP jika sebuah menu di klik
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('show-mobile');
+                        overlay.classList.remove('show');
+                    }
+                });
+            });
+        });
 
 // Fungsi Utama untuk memproses data
 function loadPresensiIssuing() {
@@ -1222,12 +1226,7 @@ function updateOpsiFilterDriver() {
                 dataKen = res.data.filter(r=>r.LAMBUNG);
                 let h=''; dataKen.forEach(r => { h+=`<tr><td>${r.LAMBUNG||''}</td><td>${r.NOPOL||''}</td><td class="${(r.STATUS||'').toUpperCase()==='AKTIF'?'cell-hijau':''}">${r.STATUS||''}</td><td>${r.MERK||''}</td><td>${r.TAHUN||''}</td><td class="${parseInt(r.UMUR)>=15?'cell-merah':(parseInt(r.UMUR)>=10?'cell-kuning':'cell-hijau')}">${r.UMUR||''}</td><td>${r.JENIS||''}</td><td>${r.DEPT||''}</td></tr>`;});
                 if ($.fn.DataTable.isDataTable('#tblKendaraan')) $('#tblKendaraan').DataTable().clear().destroy();
-                document.getElementById('bodyKendaraan').innerHTML=h; 
-                $('#tblKendaraan').DataTable({
-                responsive: true,
-    scrollX: true,
-    autoWidth: false // Penting agar kolom mengikuti lebar layar
-});
+                document.getElementById('bodyKendaraan').innerHTML=h; $('#tblKendaraan').DataTable({ scrollX: true });
                 
                 document.getElementById('alertUploadKendaraan').style.display='none'; 
                 document.getElementById('areaGrafikKendaraan').style.display='flex';
