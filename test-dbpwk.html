@@ -28,13 +28,28 @@
         
         /* Tabel agar tidak turun baris jika kolom banyak */
         td, th { vertical-align: middle; }
-        .table-nowrap th, .table-nowrap td { white-space: nowrap; }
+        @media (max-width: 768px) {
+    .table-nowrap th, .table-nowrap td {
+        white-space: normal !important; /* Ubah ke normal di HP */
+    }
+}
         
         .chart-container-small { height: 250px; position: relative; }
         .chart-container-tall { height: 350px; position: relative; }
 
         /* Penyesuaian Khusus Layar HP (Mobile Responsiveness) */
 @media (max-width: 768px) {
+    /* Izinkan konten tabel melipat agar tidak membuat layar melebar */
+    .table-nowrap th, .table-nowrap td {
+        white-space: normal !important; 
+    }
+    
+    /* Pastikan container tabel responsif */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
     /* 1. Ubah sidebar agar tidak memakan tinggi layar penuh */
     .sidebar {
         min-height: auto;
@@ -1207,7 +1222,12 @@ function updateOpsiFilterDriver() {
                 dataKen = res.data.filter(r=>r.LAMBUNG);
                 let h=''; dataKen.forEach(r => { h+=`<tr><td>${r.LAMBUNG||''}</td><td>${r.NOPOL||''}</td><td class="${(r.STATUS||'').toUpperCase()==='AKTIF'?'cell-hijau':''}">${r.STATUS||''}</td><td>${r.MERK||''}</td><td>${r.TAHUN||''}</td><td class="${parseInt(r.UMUR)>=15?'cell-merah':(parseInt(r.UMUR)>=10?'cell-kuning':'cell-hijau')}">${r.UMUR||''}</td><td>${r.JENIS||''}</td><td>${r.DEPT||''}</td></tr>`;});
                 if ($.fn.DataTable.isDataTable('#tblKendaraan')) $('#tblKendaraan').DataTable().clear().destroy();
-                document.getElementById('bodyKendaraan').innerHTML=h; $('#tblKendaraan').DataTable({ scrollX: true });
+                document.getElementById('bodyKendaraan').innerHTML=h; 
+                $('#tblKendaraan').DataTable({
+                responsive: true,
+    scrollX: true,
+    autoWidth: false // Penting agar kolom mengikuti lebar layar
+});
                 
                 document.getElementById('alertUploadKendaraan').style.display='none'; 
                 document.getElementById('areaGrafikKendaraan').style.display='flex';
