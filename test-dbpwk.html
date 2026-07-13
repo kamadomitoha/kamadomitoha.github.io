@@ -16,13 +16,14 @@
         /* Sidebar Styles */
         .sidebar { 
             width: 260px;
-            min-height: 100vh; 
+            height: 100vh; /* PERBAIKAN: Diubah menjadi height agar bisa discroll */
             background-color: #ffffff; 
             box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
             transition: all 0.3s ease;
             z-index: 1050;
             flex-shrink: 0;
             overflow-y: auto;
+            padding-bottom: 20px; /* PERBAIKAN: Ruang tambahan agar menu terbawah tidak mepet layar */
         }
         
         /* Class untuk menyembunyikan sidebar di Desktop */
@@ -39,6 +40,8 @@
         .content-area { 
             height: 100vh;
             overflow-y: auto;
+            overflow-x: hidden; /* PERBAIKAN: Mencegah konten melar ke samping (bug ruang kosong) */
+            max-width: 100%; /* PERBAIKAN: Mengunci maksimal lebar area konten */
             transition: all 0.3s ease;
         }
         
@@ -69,6 +72,8 @@
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
+                top: 0; /* PERBAIKAN: Tempelkan ke atas */
+                height: 100vh; /* PERBAIKAN: Pastikan tingginya 100% tinggi layar HP */
                 left: -260px; /* Sembunyikan di luar layar secara default */
                 margin-left: 0 !important;
             }
@@ -82,6 +87,7 @@
 
             .content-area {
                 width: 100%;
+                max-width: 100vw; /* PERBAIKAN: Paksa ukuran layar mengikuti perangkat HP */
             }
             
             h4 {
