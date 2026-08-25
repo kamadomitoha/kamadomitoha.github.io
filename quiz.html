@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Konsep Dasar Manajemen</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .quiz-container {
+            background-color: #fff;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 650px;
+            overflow: hidden;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 10px;
+        }
+        .progress-text {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        h2 {
+            margin: 0 0 20px 0;
+            font-size: 1.3rem;
+            color: #2b2b2b;
+            line-height: 1.5;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        ul li {
+            margin: 12px 0;
+        }
+        
+        /* Styling untuk Radio Button Custom */
+        input[type="radio"] {
+            display: none;
+        }
+        .answer-label {
+            display: block;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+        .answer-label:hover {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
+        }
+        input[type="radio"]:checked + .answer-label {
+            background-color: #e0f0ff;
+            border-color: #007bff;
+            color: #0056b3;
+            font-weight: 500;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            display: block;
+            width: 100%;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-family: inherit;
+            font-weight: 600;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 25px;
+            transition: transform 0.1s ease, background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* Styling untuk Result & Review */
+        .result-container {
+            text-align: center;
+        }
+        .score-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .review-box {
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            padding-right: 10px;
+        }
+        .review-box::-webkit-scrollbar {
+            width: 8px;
+        }
+        .review-box::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        .review-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+            border-left: 5px solid #ccc;
+        }
+        .review-item p {
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+        .review-question {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px !important;
+        }
+        .correct-item {
+            border-left-color: #28a745;
+        }
+        .wrong-item {
+            border-left-color: #dc3545;
+        }
+        .text-correct {
+            color: #28a745;
+            font-weight: 600;
+        }
+        .text-wrong {
+            color: #dc3545;
+            text-decoration: line-through;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container" id="quiz-container">
+        <div id="quiz-header">
+            <div class="quiz-header">
+                <span class="progress-text" id="progress-text">Soal 1 dari 30</span>
+            </div>
+            <h2 id="question">Teks Pertanyaan Disini</h2>
+            <ul>
+                <li>
+                    <input type="radio" name="answer" id="a" class="answer">
+                    <label for="a" id="a_text" class="answer-label">Opsi A</label>
+                </li>
+                <li>
+                    <input type="radio" name="answer" id="b" class="answer">
+                    <label for="b" id="b_text" class="answer-label">Opsi B</label>
+                </li>
+                <li>
+                    <input type="radio" name="answer" id="c" class="answer">
+                    <label for="c" id="c_text" class="answer-label">Opsi C</label>
+                </li>
+                <li>
+                    <input type="radio" name="answer" id="d" class="answer">
+                    <label for="d" id="d_text" class="answer-label">Opsi D</label>
+                </li>
+            </ul>
+        </div>
+        <button id="submit">Selanjutnya</button>
+    </div>
+
+    <script>
+        const quizData = [
+          { id: 1, question: "Sekelompok orang yang bekerja sama, berkoordinasi, untuk mencapai tujuan tertentu disebut...", options: { a: "Masyarakat", b: "Organisasi", c: "Perusahaan", d: "Manajer" }, answer: "b" },
+          { id: 2, question: "Organisasi yang mempunyai struktur yang ketat, wewenang yang jelas, aturan, dan konsekuensi yang jelas adalah contoh dari organisasi...", options: { a: "Rukun Tetangga (RT)", b: "Rukun Warga (RW)", c: "Militer", d: "Arisan" }, answer: "c" },
+          { id: 3, question: "Manfaat organisasi memelihara ilmu pengetahuan terlihat pada institusi seperti...", options: { a: "Universitas dan museum", b: "Kepengurusan RT", c: "Perusahaan manufaktur", d: "Koperasi simpan pinjam" }, answer: "a" },
+          { id: 4, question: "Menurut Mary Parker Follet, manajemen didefinisikan sebagai...", options: { a: "Proses merencanakan dan mengendalikan", b: "Seni mencapai sesuatu melalui orang lain", c: "Pencapaian tujuan yang efektif dan efisien", d: "Koordinasi sumber daya fisik dan manusia" }, answer: "b" },
+          { id: 5, question: "Menurut Peter Drucker, efisiensi berarti mengerjakan sesuatu dengan benar, yang dalam bahasa Inggris disebut...", options: { a: "Doing the right things", b: "Doing things right", c: "Achieving the goals", d: "Maximizing output" }, answer: "b" },
+          { id: 6, question: "Mengerjakan sesuatu yang benar dan sangat berkaitan dengan pencapaian tujuan yang telah ditentukan disebut...", options: { a: "Efektif", b: "Efisien", c: "Produktif", d: "Ekonomis" }, answer: "a" },
+          { id: 7, question: "Perusahaan memproduksi mobil berukuran besar yang hemat biaya, namun tidak laku karena konsumen lebih menyukai mobil kecil. Perusahaan tersebut berada dalam kuadran...", options: { a: "Tidak efisien dan tidak efektif", b: "Efisien tetapi tidak efektif", c: "Efektif tetapi tidak efisien", d: "Efektif dan efisien" }, answer: "b" },
+          { id: 8, question: "Kuadran paling parah yang harus dihindari oleh seorang manajer adalah...", options: { a: "Tidak mencapai tujuan dan tidak menghamburkan sumber daya", b: "Mencapai tujuan dan menghamburkan sumber daya", c: "Tidak mencapai tujuan dan menghamburkan sumber daya", d: "Mencapai tujuan dan tidak menghamburkan sumber daya" }, answer: "c" },
+          { id: 9, question: "Proses manajemen secara teoritis terdiri dari empat fungsi utama, yaitu...", options: { a: "Planning, Organizing, Leading, Controlling", b: "Planning, Staffing, Directing, Evaluating", c: "Organizing, Staffing, Leading, Coordinating", d: "Planning, Organizing, Actuating, Controlling" }, answer: "a" },
+          { id: 10, question: "Kegiatan menetapkan tujuan organisasi dan memilih cara yang terbaik untuk mencapainya disebut...", options: { a: "Pengarahan (Leading)", b: "Pengorganisasian (Organizing)", c: "Perencanaan (Planning)", d: "Pengendalian (Controlling)" }, answer: "c" },
+          { id: 11, question: "Mengoordinir sumber daya, tugas, dan otoritas di antara anggota organisasi merupakan fungsi dari...", options: { a: "Perencanaan", b: "Pengorganisasian", c: "Pengarahan", d: "Pengendalian" }, answer: "b" },
+          { id: 12, question: "Kegiatan memotivasi dan memengaruhi anggota organisasi agar bekerja mencapai tujuan merupakan fungsi...", options: { a: "Planning", b: "Organizing", c: "Leading", d: "Controlling" }, answer: "c" },
+          { id: 13, question: "Memonitor kemajuan organisasi dan melakukan perbaikan jika ada penyimpangan adalah bagian dari proses...", options: { a: "Perencanaan", b: "Pengorganisasian", c: "Pengarahan", d: "Pengendalian" }, answer: "d" },
+          { id: 14, question: "Manajer yang bertanggung jawab terhadap perusahaan secara keseluruhan dan menentukan strategi serta kebijakan perusahaan adalah...", options: { a: "First Line Manager", b: "Middle Level Manager", c: "Top Management", d: "Supervisor" }, answer: "c" },
+          { id: 15, question: "Manajer menengah (Middle Manager) bertugas untuk...", options: { a: "Mengawasi karyawan operasional", b: "Menjadi jembatan antara manajer puncak dengan manajer tingkat bawah", c: "Mengambil keputusan strategis perusahaan", d: "Menghadiri resepsi pernikahan karyawan" }, answer: "b" },
+          { id: 16, question: "Pengawas produksi (penyelia) dan pengawas penjualan termasuk dalam tingkatan...", options: { a: "Manajemen Puncak", b: "Manajemen Menengah", c: "Manajemen Tingkat Bawah (First Line)", d: "Manajemen Umum" }, answer: "c" },
+          { id: 17, question: "Manajer yang bertanggung jawab atas satu aktivitas organisasi tertentu, seperti manajer pemasaran atau keuangan, disebut...", options: { a: "Manajer Umum", b: "Manajer Fungsional", c: "Manajer Puncak", d: "Manajer Operasional" }, answer: "b" },
+          { id: 18, question: "Menurut Robert L. Katz, terdapat tiga keterampilan dasar manajemen, yaitu...", options: { a: "Konseptual, Manusiawi, Teknis", b: "Komunikasi, Negosiasi, Interpersonal", c: "Teknis, Analitis, Pemecahan Masalah", d: "Konseptual, Manusiawi, Kepemimpinan" }, answer: "a" },
+          { id: 19, question: "Kemampuan mengoordinasikan dan mengintegrasikan kegiatan serta melihat masa depan organisasi disebut keterampilan...", options: { a: "Teknis", b: "Manusiawi", c: "Konseptual", d: "Operasional" }, answer: "c" },
+          { id: 20, question: "Manajer tingkat puncak (Top Management) lebih banyak membutuhkan keterampilan...", options: { a: "Teknis", b: "Konseptual", c: "Manusiawi", d: "Fisik" }, answer: "b" },
+          { id: 21, question: "Keterampilan yang sangat dibutuhkan oleh manajer tingkat bawah untuk memahami dan melakukan kegiatan operasional adalah keterampilan...", options: { a: "Teknis", b: "Konseptual", c: "Analitis", d: "Kepemimpinan" }, answer: "a" },
+          { id: 22, question: "Henry Mintzberg menyimpulkan bahwa manajer melakukan peran-peran tertentu yang dibagi menjadi tiga kelompok besar, yaitu...", options: { a: "Interpersonal, Informasional, Pengambil Keputusan", b: "Perencanaan, Pengorganisasian, Pengendalian", c: "Konseptual, Teknis, Manusiawi", d: "Pemimpin, Penghubung, Pemonitor" }, answer: "a" },
+          { id: 23, question: "Manajer yang menghadiri acara resmi seperti menggunting pita pembukaan pabrik baru sedang menjalankan peran...", options: { a: "Juru Bicara (Spokesman)", b: "Figur Bapak (Figurehead)", c: "Penghubung (Liaison)", d: "Pemimpin (Leader)" }, answer: "b" },
+          { id: 24, question: "Mengoordinasikan kegiatan antar departemen atau melakukan kontak dengan pihak di luar organisasi adalah wujud dari peran...", options: { a: "Figur Bapak", b: "Pimpinan", c: "Penghubung", d: "Monitor" }, answer: "c" },
+          { id: 25, question: "Manajer selalu aktif mencari informasi yang dapat bermanfaat untuk organisasi. Hal ini termasuk peran informasional sebagai...", options: { a: "Diseminator", b: "Monitor", c: "Juru Bicara", d: "Perunding" }, answer: "b" },
+          { id: 26, question: "Menyebarluaskan informasi yang diperolehnya kepada pihak lain di dalam organisasi (bawahannya) adalah peran...", options: { a: "Diseminator", b: "Juru Bicara", c: "Monitor", d: "Penyelesai Gangguan" }, answer: "a" },
+          { id: 27, question: "Memosisikan manajer sebagai wakil organisasi dalam menyampaikan informasi ke pihak luar adalah wujud peran...", options: { a: "Monitor", b: "Diseminator", c: "Juru Bicara (Spokesman)", d: "Penghubung (Liaison)" }, answer: "c" },
+          { id: 28, question: "Jika ada pemogokan buruh, manajer yang bertugas menyelesaikannya sedang menjalankan peran sebagai...", options: { a: "Pengalokasi Sumber Daya", b: "Kewirausahaan", c: "Penyelesai Gangguan (Disturbance Handler)", d: "Perunding (Negotiator)" }, answer: "c" },
+          { id: 29, question: "Manajer melakukan perundingan dengan serikat pekerja atau pemasok. Peran yang sedang dijalankan adalah...", options: { a: "Perunding (Negotiator)", b: "Pembagi Sumber Daya", c: "Pemimpin", d: "Juru Bicara" }, answer: "a" },
+          { id: 30, question: "Efisiensi organisasi akan semakin tidak baik jika...", options: { a: "Rasio output/input semakin tinggi", b: "Rasio output/input semakin rendah", c: "Input dan output seimbang", d: "Tujuan organisasi tercapai dengan cepat" }, answer: "b" }
+        ];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionEl = document.getElementById('question');
+        const progressText = document.getElementById('progress-text');
+        const answerEls = document.querySelectorAll('.answer');
+        const a_text = document.getElementById('a_text');
+        const b_text = document.getElementById('b_text');
+        const c_text = document.getElementById('c_text');
+        const d_text = document.getElementById('d_text');
+        const submitBtn = document.getElementById('submit');
+
+        let currentQuiz = 0;
+        let score = 0;
+        let userHistory = []; // Array untuk menyimpan riwayat jawaban
+
+        loadQuiz();
+
+        function loadQuiz() {
+            deselectAnswers();
+
+            const currentQuizData = quizData[currentQuiz];
+            
+            progressText.innerText = `Soal ${currentQuiz + 1} dari ${quizData.length}`;
+            questionEl.innerText = currentQuizData.question;
+            a_text.innerText = currentQuizData.options.a;
+            b_text.innerText = currentQuizData.options.b;
+            c_text.innerText = currentQuizData.options.c;
+            d_text.innerText = currentQuizData.options.d;
+            
+            // Ubah teks tombol jika ini soal terakhir
+            if(currentQuiz === quizData.length - 1) {
+                submitBtn.innerText = "Selesai & Lihat Hasil";
+            } else {
+                submitBtn.innerText = "Selanjutnya";
+            }
+        }
+
+        function deselectAnswers() {
+            answerEls.forEach(answerEl => answerEl.checked = false);
+        }
+
+        function getSelected() {
+            let answer;
+            answerEls.forEach(answerEl => {
+                if(answerEl.checked) {
+                    answer = answerEl.id;
+                }
+            });
+            return answer;
+        }
+
+        function showResults() {
+            let reviewHTML = `<div class="review-box">`;
+            
+            userHistory.forEach((item, index) => {
+                let statusClass = item.isCorrect ? 'correct-item' : 'wrong-item';
+                
+                reviewHTML += `
+                    <div class="review-item ${statusClass}">
+                        <p class="review-question">${index + 1}. ${item.question}</p>
+                `;
+                
+                if(item.isCorrect) {
+                    reviewHTML += `<p>Jawabanmu: <span class="text-correct">${item.userAnswerText}</span> ✅</p>`;
+                } else {
+                    reviewHTML += `
+                        <p>Jawabanmu: <span class="text-wrong">${item.userAnswerText}</span> ❌</p>
+                        <p>Jawaban Benar: <span class="text-correct">${item.correctAnswerText}</span></p>
+                    `;
+                }
+                
+                reviewHTML += `</div>`;
+            });
+            
+            reviewHTML += `</div>`;
+
+            quizContainer.innerHTML = `
+                <div class="result-container">
+                    <h2 class="score-title">Skor Akhir: ${score} / ${quizData.length}</h2>
+                    ${reviewHTML}
+                    <button onclick="location.reload()" style="background-color: #28a745;">Ulangi Kuis</button>
+                </div>
+            `;
+        }
+
+        submitBtn.addEventListener('click', () => {
+            const answer = getSelected();
+            
+            if(answer) {
+                const currentQuizData = quizData[currentQuiz];
+                const isCorrect = (answer === currentQuizData.answer);
+                
+                if(isCorrect) {
+                    score++;
+                }
+
+                // Simpan riwayat untuk review
+                userHistory.push({
+                    question: currentQuizData.question,
+                    userAnswerText: currentQuizData.options[answer],
+                    correctAnswerText: currentQuizData.options[currentQuizData.answer],
+                    isCorrect: isCorrect
+                });
+
+                currentQuiz++;
+
+                if(currentQuiz < quizData.length) {
+                    loadQuiz();
+                } else {
+                    showResults();
+                }
+            } else {
+                alert("Silakan pilih salah satu jawaban terlebih dahulu!");
+            }
+        });
+    </script>
+</body>
+</html>

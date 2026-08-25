@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Try Out - Portal E-Learning</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background-color: #f7f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- GLOBAL APP HEADER --- */
+        .app-header {
+            width: 100%;
+            background-color: #0f172a;
+            color: #fff;
+            padding: 18px 30px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 10;
+        }
+        .app-header span {
+            color: #2c8e83;
+        }
+
+       /* --- CONTAINER UTAMA DENGAN BACKGROUND BLUR DARI FOLDER LOKAL --- */
+        #home-view {
+            position: relative;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 20px;
+            gap: 25px;
+            overflow: hidden; /* Mencegah pinggiran blur bocor keluar */
+        }
+
+        /* Lapisan Gambar Background + Blur */
+        #home-view::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            /* GANTI nama-gambar-kamu.jpg SESUAI NAMA FILE GAMBAR DI FOLDER KAMPUS/KOMPUTERMU */
+            background: linear-gradient(rgba(15, 23, 42, 0), rgba(15, 23, 42, 0)), 
+                        url('assets/img/utpwk.jpg') no-repeat center center;
+            background-size: cover;
+            filter: blur(8px); /* Atur tingkat keburaman di sini (contoh: 8px, 10px, 15px) */
+            z-index: 0;
+        }
+
+        /* Memastikan isi menu tetap tegak & jelas di atas background blur */
+        #home-view > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- CONTAINER UTAMA KUIS (Background Standar) --- */
+        .layout-container {
+            width: 100%;
+            max-width: 1350px;
+            padding: 0 20px 40px 20px;
+            gap: 25px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            flex: 1;
+        }
+
+        /* --- STYLING SIDEBAR KIRI & KANAN --- */
+        .sidebar-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+            flex-shrink: 0;
+        }
+        .sidebar-left { width: 300px; }
+        .sidebar-right { width: 320px; }
+
+        /* --- MENU MATERI (Layar Home) --- */
+        .menu-title-header {
+            font-size: 1.05rem;
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .menu-list { list-style: none; }
+        .menu-group { margin-bottom: 20px; }
+        .menu-course { 
+            font-weight: 800; color: #2c8e83; margin-bottom: 8px; font-size: 0.95rem; line-height: 1.4;
+        }
+        .menu-modul { font-weight: 700; color: #334155; margin-bottom: 5px; font-size: 0.9rem; }
+        .menu-kb-list { list-style: none; padding-left: 15px; margin-bottom: 10px; }
+        .menu-kb-item {
+            font-size: 0.85rem; color: #64748b; padding: 6px 10px; cursor: pointer; border-radius: 6px; transition: all 0.2s ease; margin-bottom: 2px;
+        }
+        .menu-kb-item:hover { background-color: #f1f5f9; color: #0f172a; }
+        .menu-kb-item.active {
+            background-color: #ebf5f4; color: #2c8e83; font-weight: 700; border-left: 3px solid #2c8e83;
+        }
+
+        /* --- KOTAK INFO & KEMBALI (Layar Kuis) --- */
+        .btn-back {
+            background-color: #f8fafc;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 20px;
+            transition: all 0.2s ease;
+        }
+        .btn-back:hover { background-color: #e2e8f0; color: #0f172a; border-color: #94a3b8; }
+        
+        .info-box-left {
+            background-color: #fff;
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #2c8e83;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .info-label { font-size: 0.8rem; color: #64748b; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; }
+        .info-val { font-size: 0.95rem; color: #0f172a; font-weight: 800; margin-bottom: 3px; line-height: 1.4; }
+        .info-sub { font-size: 0.85rem; color: #475569; font-weight: 600; }
+
+        /* --- LAYAR TENGAH (Mulai / Coming Soon / Hasil) --- */
+        .center-wrapper {
+            flex: 1; display: flex; justify-content: center; align-items: center; min-height: 60vh;
+        }
+        .center-screen {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(5px);
+            border: 1px solid #e2e8f0; 
+            border-radius: 12px; 
+            padding: 40px;
+            text-align: center; 
+            max-width: 600px; 
+            width: 100%; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .center-screen h2 { margin-bottom: 15px; color: #0f172a; }
+        .center-screen p { color: #64748b; margin-bottom: 25px; line-height: 1.6; }
+        .btn-start {
+            background-color: #2c8e83; color: #fff; border: none; padding: 15px 30px;
+            border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; width: 100%; transition: 0.2s;
+        }
+        .btn-start:hover { background-color: #23746a; }
+        .btn-start:disabled { background-color: #cbd5e1; cursor: not-allowed; }
+
+        /* --- AREA UTAMA KUIS --- */
+        .quiz-main { flex: 1; min-width: 0; }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-row h1 { font-size: 1.1rem; color: #0f172a; text-transform: uppercase; font-weight: 800; }
+        .timer { background-color: #edf2f7; color: #0f172a; padding: 8px 18px; border-radius: 20px; font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+
+        .progress-section { margin-bottom: 20px; }
+        .progress-labels { display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; color: #64748b; margin-bottom: 10px; }
+        .current-num { font-weight: 800; color: #0f172a; font-size: 1.1rem; }
+        .progress-bar-bg { background-color: #e2e8f0; height: 8px; border-radius: 10px; width: 100%; overflow: hidden; }
+        .progress-bar-fill { background-color: #2c8e83; height: 100%; width: 0%; transition: width 0.3s ease; }
+
+        .question-card { background-color: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .question-label { font-size: 0.85rem; color: #64748b; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 20px; }
+        .question-text { font-size: 1.15rem; color: #0f172a; margin-bottom: 30px; line-height: 1.6; }
+
+        .options-container { display: flex; flex-direction: column; gap: 12px; }
+        .option-label { display: flex; align-items: center; padding: 16px 20px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-size: 1rem; color: #334155; }
+        .option-label:hover { border-color: #94a3b8; }
+        .option-label.selected { border-color: #2c8e83; background-color: #ebf5f4; color: #0f172a; font-weight: 600; }
+        .option-label input[type="radio"] { margin-right: 15px; width: 18px; height: 18px; accent-color: #2c8e83; cursor: pointer; }
+        .opt-letter { font-weight: 800; margin-right: 5px; }
+
+        .footer-nav { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
+        .btn-prev { background: none; border: none; color: #94a3b8; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .btn-prev:hover { color: #475569; }
+        .btn-prev:disabled { opacity: 0; cursor: default; }
+        .auto-save { color: #10b981; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; }
+        .btn-next { background-color: #2c8e83; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
+        .btn-next:hover { background-color: #23746a; }
+
+        /* --- GRID NAVIGASI KANAN --- */
+        .sidebar-title { font-size: 1rem; color: #0f172a; font-weight: 800; margin-bottom: 15px; text-align: center; }
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; max-height: 450px; overflow-y: auto; padding-right: 5px; }
+        .grid-box { aspect-ratio: 1; display: flex; justify-content: center; align-items: center; border: 2px solid #e2e8f0; border-radius: 6px; font-weight: 700; color: #64748b; cursor: pointer; transition: all 0.2s ease; font-size: 0.9rem; }
+        .grid-box:hover { border-color: #94a3b8; color: #0f172a; }
+        .grid-box.answered { background-color: #2c8e83; border-color: #2c8e83; color: #fff; }
+        .grid-box.current { border-color: #0f172a; color: #0f172a; box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.2); }
+        .grid-box.answered.current { background-color: #23746a; border-color: #0f172a; }
+
+        .legend { margin-top: 20px; font-size: 0.85rem; color: #64748b; display: flex; flex-direction: column; gap: 8px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; }
+        .legend-box { width: 16px; height: 16px; border-radius: 4px; }
+        .legend-box.unanswered { border: 2px solid #e2e8f0; }
+        .legend-box.answered-leg { background-color: #2c8e83; }
+
+        /* --- REVIEW SOAL SALAH --- */
+        .result-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: left; }
+        .final-score { font-size: 2.8rem; font-weight: 800; color: #2c8e83; margin: 10px 0; text-align: center; }
+        .formula-text { font-size: 0.85rem !important; color: #94a3b8 !important; font-style: italic; text-align: center; margin-top: 15px !important; margin-bottom: 0 !important; }
+
+        .review-section { margin-top: 30px; text-align: left; max-height: 400px; overflow-y: auto; padding-right: 10px; }
+        .review-section::-webkit-scrollbar { width: 6px; }
+        .review-section::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .review-title { font-size: 1.1rem; color: #ef4444; font-weight: 700; margin-bottom: 15px; border-bottom: 2px solid #fee2e2; padding-bottom: 10px; }
+        .review-item { background-color: #fff; border: 1px solid #fecaca; border-left: 5px solid #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .review-q { font-weight: 700; color: #0f172a; margin-bottom: 10px; font-size: 0.95rem; }
+        .review-ans { font-size: 0.9rem; margin-bottom: 5px; color: #475569;}
+        .text-wrong { color: #ef4444; font-weight: 600; text-decoration: line-through; }
+        .text-correct { color: #10b981; font-weight: 700; }
+
+        /* --- GLOBAL APP FOOTER --- */
+        .app-footer {
+            width: 100%;
+            background-color: #1e293b;
+            color: #94a3b8;
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            border-top: 1px solid #334155;
+            margin-top: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .layout-container, #home-view { flex-wrap: wrap; }
+            .sidebar-left, .sidebar-right { width: 100%; position: static; }
+            .center-wrapper { min-height: auto; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER UTAMA WEB -->
+    <header class="app-header">
+        UT PURWAKARTA <span>26.2</span>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- 1. TAMPILAN AWAL (BERANDA DENGAN BG BLUR)  -->
+    <!-- ========================================== -->
+    <div id="home-view" style="display: flex;">
+        
+        <!-- Sidebar Kiri: Daftar Menu Materi -->
+        <div class="sidebar-card sidebar-left">
+            <div class="menu-title-header">Daftar Materi</div>
+            <ul class="menu-list">
+                
+                <!-- Mata Kuliah 1: Manajemen -->
+                <li class="menu-group">
+                    <div class="menu-course">EKMA4116 - Manajemen (4 sks)</div>
+                    <div class="menu-modul">Modul 01</div>
+                    <ul class="menu-kb-list">
+                        <li class="menu-kb-item active" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '01', 'manajemen', false)">Kegiatan Belajar 01</li>
+                        <li class="menu-kb-item" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '02', 'manajemen', true)">Kegiatan Belajar 02</li>
+                    </ul>
+                </li>
+
+                <!-- Mata Kuliah 2: Bahasa Indonesia -->
+                <li class="menu-group">
+                    <div class="menu-course">MKWN4108 - Bahasa Indonesia (2 sks)</div>
+                    <div class="menu-modul">Modul 01</div>
+                    <ul class="menu-kb-list">
+                        <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '01', 'bindo', false)">Kegiatan Belajar 01</li>
+                        <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '02', 'bindo', true)">Kegiatan Belajar 02</li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+
+        <!-- Area Kanan: Kotak Mulai / Coming Soon -->
+        <div class="center-wrapper">
+            <div class="center-screen" id="home-card-content">
+                <h2 id="start-title-mk">Try Out: EKMA4116-Manajemen-4sks</h2>
+                <p id="start-title-sub" style="font-weight: 700; color: #0f172a; margin-bottom: 10px;">Modul 01 - Kegiatan Belajar 01</p>
+                <p id="start-desc">Anda akan mengerjakan 30 soal pilihan ganda. Waktu pengerjaan adalah 60 menit. Gunakan panel navigasi di sebelah kanan untuk melompat ke soal tertentu.</p>
+                <button class="btn-start" id="btn-start-action" onclick="startQuiz()">Mulai Try Out</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 2. TAMPILAN KUIS (TRY OUT BERJALAN)        -->
+    <!-- ========================================== -->
+    <div class="layout-container" id="quiz-view" style="display: none;">
+        
+        <!-- Sidebar Kiri: Tombol Kembali & Info Materi -->
+        <div class="sidebar-card sidebar-left">
+            <button class="btn-back" onclick="confirmGoHome()">⬅ Kembali ke Beranda</button>
+            <div class="info-box-left">
+                <div class="info-label">Sedang Dikerjakan:</div>
+                <div class="info-val" id="quiz-info-mk">EKMA4116-Manajemen-4sks</div>
+                <div class="info-sub" id="quiz-info-sub">Modul 01 • KB 01</div>
+            </div>
+        </div>
+
+        <!-- Area Tengah: Layar Soal -->
+        <div class="quiz-main">
+            <div class="header-row">
+                <h1 id="quiz-section-title">PENALARAN MANAJEMEN</h1>
+                <div class="timer">⏱ <span id="time-display">60:00</span></div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-labels">
+                    <span>Soal</span>
+                    <span class="current-num" id="current-num-display">1</span>
+                    <span>dari <span id="total-num-display">30</span> • Terjawab: <span id="answered-count">0</span></span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-label" id="question-label">SOAL 1 DARI 30</div>
+                <div class="question-text" id="question-text">Teks pertanyaan dimuat disini...</div>
+                
+                <div class="options-container" id="options-container"></div>
+            </div>
+
+            <div class="footer-nav">
+                <button class="btn-prev" id="btn-prev" onclick="prevQuestion()">← Sebelumnya</button>
+                <div class="auto-save">💾 Tersimpan otomatis</div>
+                <button class="btn-next" id="btn-next" onclick="nextQuestion()">Berikutnya →</button>
+            </div>
+        </div>
+
+        <!-- Sidebar Kanan: Grid Nomor Soal -->
+        <div class="sidebar-card sidebar-right">
+            <div class="sidebar-title">Navigasi Soal</div>
+            <div class="grid-container" id="grid-container"></div>
+            <div class="legend">
+                <div class="legend-item"><div class="legend-box unanswered"></div><span>Belum Dijawab</span></div>
+                <div class="legend-item"><div class="legend-box answered-leg"></div><span>Sudah Dijawab</span></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. TAMPILAN HASIL AKHIR & PEMBAHASAN       -->
+    <!-- ========================================== -->
+    <div class="center-screen" id="result-screen" style="display: none; max-width: 750px; margin: auto; margin-bottom: 40px;">
+        <h2>HASIL TRY OUT</h2>
+        <div class="result-box">
+            <p>Jumlah Soal: <strong id="res-total">30</strong></p>
+            <p>Jumlah Soal Benar: <strong id="res-correct" style="color: #10b981;">0</strong></p>
+            <p>Jumlah Soal Salah / Kosong: <strong id="res-wrong" style="color: #ef4444;">0</strong></p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+            <p style="text-align: center; font-weight: 700; color: #64748b;">Nilai Akhir Anda:</p>
+            <div class="final-score" id="res-score">100</div>
+            <p class="formula-text">Rumus: (jumlah soal benar ÷ jumlah soal) × 100</p>
+        </div>
+        <div class="review-section" id="review-container"></div>
+        <button class="btn-start" style="margin-top: 20px;" onclick="goToHome()">Selesai / Kembali ke Beranda</button>
+    </div>
+
+    <!-- FOOTER UTAMA WEB -->
+    <footer class="app-footer">
+        Try Out Soal Mata kuliah. UT Purwakarta since 2026<br>
+        Dibuat untuk tujuan latihan mandiri. Tidak berafiliasi dengan lembaga psikotes manapun.
+    </footer>
+
+    <script>
+        // --- DATABASE SOAL MANAJEMEN ---
+        const manajemenData = [
+          { id: 1, question: "Sekelompok orang yang bekerja sama, berkoordinasi, untuk mencapai tujuan tertentu disebut...", options: { a: "Masyarakat", b: "Organisasi", c: "Perusahaan", d: "Manajer" }, answer: "b" },
+          { id: 2, question: "Organisasi yang mempunyai struktur yang ketat, wewenang yang jelas, aturan, dan konsekuensi yang jelas adalah contoh dari organisasi...", options: { a: "Rukun Tetangga (RT)", b: "Rukun Warga (RW)", c: "Militer", d: "Arisan" }, answer: "c" },
+          { id: 3, question: "Manfaat organisasi memelihara ilmu pengetahuan terlihat pada institusi seperti...", options: { a: "Universitas dan museum", b: "Kepengurusan RT", c: "Perusahaan manufaktur", d: "Koperasi simpan pinjam" }, answer: "a" },
+          { id: 4, question: "Menurut Mary Parker Follet, manajemen didefinisikan sebagai...", options: { a: "Proses merencanakan dan mengendalikan", b: "Seni mencapai sesuatu melalui orang lain", c: "Pencapaian tujuan yang efektif dan efisien", d: "Koordinasi sumber daya fisik dan manusia" }, answer: "b" },
+          { id: 5, question: "Menurut Peter Drucker, efisiensi berarti mengerjakan sesuatu dengan benar, yang dalam bahasa Inggris disebut...", options: { a: "Doing the right things", b: "Doing things right", c: "Achieving the goals", d: "Maximizing output" }, answer: "b" },
+          { id: 6, question: "Mengerjakan sesuatu yang benar dan sangat berkaitan dengan pencapaian tujuan yang telah ditentukan disebut...", options: { a: "Efektif", b: "Efisien", c: "Produktif", d: "Ekonomis" }, answer: "a" },
+          { id: 7, question: "Perusahaan memproduksi mobil berukuran besar yang hemat biaya, namun tidak laku karena konsumen lebih menyukai mobil kecil. Perusahaan tersebut berada dalam kuadran...", options: { a: "Tidak efisien dan tidak efektif", b: "Efisien tetapi tidak efektif", c: "Efektif tetapi tidak efisien", d: "Efektif dan efisien" }, answer: "b" },
+          { id: 8, question: "Kuadran paling parah yang harus dihindari oleh seorang manajer adalah...", options: { a: "Tidak mencapai tujuan dan tidak menghamburkan sumber daya", b: "Mencapai tujuan dan menghamburkan sumber daya", c: "Tidak mencapai tujuan dan menghamburkan sumber daya", d: "Mencapai tujuan dan tidak menghamburkan sumber daya" }, answer: "c" },
+          { id: 9, question: "Proses manajemen secara teoritis terdiri dari empat fungsi utama, yaitu...", options: { a: "Planning, Organizing, Leading, Controlling", b: "Planning, Staffing, Directing, Evaluating", c: "Organizing, Staffing, Leading, Coordinating", d: "Planning, Organizing, Actuating, Controlling" }, answer: "a" },
+          { id: 10, question: "Kegiatan menetapkan tujuan organisasi dan memilih cara yang terbaik untuk mencapainya disebut...", options: { a: "Pengarahan (Leading)", b: "Pengorganisasian (Organizing)", c: "Perencanaan (Planning)", d: "Pengendalian (Controlling)" }, answer: "c" },
+          { id: 11, question: "Mengoordinir sumber daya, tugas, dan otoritas di antara anggota organisasi merupakan fungsi dari...", options: { a: "Perencanaan", b: "Pengorganisasian", c: "Pengarahan", d: "Pengendalian" }, answer: "b" },
+          { id: 12, question: "Kegiatan memotivasi dan memengaruhi anggota organisasi agar bekerja mencapai tujuan merupakan fungsi...", options: { a: "Planning", b: "Organizing", c: "Leading", d: "Controlling" }, answer: "c" },
+          { id: 13, question: "Memonitor kemajuan organisasi dan melakukan perbaikan jika ada penyimpangan adalah bagian dari proses...", options: { a: "Perencanaan", b: "Pengorganisasian", c: "Pengarahan", d: "Pengendalian" }, answer: "d" },
+          { id: 14, question: "Manajer yang bertanggung jawab terhadap perusahaan secara keseluruhan dan menentukan strategi serta kebijakan perusahaan adalah...", options: { a: "First Line Manager", b: "Middle Level Manager", c: "Top Management", d: "Supervisor" }, answer: "c" },
+          { id: 15, question: "Manajer menengah (Middle Manager) bertugas untuk...", options: { a: "Mengawasi karyawan operasional", b: "Menjadi jembatan antara manajer puncak dengan manajer tingkat bawah", c: "Mengambil keputusan strategis perusahaan", d: "Menghadiri resepsi pernikahan karyawan" }, answer: "b" },
+          { id: 16, question: "Pengawas produksi (penyelia) dan pengawas penjualan termasuk dalam tingkatan...", options: { a: "Manajemen Puncak", b: "Manajemen Menengah", c: "Manajemen Tingkat Bawah (First Line)", d: "Manajemen Umum" }, answer: "c" },
+          { id: 17, question: "Manajer yang bertanggung jawab atas satu aktivitas organisasi tertentu, seperti manajer pemasaran atau keuangan, disebut...", options: { a: "Manajer Umum", b: "Manajer Fungsional", c: "Manajer Puncak", d: "Manajer Operasional" }, answer: "b" },
+          { id: 18, question: "Menurut Robert L. Katz, terdapat tiga keterampilan dasar manajemen, yaitu...", options: { a: "Konseptual, Manusiawi, Teknis", b: "Komunikasi, Negosiasi, Interpersonal", c: "Teknis, Analitis, Pemecahan Masalah", d: "Konseptual, Manusiawi, Kepemimpinan" }, answer: "a" },
+          { id: 19, question: "Kemampuan mengoordinasikan dan mengintegrasikan kegiatan serta melihat masa depan organisasi disebut keterampilan...", options: { a: "Teknis", b: "Manusiawi", c: "Konseptual", d: "Operasional" }, answer: "c" },
+          { id: 20, question: "Manajer tingkat puncak (Top Management) lebih banyak membutuhkan keterampilan...", options: { a: "Teknis", b: "Konseptual", c: "Manusiawi", d: "Fisik" }, answer: "b" },
+          { id: 21, question: "Keterampilan yang sangat dibutuhkan oleh manajer tingkat bawah untuk memahami dan melakukan kegiatan operasional adalah keterampilan...", options: { a: "Teknis", b: "Konseptual", c: "Analitis", d: "Kepemimpinan" }, answer: "a" },
+          { id: 22, question: "Henry Mintzberg menyimpulkan bahwa manajer melakukan peran-peran tertentu yang dibagi menjadi tiga kelompok besar, yaitu...", options: { a: "Interpersonal, Informasional, Pengambil Keputusan", b: "Perencanaan, Pengorganisasian, Pengendalian", c: "Konseptual, Teknis, Manusiawi", d: "Pemimpin, Penghubung, Pemonitor" }, answer: "a" },
+          { id: 23, question: "Manajer yang menghadiri acara resmi seperti menggunting pita pembukaan pabrik baru sedang menjalankan peran...", options: { a: "Juru Bicara (Spokesman)", b: "Figur Bapak (Figurehead)", c: "Penghubung (Liaison)", d: "Pemimpin (Leader)" }, answer: "b" },
+          { id: 24, question: "Mengoordinasikan kegiatan antar departemen atau melakukan kontak dengan pihak di luar organisasi adalah wujud dari peran...", options: { a: "Figur Bapak", b: "Pimpinan", c: "Penghubung", d: "Monitor" }, answer: "c" },
+          { id: 25, question: "Manajer selalu aktif mencari informasi yang dapat bermanfaat untuk organisasi. Hal ini termasuk peran informasional sebagai...", options: { a: "Diseminator", b: "Monitor", c: "Juru Bicara", d: "Perunding" }, answer: "b" },
+          { id: 26, question: "Menyebarluaskan informasi yang diperolehnya kepada pihak lain di dalam organisasi (bawahannya) adalah peran...", options: { a: "Diseminator", b: "Juru Bicara", c: "Monitor", d: "Penyelesai Gangguan" }, answer: "a" },
+          { id: 27, question: "Memosisikan manajer sebagai wakil organisasi dalam menyampaikan informasi ke pihak luar adalah wujud peran...", options: { a: "Monitor", b: "Diseminator", c: "Juru Bicara (Spokesman)", d: "Penghubung (Liaison)" }, answer: "c" },
+          { id: 28, question: "Jika ada pemogokan buruh, manajer yang bertugas menyelesaikannya sedang menjalankan peran sebagai...", options: { a: "Pengalokasi Sumber Daya", b: "Kewirausahaan", c: "Penyelesai Gangguan (Disturbance Handler)", d: "Perunding (Negotiator)" }, answer: "c" },
+          { id: 29, question: "Manajer melakukan perundingan dengan serikat pekerja atau pemasok. Peran yang sedang dijalankan adalah...", options: { a: "Perunding (Negotiator)", b: "Pembagi Sumber Daya", c: "Pemimpin", d: "Juru Bicara" }, answer: "a" },
+          { id: 30, question: "Efisiensi organisasi akan semakin tidak baik jika...", options: { a: "Rasio output/input semakin tinggi", b: "Rasio output/input semakin rendah", c: "Input dan output seimbang", d: "Tujuan organisasi tercapai dengan cepat" }, answer: "b" }
+        ];
+
+        // --- DATABASE SOAL BAHASA INDONESIA (35 SOAL) ---
+        const bindoData = [
+          { id: 1, question: "Pada hakikatnya, bahasa utama yang digunakan manusia berwujud...", options: { a: "Tulisan", b: "Bunyi ujar (lisan)", c: "Isyarat tangan", d: "Gambar" }, answer: "b" },
+          { id: 2, question: "Alat buatan manusia yang membedakan manusia secara sempurna dengan makhluk lain dalam berpikir adalah...", options: { a: "Insting", b: "Akal budi dan bahasa", c: "Penglihatan", d: "Kekuatan fisik" }, answer: "b" },
+          { id: 3, question: "Manakah yang BUKAN merupakan ciri-ciri bahasa menurut materi?", options: { a: "Bahasa berwujud lambang", b: "Bahasa itu statis dan tidak berubah", c: "Bahasa memiliki sistem", d: "Bahasa itu bermakna" }, answer: "b" },
+          { id: 4, question: "Bahasa tulis muncul setelah bahasa lisan karena diciptakan berdasarkan...", options: { a: "Naluri ilmiah manusia", b: "Kesepakatan bersama antaranggota masyarakat/linguist", c: "Kebetulan alamiah", d: "Perintah hukum internasional" }, answer: "b" },
+          { id: 5, question: "Susunan bunyi yang tidak teratur dan tidak mengikuti kaidah/aturan dinamakan...", options: { a: "Bahasa indah", b: "Tidak bersistem/tidak bermakna", c: "Bahasa variatif", d: "Dialek" }, answer: "b" },
+          { id: 6, question: "Keindahan bahasa dapat diciptakan melalui perpaduan...", options: { a: "Intonasi, ritme, persajakan, dan pemadatan makna", b: "Ejaan resmi dan tata bahasa saja", c: "Simbol tulisan tanpa suara", d: "Bahasa asing dan daerah" }, answer: "a" },
+          { id: 7, question: "\"Anak manis digendong / Naik kapal kecil tergoyang-goyang\" adalah contoh keindahan bahasa pada aspek...", options: { a: "Dialek lokal", b: "Permainan bunyi dan persajakan", c: "Fungsi regulatori", d: "Istilah teknis" }, answer: "b" },
+          { id: 8, question: "Sifat manusiawi pada bahasa menunjukkan bahwa...", options: { a: "Hewan dapat berbahasa persis seperti manusia", b: "Bahasa hanya milik dan diproses dalam otak manusia", c: "Bahasa dibuat oleh robot", d: "Semua manusia bicara dengan bahasa yang sama" }, answer: "b" },
+          { id: 9, question: "Mengapa burung beo yang dilatih menirukan kata-kata manusia tidak dikatakan berbahasa?", options: { a: "Beo tidak memiliki suara", b: "Beo tidak memahami makna dan hanya meniru tanpa akal", c: "Suara beo terlalu nyaring", d: "Beo tidak mau belajar" }, answer: "b" },
+          { id: 10, question: "Kemampuan bahasa membentuk banyak kata dari jumlah fonem yang terbatas disebut sifat...", options: { a: "Arbitrer", b: "Konvensional", c: "Produktif", d: "Dinamis" }, answer: "c" },
+          { id: 11, question: "Fonem /a/, /b/, /u/, /t/ dapat membentuk kata batu, buat, buta, tuba. Ini bukti sifat...", options: { a: "Produktif", b: "Dinamis", c: "Arbitrer", d: "Variatif" }, answer: "a" },
+          { id: 12, question: "Bahasa selalu berkembang seiring perkembangan zaman. Hal ini menandakan sifat...", options: { a: "Statis", b: "Dinamis", c: "Arbitrer", d: "Konvensional" }, answer: "b" },
+          { id: 13, question: "Perubahan ejaan dari Soewandi menjadi EYD dan PUEBI merupakan bukti dari sifat bahasa yang...", options: { a: "Dinamis", b: "Arbitrer", c: "Manusiawi", d: "Indah" }, answer: "a" },
+          { id: 14, question: "Kata \"Sarjana\" yang dahulu bermakna \"orang cerdik pandai\" kini bermakna \"lulusan perguruan tinggi\". Ini contoh...", options: { a: "Perubahan makna (dinamis)", b: "Bahasa arbitrer", c: "Fungsi imajinatif", d: "Dialek daerah" }, answer: "a" },
+          { id: 15, question: "Pengambilan kata asing atau daerah secara utuh tanpa perubahan disebut...", options: { a: "Adaptasi", b: "Adopsi", c: "Penterjemahan", d: "Dialektologi" }, answer: "b" },
+          { id: 16, question: "Pengambilan kata asing dengan penyesuaian ejaan dinamakan...", options: { a: "Adopsi", b: "Adaptasi", c: "Asimilasi", d: "Konvensi" }, answer: "b" },
+          { id: 17, question: "Adanya variasi bahasa berdasarkan latar belakang daerah penutur disebut...", options: { a: "Idiolek", b: "Dialek", c: "Sosiolek", d: "Jargon" }, answer: "b" },
+          { id: 18, question: "Ciri khas bahasa yang dimiliki oleh individu perorangan disebut...", options: { a: "Dialek", b: "Idiolek", c: "Slang", d: "Ragam resmi" }, answer: "b" },
+          { id: 19, question: "Mengapa objek berupa \"benda padat untuk duduk\" disebut kursi di Indonesia dan chair di Inggris?", options: { a: "Karena bahasa bersifat arbitrer", b: "Karena bahasa itu dinamis", c: "Karena bahasa itu imajinatif", d: "Karena bahasa itu manusiawi" }, answer: "a" },
+          { id: 20, question: "Pengertian sifat arbitrer adalah...", options: { a: "Berdasarkan logika matematika", b: "Sewenang-wenang / tidak ada hubungan wajib antara lambang dan benda", c: "Ditentukan oleh pemerintah", d: "Tidak dapat diubah selamanya" }, answer: "b" },
+          { id: 21, question: "Meskipun arbitrer, masyarakat harus mematuhi penggunaan kata yang disepakati bersama. Sifat ini dinamakan...", options: { a: "Konvensional", b: "Variatif", c: "Dinamis", d: "Indah" }, answer: "a" },
+          { id: 22, question: "Jika seseorang menyebut \"air\" dengan istilah \"debu\" secara sewenang-wenang tanpa persetujuan masyarakat, maka komunikasinya gagal karena melanggar sifat...", options: { a: "Konvensional", b: "Produktif", c: "Dinamis", d: "Manusiawi" }, answer: "a" },
+          { id: 23, question: "Tokoh yang mengemukakan 7 fungsi bahasa adalah...", options: { a: "Karl Bühler", b: "M.A.K. Halliday", c: "Karl Popper", d: "Chomsky" }, answer: "b" },
+          { id: 24, question: "\"Saya mau makan Nasi Goreng karena lapar.\" Ujaran ini memenuhi fungsi...", options: { a: "Instrumental", b: "Regulatori", c: "Imajinatif", d: "Heuristik" }, answer: "a" },
+          { id: 25, question: "Ibu berkata: \"Ayo, cuci tanganmu dulu sebelum makan!\" Kalimat tersebut berfungsi sebagai...", options: { a: "Interaksional", b: "Regulatori", c: "Personal", d: "Informatif" }, answer: "b" },
+          { id: 26, question: "\"Selamat pagi, apa kabar sahabatku?\" Ujaran tersebut termasuk fungsi...", options: { a: "Interaksional", b: "Instrumental", c: "Heuristik", d: "Regulatori" }, answer: "a" },
+          { id: 27, question: "Seseorang menceritakan identitas dirinya dan hobi pribadinya. Fungsi bahasa yang digunakan adalah...", options: { a: "Personal", b: "Heuristik", c: "Regulatori", d: "Imajinatif" }, answer: "a" },
+          { id: 28, question: "Seorang anak bertanya: \"Mengapa langit berwarna biru?\" Fungsi bahasa yang menonjol adalah...", options: { a: "Heuristik", b: "Informatif", c: "Instrumental", d: "Regulatori" }, answer: "a" },
+          { id: 29, question: "Penulisan puisi, cerpen, novel, dan resep rekaan memanfaatkan fungsi bahasa...", options: { a: "Imajinatif", b: "Interaksional", c: "Regulatori", d: "Personal" }, answer: "a" },
+          { id: 30, question: "Berita di televisi menyampaikan terjadinya bencana alam di suatu daerah. Hal ini menunjukkan fungsi bahasa...", options: { a: "Informatif (Representatif)", b: "Instrumental", c: "Heuristik", d: "Interaksional" }, answer: "a" },
+          { id: 31, question: "Karl Bühler membagi fungsi bahasa menjadi tiga, yaitu...", options: { a: "Appel, Ausdruck, dan Darstellung", b: "Ekspresif, Sinyal, dan Argumentatif", c: "Instrumental, Regulatori, dan Personal", d: "Lisan, Tulis, dan Isyarat" }, answer: "a" },
+          { id: 32, question: "Fungsi bahasa untuk mempertahankan hubungan pertemanan/kemasyarakatan dinamakan...", options: { a: "Interaksional", b: "Personal", c: "Heuristik", d: "Regulatori" }, answer: "a" },
+          { id: 33, question: "Istilah-istilah khusus seperti unduh, papan ketik, daring, dan tetikus muncul pada era teknologi. Hal ini menunjukkan bahwa bahasa mengalami...", options: { a: "Perkembangan dan penyegaran kosakata (dinamis)", b: "Kemunduran fungsi", c: "Perubahan konvensi arbitrer", d: "Hilangnya sifat manusiawi" }, answer: "a" },
+          { id: 34, question: "Bahasa baku dan ragam populer dibedakan berdasarkan aspek...", options: { a: "Kesesuaian dengan kaidah standar", b: "Jumlah fonem", c: "Asal usul manusia", d: "Sifat arbitrer" }, answer: "a" },
+          { id: 35, question: "Tujuan utama manusia berinteraksi menggunakan bahasa adalah...", options: { a: "Menyampaikan pikiran, perasaan, dan berkomunikasi", b: "Menunjukkan kekuatan insting", c: "Mengubah sistem ejaan", d: "Menghilangkan perbedaan dialek"}, answer: "a" }
+        ];
+
+        let quizData = manajemenData; // Default aktif
+        let currentQuiz = 0;
+        let timeInSeconds = 60 * 60; // 60 menit
+        let timerInterval;
+        let userAnswers = [];
+        let isComingSoon = false;
+
+        // --- FUNGSI KLIK MENU DI BERANDA ---
+        function changeMateri(element, mk, modul, kb, kategori, comingSoonStatus) {
+            const items = document.querySelectorAll('.menu-kb-item');
+            items.forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+
+            isComingSoon = comingSoonStatus;
+            const btnAction = document.getElementById('btn-start-action');
+
+            if (kategori === 'bindo') {
+                quizData = bindoData;
+                document.getElementById('quiz-section-title').innerText = "PENALARAN BAHASA INDONESIA";
+            } else {
+                quizData = manajemenData;
+                document.getElementById('quiz-section-title').innerText = "PENALARAN MANAJEMEN";
+            }
+
+            if (isComingSoon) {
+                document.getElementById('start-title-mk').innerText = `Try Out: ${mk}`;
+                document.getElementById('start-title-sub').innerText = `Modul ${modul} - Kegiatan Belajar ${kb}`;
+                document.getElementById('start-desc').innerHTML = `<strong style="color: #ef4444; font-size: 1.1rem;">⚠️ Coming Soon</strong><br>Soal untuk Kegiatan Belajar ini belum tersedia dan sedang dalam tahap penyusunan.`;
+                
+                btnAction.innerText = "Belum Tersedia";
+                btnAction.disabled = true;
+                btnAction.style.backgroundColor = "#cbd5e1";
+            } else {
+                document.getElementById('start-title-mk').innerText = `Try Out: ${mk}`;
+                document.getElementById('start-title-sub').innerText = `Modul ${modul} - Kegiatan Belajar ${kb}`;
+                document.getElementById('start-desc').innerText = `Anda akan mengerjakan ${quizData.length} soal pilihan ganda. Waktu pengerjaan adalah 60 menit. Gunakan panel navigasi di sebelah kanan untuk melompat ke soal tertentu.`;
+                
+                btnAction.innerText = "Mulai Try Out";
+                btnAction.disabled = false;
+                btnAction.style.backgroundColor = "#2c8e83";
+            }
+
+            document.getElementById('quiz-info-mk').innerText = mk;
+            document.getElementById('quiz-info-sub').innerText = `Modul ${modul} • KB ${kb}`;
+        }
+
+        // --- NAVIGASI ANTAR HALAMAN (VIEWS) ---
+        function startQuiz() {
+            if (isComingSoon) return;
+
+            document.getElementById('home-view').style.display = 'none';
+            document.getElementById('quiz-view').style.display = 'flex';
+            
+            currentQuiz = 0;
+            userAnswers = new Array(quizData.length).fill(null);
+            timeInSeconds = 3600;
+            
+            document.getElementById('total-num-display').innerText = quizData.length;
+            initGrid(); 
+            loadQuiz(); 
+            startTimer(); 
+        }
+
+        function confirmGoHome() {
+            if(confirm("Kuis sedang berjalan. Jika Anda kembali ke Beranda, seluruh progres jawaban akan hilang. Yakin ingin kembali?")) {
+                clearInterval(timerInterval);
+                goToHome();
+            }
+        }
+
+        function goToHome() {
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('quiz-view').style.display = 'none';
+            document.getElementById('home-view').style.display = 'flex';
+        }
+
+        // --- LOGIKA KUIS ---
+        function initGrid() {
+            const gridContainer = document.getElementById('grid-container');
+            gridContainer.innerHTML = '';
+            for(let i = 0; i < quizData.length; i++) {
+                const box = document.createElement('div');
+                box.className = 'grid-box';
+                box.innerText = i + 1;
+                box.onclick = () => jumpToQuestion(i);
+                gridContainer.appendChild(box);
+            }
+        }
+
+        function updateGridUI() {
+            const boxes = document.querySelectorAll('.grid-box');
+            boxes.forEach((box, index) => {
+                box.classList.remove('answered', 'current');
+                if (userAnswers[index] !== null) box.classList.add('answered');
+                if (index === currentQuiz) box.classList.add('current');
+            });
+        }
+
+        function jumpToQuestion(index) {
+            currentQuiz = index;
+            loadQuiz();
+        }
+
+        function loadQuiz() {
+            const currentQuizData = quizData[currentQuiz];
+            const total = quizData.length;
+
+            document.getElementById('current-num-display').innerText = currentQuiz + 1;
+            document.getElementById('question-label').innerText = `SOAL ${currentQuiz + 1} DARI ${total}`;
+            document.getElementById('question-text').innerText = currentQuizData.question;
+
+            const optionsContainer = document.getElementById('options-container');
+            let optionsHtml = '';
+            ['a', 'b', 'c', 'd'].forEach(opt => {
+                const isSelected = (userAnswers[currentQuiz] === opt);
+                optionsHtml += `
+                    <label class="option-label ${isSelected ? 'selected' : ''}">
+                        <input type="radio" name="answer" value="${opt}" ${isSelected ? 'checked' : ''} onchange="selectOption('${opt}')">
+                        <span class="opt-letter">${opt.toUpperCase()}.</span> ${currentQuizData.options[opt]}
+                    </label>
+                `;
+            });
+            optionsContainer.innerHTML = optionsHtml;
+
+            updateProgress();
+            updateGridUI();
+
+            const btnPrev = document.getElementById('btn-prev');
+            const btnNext = document.getElementById('btn-next');
+            btnPrev.disabled = (currentQuiz === 0);
+            
+            if (currentQuiz === total - 1) {
+                btnNext.innerHTML = 'Selesai & Hitung Nilai →';
+                btnNext.style.backgroundColor = '#10b981';
+            } else {
+                btnNext.innerHTML = 'Berikutnya →';
+                btnNext.style.backgroundColor = '#2c8e83';
+            }
+        }
+
+        function selectOption(selectedOpt) {
+            userAnswers[currentQuiz] = selectedOpt;
+            const labels = document.querySelectorAll('.option-label');
+            labels.forEach(label => label.classList.remove('selected'));
+            const selectedInput = document.querySelector(`input[value="${selectedOpt}"]`);
+            if (selectedInput) selectedInput.parentElement.classList.add('selected');
+            
+            updateProgress();
+            updateGridUI();
+        }
+
+        function updateProgress() {
+            const total = quizData.length;
+            const answeredCount = userAnswers.filter(ans => ans !== null).length;
+            document.getElementById('answered-count').innerText = answeredCount;
+            const progressPercent = (answeredCount / total) * 100; 
+            document.getElementById('progress-fill').style.width = `${progressPercent}%`;
+        }
+
+        function nextQuestion() {
+            if (currentQuiz < quizData.length - 1) {
+                currentQuiz++;
+                loadQuiz();
+            } else {
+                const unans = userAnswers.filter(a => a === null).length;
+                if (unans > 0) {
+                    if(!confirm(`Masih ada ${unans} soal yang belum dijawab. Yakin ingin menyelesaikan Try Out?`)) return;
+                } else {
+                    if(!confirm(`Anda sudah menjawab semua soal. Yakin ingin mengakhiri Try Out dan melihat nilai?`)) return;
+                }
+                calculateScore();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuiz > 0) {
+                currentQuiz--;
+                loadQuiz();
+            }
+        }
+
+        function calculateScore() {
+            clearInterval(timerInterval);
+            document.getElementById('quiz-view').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            let correct = 0;
+            const total = quizData.length;
+            let reviewHTML = '<div class="review-title">Materi yang Perlu Diperbaiki (Soal Salah / Kosong):</div>';
+            let wrongCount = 0;
+
+            userAnswers.forEach((ans, index) => {
+                const isCorrect = (ans === quizData[index].answer);
+                if (isCorrect) {
+                    correct++;
+                } else {
+                    wrongCount++;
+                    const correctOptKey = quizData[index].answer;
+                    const correctText = quizData[index].options[correctOptKey];
+                    const userText = ans ? quizData[index].options[ans] : '<i style="color:#94a3b8">Tidak dijawab</i>';
+
+                    reviewHTML += `
+                        <div class="review-item">
+                            <div class="review-q">${index + 1}. ${quizData[index].question}</div>
+                            <div class="review-ans">Jawaban Anda: <span class="${ans ? 'text-wrong' : ''}">${userText}</span> ❌</div>
+                            <div class="review-ans">Kunci Jawaban: <span class="text-correct">${correctOptKey.toUpperCase()}. ${correctText}</span> ✅</div>
+                        </div>
+                    `;
+                }
+            });
+
+            if (wrongCount === 0) {
+                reviewHTML += `<div style="text-align:center; padding: 20px; color: #10b981; font-weight:700;">Luar Biasa! Anda menjawab semua soal dengan benar.</div>`;
+            }
+
+            let nilai = (correct / total) * 100;
+            nilai = Math.round(nilai * 100) / 100; 
+
+            document.getElementById('res-total').innerText = total;
+            document.getElementById('res-correct').innerText = correct;
+            document.getElementById('res-wrong').innerText = wrongCount;
+            document.getElementById('res-score').innerText = nilai;
+            document.getElementById('review-container').innerHTML = reviewHTML;
+        }
+
+        function startTimer() {
+            const timeDisplay = document.getElementById('time-display');
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                let minutes = Math.floor(timeInSeconds / 60);
+                let seconds = timeInSeconds % 60;
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                seconds = seconds < 10 ? '0' + seconds : seconds;
+                timeDisplay.innerText = `${minutes}:${seconds}`;
+                
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Waktu Habis! Jawaban Anda akan otomatis dikirim.");
+                    calculateScore();
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
