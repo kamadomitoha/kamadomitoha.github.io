@@ -42,7 +42,7 @@
             color: #2c8e83;
         }
 
-       /* --- CONTAINER UTAMA DENGAN BACKGROUND BLUR DARI FOLDER LOKAL --- */
+        /* --- CONTAINER UTAMA DENGAN BACKGROUND BLUR (Hanya di Home) --- */
         #home-view {
             position: relative;
             width: 100%;
@@ -71,7 +71,6 @@
             z-index: 0;
         }
 
-        /* Memastikan isi menu tetap tegak & jelas di atas background blur */
         #home-view > * {
             position: relative;
             z-index: 1;
@@ -104,7 +103,7 @@
         .sidebar-left { width: 300px; }
         .sidebar-right { width: 320px; }
 
-        /* --- MENU MATERI (Layar Home) --- */
+        /* --- MENU MATERI (DROPDOWN) --- */
         .menu-title-header {
             font-size: 1.05rem;
             color: #0f172a;
@@ -116,12 +115,77 @@
             padding-bottom: 10px;
         }
         .menu-list { list-style: none; }
-        .menu-group { margin-bottom: 20px; }
-        .menu-course { 
-            font-weight: 800; color: #2c8e83; margin-bottom: 8px; font-size: 0.95rem; line-height: 1.4;
+        .menu-group { margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        
+        /* Tombol Dropdown Mata Kuliah */
+        .menu-course-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            font-weight: 800;
+            color: #2c8e83;
+            font-size: 0.95rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            line-height: 1.4;
         }
-        .menu-modul { font-weight: 700; color: #334155; margin-bottom: 5px; font-size: 0.9rem; }
-        .menu-kb-list { list-style: none; padding-left: 15px; margin-bottom: 10px; }
+        .menu-course-btn:hover { color: #23746a; }
+        .arrow-icon { font-size: 0.8rem; transition: transform 0.3s ease; }
+        
+        /* Kontainer Dropdown Mata Kuliah */
+        .menu-course-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding-left: 5px;
+        }
+        .menu-group.open .menu-course-content {
+            max-height: 300px;
+            transition: max-height 0.3s ease-in;
+        }
+        .menu-group.open .arrow-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Tombol Dropdown Modul */
+        .menu-modul-btn {
+            width: 100%;
+            background: none;
+            border: none;
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.9rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 5px;
+            margin-top: 5px;
+        }
+        .menu-modul-btn:hover { color: #0f172a; }
+        .modul-arrow { font-size: 0.75rem; transition: transform 0.3s ease; }
+
+        /* Kontainer Dropdown Modul */
+        .menu-modul-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding-left: 10px;
+        }
+        .modul-group.open .menu-modul-content {
+            max-height: 150px;
+            transition: max-height 0.3s ease-in;
+        }
+        .modul-group.open .modul-arrow {
+            transform: rotate(180deg);
+        }
+
+        .menu-kb-list { list-style: none; padding-left: 10px; margin-top: 5px; margin-bottom: 5px; }
         .menu-kb-item {
             font-size: 0.85rem; color: #64748b; padding: 6px 10px; cursor: pointer; border-radius: 6px; transition: all 0.2s ease; margin-bottom: 2px;
         }
@@ -158,7 +222,7 @@
         .info-val { font-size: 0.95rem; color: #0f172a; font-weight: 800; margin-bottom: 3px; line-height: 1.4; }
         .info-sub { font-size: 0.85rem; color: #475569; font-weight: 600; }
 
-        /* --- LAYAR TENGAH (Mulai / Coming Soon / Hasil) --- */
+        /* --- LAYAR TENGAH (Mulai / Selamat Datang / Hasil) --- */
         .center-wrapper {
             flex: 1; display: flex; justify-content: center; align-items: center; min-height: 60vh;
         }
@@ -267,7 +331,7 @@
 
     <!-- HEADER UTAMA WEB -->
     <header class="app-header">
-        UT PURWAKARTA <span>26.2</span>
+        WEB QUIZ UT PURWAKARTA <span>26.2</span>
     </header>
 
     <!-- ========================================== -->
@@ -275,41 +339,68 @@
     <!-- ========================================== -->
     <div id="home-view" style="display: flex;">
         
-        <!-- Sidebar Kiri: Daftar Menu Materi -->
+        <!-- Sidebar Kiri: Daftar Menu Materi (Dropdown) -->
         <div class="sidebar-card sidebar-left">
             <div class="menu-title-header">Daftar Materi</div>
             <ul class="menu-list">
                 
-                <!-- Mata Kuliah 1: Manajemen -->
-                <li class="menu-group">
-                    <div class="menu-course">EKMA4116 - Manajemen (4 sks)</div>
-                    <div class="menu-modul">Modul 01</div>
-                    <ul class="menu-kb-list">
-                        <li class="menu-kb-item active" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '01', 'manajemen', false)">Kegiatan Belajar 01</li>
-                        <li class="menu-kb-item" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '02', 'manajemen', true)">Kegiatan Belajar 02</li>
-                    </ul>
+                <!-- Mata Kuliah 1: Manajemen (Dropdown Utama) -->
+                <li class="menu-group" id="group-manajemen">
+                    <button class="menu-course-btn" onclick="toggleDropdown('group-manajemen')">
+                        <span>EKMA4116 - Manajemen (4 sks)</span>
+                        <span class="arrow-icon">▼</span>
+                    </button>
+                    <div class="menu-course-content">
+                        <!-- Modul 01 (Dropdown Anak) -->
+                        <div class="modul-group" id="modul-manajemen-01">
+                            <button class="menu-modul-btn" onclick="toggleModul('modul-manajemen-01')">
+                                <span>Modul 01</span>
+                                <span class="modul-arrow">▼</span>
+                            </button>
+                            <div class="menu-modul-content">
+                                <ul class="menu-kb-list">
+                                    <li class="menu-kb-item" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '01', 'manajemen', false)">Kegiatan Belajar 01</li>
+                                    <li class="menu-kb-item" onclick="changeMateri(this, 'EKMA4116-Manajemen-4sks', '01', '02', 'manajemen', true)">Kegiatan Belajar 02</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </li>
 
-                <!-- Mata Kuliah 2: Bahasa Indonesia -->
-                <li class="menu-group">
-                    <div class="menu-course">MKWN4108 - Bahasa Indonesia (2 sks)</div>
-                    <div class="menu-modul">Modul 01</div>
-                    <ul class="menu-kb-list">
-                        <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '01', 'bindo', false)">Kegiatan Belajar 01</li>
-                        <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '02', 'bindo', true)">Kegiatan Belajar 02</li>
-                    </ul>
+                <!-- Mata Kuliah 2: Bahasa Indonesia (Dropdown Utama) -->
+                <li class="menu-group" id="group-bindo">
+                    <button class="menu-course-btn" onclick="toggleDropdown('group-bindo')">
+                        <span>MKWN4108 - Bahasa Indonesia (2 sks)</span>
+                        <span class="arrow-icon">▼</span>
+                    </button>
+                    <div class="menu-course-content">
+                        <!-- Modul 01 (Dropdown Anak) -->
+                        <div class="modul-group open" id="modul-bindo-01">
+                            <button class="menu-modul-btn" onclick="toggleModul('modul-bindo-01')">
+                                <span>Modul 01</span>
+                                <span class="modul-arrow">▼</span>
+                            </button>
+                            <div class="menu-modul-content">
+                                <ul class="menu-kb-list">
+                                    <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '01', 'bindo', false)">Kegiatan Belajar 01</li>
+                                    <li class="menu-kb-item" onclick="changeMateri(this, 'MKWN4108-Bahasa Indonesia', '01', '02', 'bindo', true)">Kegiatan Belajar 02</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </li>
 
             </ul>
         </div>
 
-        <!-- Area Kanan: Kotak Mulai / Coming Soon -->
+        <!-- Area Kanan: Kotak Selamat Datang -->
         <div class="center-wrapper">
             <div class="center-screen" id="home-card-content">
-                <h2 id="start-title-mk">Try Out: EKMA4116-Manajemen-4sks</h2>
-                <p id="start-title-sub" style="font-weight: 700; color: #0f172a; margin-bottom: 10px;">Modul 01 - Kegiatan Belajar 01</p>
-                <p id="start-desc">Anda akan mengerjakan 30 soal pilihan ganda. Waktu pengerjaan adalah 60 menit. Gunakan panel navigasi di sebelah kanan untuk melompat ke soal tertentu.</p>
-                <button class="btn-start" id="btn-start-action" onclick="startQuiz()">Mulai Try Out</button>
+                <h2 id="start-title-mk" style="color: #2c8e83; margin-bottom: 15px;">Selamat Datang</h2>
+                <p id="start-desc" style="font-size: 1.1rem; line-height: 1.6; color: #334155; margin-bottom: 25px;">
+                    di web quiz mata kuliah UT Purwakarta 26.2.<br>Silahkan pilih soal di menu daftar materi.
+                </p>
+                <button class="btn-start" id="btn-start-action" onclick="startQuiz()" disabled style="background-color: #cbd5e1; cursor: not-allowed;">Silahkan Pilih Materi Dulu</button>
             </div>
         </div>
 
@@ -394,11 +485,22 @@
 
     <!-- FOOTER UTAMA WEB -->
     <footer class="app-footer">
-        Try Out Soal Mata kuliah. UT Purwakarta since 2026<br>
-        Dibuat untuk tujuan latihan mandiri. Tidak berafiliasi dengan lembaga psikotes manapun.
+        Try Out Soal Mata kuliah. UT Purwakarta angkatan 2026.2<br>
+        Dibuat untuk tujuan latihan mandiri. Tidak berafiliasi dengan lembaga manapun.
     </footer>
 
     <script>
+        // --- FUNGSI DROPDOWN MENU ---
+        function toggleDropdown(groupId) {
+            const group = document.getElementById(groupId);
+            group.classList.toggle('open');
+        }
+
+        function toggleModul(modulId) {
+            const modulGroup = document.getElementById(modulId);
+            modulGroup.classList.toggle('open');
+        }
+
         // --- DATABASE SOAL MANAJEMEN ---
         const manajemenData = [
           { id: 1, question: "Sekelompok orang yang bekerja sama, berkoordinasi, untuk mencapai tujuan tertentu disebut...", options: { a: "Masyarakat", b: "Organisasi", c: "Perusahaan", d: "Manajer" }, answer: "b" },
@@ -498,20 +600,20 @@
 
             if (isComingSoon) {
                 document.getElementById('start-title-mk').innerText = `Try Out: ${mk}`;
-                document.getElementById('start-title-sub').innerText = `Modul ${modul} - Kegiatan Belajar ${kb}`;
-                document.getElementById('start-desc').innerHTML = `<strong style="color: #ef4444; font-size: 1.1rem;">⚠️ Coming Soon</strong><br>Soal untuk Kegiatan Belajar ini belum tersedia dan sedang dalam tahap penyusunan.`;
+                document.getElementById('start-desc').innerHTML = `<strong style="color: #ef4444; font-size: 1.1rem;">⚠️ Coming Soon</strong><br>Modul ${modul} - Kegiatan Belajar ${kb} belum tersedia dan sedang dalam tahap penyusunan.`;
                 
                 btnAction.innerText = "Belum Tersedia";
                 btnAction.disabled = true;
                 btnAction.style.backgroundColor = "#cbd5e1";
+                btnAction.style.cursor = "not-allowed";
             } else {
                 document.getElementById('start-title-mk').innerText = `Try Out: ${mk}`;
-                document.getElementById('start-title-sub').innerText = `Modul ${modul} - Kegiatan Belajar ${kb}`;
-                document.getElementById('start-desc').innerText = `Anda akan mengerjakan ${quizData.length} soal pilihan ganda. Waktu pengerjaan adalah 60 menit. Gunakan panel navigasi di sebelah kanan untuk melompat ke soal tertentu.`;
+                document.getElementById('start-desc').innerText = `Anda akan mengerjakan ${quizData.length} soal untuk ${mk} (Modul ${modul} - Kegiatan Belajar ${kb}). Waktu pengerjaan adalah 60 menit.`;
                 
                 btnAction.innerText = "Mulai Try Out";
                 btnAction.disabled = false;
                 btnAction.style.backgroundColor = "#2c8e83";
+                btnAction.style.cursor = "pointer";
             }
 
             document.getElementById('quiz-info-mk').innerText = mk;
