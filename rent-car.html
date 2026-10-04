@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pemesanan Rental Mobil</title>
+    <style>
+        /* Pengaturan Dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        /* Navigasi */
+        header {
+            background-color: #0056b3;
+            color: white;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 {
+            font-size: 1.5rem;
+        }
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Hero Section & Form Pemesanan */
+        .hero {
+            background-color: #e9ecef;
+            padding: 40px 5%;
+            text-align: center;
+        }
+        .booking-form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+            flex: 1;
+            min-width: 200px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            flex: 1;
+            min-width: 200px;
+            margin-top: 22px;
+        }
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        /* Daftar Mobil */
+        .car-list {
+            padding: 40px 5%;
+        }
+        .car-list h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .car-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .car-card h3 {
+            margin-bottom: 10px;
+            color: #0056b3;
+        }
+        .car-card p {
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 15px;
+        }
+        .btn-book {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-book:hover {
+            background-color: #0056b3;
+        }
+
+        /* Footer */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>TransRent</h1>
+        <nav>
+            <ul>
+                <li><a href="#">Beranda</a></li>
+                <li><a href="#">Armada</a></li>
+                <li><a href="#">Kontak</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="hero">
+        <h2>Pesan Kendaraan Operasional & Penumpang</h2>
+        <p>Solusi mobilitas dan logistik yang cepat, aman, dan terpercaya.</p>
+        
+        <form class="booking-form" id="formPemesanan">
+            <div class="form-group">
+                <label for="lokasi">Lokasi Pengambilan / Pool</label>
+                <select id="lokasi" required>
+                    <option value="">Pilih Lokasi...</option>
+                    <option value="Pool Pusat (Purwakarta)">Pool Pusat (Purwakarta)</option>
+                    <option value="Cabang Jakarta">Cabang Jakarta</option>
+                    <option value="Cabang Bandung">Cabang Bandung</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tanggalMulai">Tanggal Ambil</label>
+                <input type="date" id="tanggalMulai" required>
+            </div>
+            <div class="form-group">
+                <label for="tanggalSelesai">Tanggal Kembali</label>
+                <input type="date" id="tanggalSelesai" required>
+            </div>
+            <div class="form-group">
+                <label for="jenis">Tipe Kendaraan</label>
+                <select id="jenis">
+                    <option value="semua">Semua Tipe</option>
+                    <option value="penumpang">Mobil Penumpang</option>
+                    <option value="kargo">Mobil Kargo / Logistik</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Cari Kendaraan</button>
+        </form>
+    </div>
+
+    <div class="car-list">
+        <h2>Pilihan Armada Kami</h2>
+        <div class="grid">
+            <div class="car-card">
+                <h3>Toyota Avanza</h3>
+                <p>Kapasitas: 7 Penumpang<br>Transmisi: Manual/Matic</p>
+                <div class="price">Rp 350.000 / hari</div>
+                <button class="btn-book" onclick="pilihMobil('Toyota Avanza')">Pilih Mobil</button>
+            </div>
+            <div class="car-card">
+                <h3>Daihatsu Gran Max Blind Van</h3>
+                <p>Kapasitas: 2 Penumpang + Kargo Ekstra<br>Transmisi: Manual</p>
+                <div class="price">Rp 300.000 / hari</div>
+                <button class="btn-book" onclick="pilihMobil('Gran Max Blind Van')">Pilih Mobil</button>
+            </div>
+            <div class="car-card">
+                <h3>Toyota Hiace Commuter</h3>
+                <p>Kapasitas: 15 Penumpang<br>Transmisi: Manual</p>
+                <div class="price">Rp 1.200.000 / hari</div>
+                <button class="btn-book" onclick="pilihMobil('Toyota Hiace')">Pilih Mobil</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 TransRent. Hak Cipta Dilindungi.</p>
+    </footer>
+
+    <script>
+        // Simulasi pencarian kendaraan
+        document.getElementById('formPemesanan').addEventListener('submit', function(e) {
+            e.preventDefault(); // Mencegah halaman reload
+            
+            const lokasi = document.getElementById('lokasi').value;
+            const tglMulai = document.getElementById('tanggalMulai').value;
+            const tglSelesai = document.getElementById('tanggalSelesai').value;
+
+            if(tglMulai > tglSelesai) {
+                alert("Error: Tanggal kembali tidak boleh lebih awal dari tanggal ambil.");
+                return;
+            }
+
+            alert(`Mencari kendaraan di ${lokasi} dari tanggal ${tglMulai} sampai ${tglSelesai}...`);
+        });
+
+        // Simulasi pemilihan mobil
+        function pilihMobil(namaMobil) {
+            const lokasi = document.getElementById('lokasi').value;
+            if(!lokasi) {
+                alert(`Silakan pilih lokasi pool dan tanggal pada formulir di atas sebelum memesan ${namaMobil}.`);
+            } else {
+                alert(`Anda memilih ${namaMobil}. Lanjut ke proses pembayaran...`);
+            }
+        }
+    </script>
+</body>
+</html>
