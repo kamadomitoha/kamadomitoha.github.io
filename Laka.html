@@ -1,0 +1,422 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Zero Accident</title>
+    
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- PapaParse for parsing CSV data -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+    <!-- Google Fonts: Inter for UI, Roboto Mono for numbers -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc; /* Slate 50 */
+        }
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Subtle glow for the timer text */
+        .glow-text {
+            text-shadow: 0 0 15px rgba(52, 211, 153, 0.5); /* Emerald glow */
+        }
+        
+        .card-bg {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.8), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        
+        .separator {
+            color: #475569; /* Slate 600 */
+            margin: 0 0.5rem;
+        }
+
+        /* Spinner animation for loading state */
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border-left-color: #34d399; /* Emerald 400 */
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Custom Scrollbar for details table */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pt-12 pb-8 px-4 md:px-8">
+
+    <!-- Header Section -->
+    <header class="text-center mb-16">
+        <div class="flex items-center justify-center gap-4 mb-2">
+            <!-- Safety Cross SVG Icon -->
+            <svg class="w-12 h-12 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16,2H8C7.45,2 7,2.45 7,3V8H2C1.45,8 1,8.45 1,9V15C1,15.55 1.45,16 2,16H7V21C7,21.55 7.45,22 8,22H16C16.55,22 17,21.55 17,21V16H22C22.55,16 23,15.55 23,15V9C23,8.45 22.55,8 22,8H17V3C17,2.45 16.55,2 16,2Z" />
+            </svg>
+            <h1 class="text-4xl md:text-5xl font-extrabold uppercase tracking-widest text-white drop-shadow-md">
+                Monitoring Zero Accident
+            </h1>
+        </div>
+        <p class="text-slate-400 text-lg uppercase tracking-widest">Live Safety Dashboard</p>
+    </header>
+
+    <!-- Main Grid for the two locations -->
+    <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 flex-grow">
+        
+        <!-- Column 1: DCI Purwakarta G080 -->
+        <section class="card-bg rounded-2xl border border-slate-700/50 p-8 md:p-12 relative overflow-hidden flex flex-col items-center text-center">
+            <!-- Decorative top green bar -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
+            
+            <h2 class="text-3xl font-bold text-slate-200 mb-8 border-b border-slate-700 pb-4 w-full uppercase tracking-wider">
+                DCI Purwakarta G080
+            </h2>
+
+            <!-- Loading State -->
+            <div id="dci-loading" class="flex flex-col items-center justify-center py-12 w-full">
+                <div class="spinner mb-4"></div>
+                <p class="text-emerald-400 font-mono text-sm uppercase tracking-widest animate-pulse">Fetching Safety Data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="dci-error" class="hidden flex-col items-center justify-center py-12 w-full text-red-400">
+                <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-lg font-semibold uppercase tracking-wider">Tanggal laka tidak ditemukan</p>
+                <p class="text-sm text-slate-500 mt-2 text-center max-w-xs">Data dari spreadsheet tidak memiliki tanggal yang valid.</p>
+            </div>
+
+            <!-- Timer Content -->
+            <div id="dci-content" class="hidden flex-col items-center justify-center w-full">
+                <div class="mb-4">
+                    <span id="dci-days" class="text-8xl md:text-9xl font-extrabold font-mono text-white glow-text leading-none">0</span>
+                    <span class="block text-2xl md:text-3xl font-bold text-emerald-400 mt-2 uppercase tracking-widest">DAYS</span>
+                </div>
+                
+                <div class="flex flex-wrap items-center justify-center text-lg md:text-2xl font-mono font-semibold text-slate-300 bg-slate-800/50 py-4 px-6 rounded-xl border border-slate-700/50 w-full max-w-lg shadow-inner mt-6 gap-y-2">
+                    <span class="flex items-center">
+                        <span id="dci-hours" class="text-emerald-400 text-3xl mx-2">00</span> HOURS
+                    </span>
+                    <span class="separator">|</span>
+                    <span class="flex items-center">
+                        <span id="dci-mins" class="text-emerald-400 text-3xl mx-2">00</span> MINUTES
+                    </span>
+                    <span class="separator">|</span>
+                    <span class="flex items-center">
+                        <span id="dci-secs" class="text-emerald-400 text-3xl mx-2">00</span> SECOND
+                    </span>
+                </div>
+                <div class="mt-8 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-mono tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Safe Operations Active
+                </div>
+
+                <!-- DCI Table Details Container -->
+                <div class="w-full mt-10">
+                    <h3 class="text-left text-slate-300 font-semibold mb-3 uppercase tracking-wider text-sm border-b border-slate-700 pb-2">Detail Kasus Laka</h3>
+                    <div class="overflow-x-auto max-h-[350px] overflow-y-auto rounded-lg border border-slate-700/50 bg-slate-800/30 custom-scrollbar">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="px-4 py-3">TGL KEJADIAN</th>
+                                    <th class="px-4 py-3">WAKTU</th>
+                                    <th class="px-4 py-3">NIK DRIVER</th>
+                                    <th class="px-4 py-3">NAMA DRIVER</th>
+                                    <th class="px-4 py-3">STATUS</th>
+                                    <th class="px-4 py-3">NO LAMBUNG</th>
+                                    <th class="px-4 py-3">JENIS LAKA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dci-table-body" class="divide-y divide-slate-700/50 text-slate-300">
+                                <!-- Dynamic rows populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Column 2: CK Karawang -->
+        <section class="card-bg rounded-2xl border border-slate-700/50 p-8 md:p-12 relative overflow-hidden flex flex-col items-center text-center">
+            <!-- Decorative top green bar -->
+            <div class="absolute top-0 left-0 w-full h-1 bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
+            
+            <h2 class="text-3xl font-bold text-slate-200 mb-8 border-b border-slate-700 pb-4 w-full uppercase tracking-wider">
+                CK Karawang
+            </h2>
+
+            <!-- Loading State -->
+            <div id="ck-loading" class="flex flex-col items-center justify-center py-12 w-full">
+                <div class="spinner mb-4"></div>
+                <p class="text-emerald-400 font-mono text-sm uppercase tracking-widest animate-pulse">Fetching Safety Data...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="ck-error" class="hidden flex-col items-center justify-center py-12 w-full text-red-400">
+                <svg class="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <p class="text-lg font-semibold uppercase tracking-wider">Tanggal laka tidak ditemukan</p>
+                <p class="text-sm text-slate-500 mt-2 text-center max-w-xs">Data dari spreadsheet tidak memiliki tanggal yang valid.</p>
+            </div>
+
+            <!-- Timer Content -->
+            <div id="ck-content" class="hidden flex-col items-center justify-center w-full">
+                <div class="mb-4">
+                    <span id="ck-days" class="text-8xl md:text-9xl font-extrabold font-mono text-white glow-text leading-none">0</span>
+                    <span class="block text-2xl md:text-3xl font-bold text-emerald-400 mt-2 uppercase tracking-widest">DAYS</span>
+                </div>
+                
+                <div class="flex flex-wrap items-center justify-center text-lg md:text-2xl font-mono font-semibold text-slate-300 bg-slate-800/50 py-4 px-6 rounded-xl border border-slate-700/50 w-full max-w-lg shadow-inner mt-6 gap-y-2">
+                    <span class="flex items-center">
+                        <span id="ck-hours" class="text-emerald-400 text-3xl mx-2">00</span> HOURS
+                    </span>
+                    <span class="separator">|</span>
+                    <span class="flex items-center">
+                        <span id="ck-mins" class="text-emerald-400 text-3xl mx-2">00</span> MINUTES
+                    </span>
+                    <span class="separator">|</span>
+                    <span class="flex items-center">
+                        <span id="ck-secs" class="text-emerald-400 text-3xl mx-2">00</span> SECOND
+                    </span>
+                </div>
+                <div class="mt-8 px-4 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-mono tracking-widest uppercase flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Safe Operations Active
+                </div>
+
+                <!-- CK Table Details Container -->
+                <div class="w-full mt-10">
+                    <h3 class="text-left text-slate-300 font-semibold mb-3 uppercase tracking-wider text-sm border-b border-slate-700 pb-2">Detail Kasus Laka</h3>
+                    <div class="overflow-x-auto max-h-[350px] overflow-y-auto rounded-lg border border-slate-700/50 bg-slate-800/30 custom-scrollbar">
+                        <table class="w-full text-sm text-left whitespace-nowrap">
+                            <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 sticky top-0 z-10 shadow-sm">
+                                <tr>
+                                    <th class="px-4 py-3">TGL KEJADIAN</th>
+                                    <th class="px-4 py-3">WAKTU</th>
+                                    <th class="px-4 py-3">NIK DRIVER</th>
+                                    <th class="px-4 py-3">NAMA DRIVER</th>
+                                    <th class="px-4 py-3">STATUS</th>
+                                    <th class="px-4 py-3">NO LAMBUNG</th>
+                                    <th class="px-4 py-3">JENIS LAKA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ck-table-body" class="divide-y divide-slate-700/50 text-slate-300">
+                                <!-- Dynamic rows populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // URLs for the CSV datasources
+        const URL_DCI = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQtAPdBZ9FaIOC-rXP6BhYKhbfcT6qiRHZWQINxeOc04K0fLcFnlZFmHwkUwqvGYVBB6VeUIPt913K/pub?gid=1425282062&single=true&output=csv";
+        const URL_CK  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQQtAPdBZ9FaIOC-rXP6BhYKhbfcT6qiRHZWQINxeOc04K0fLcFnlZFmHwkUwqvGYVBB6VeUIPt913K/pub?gid=2085072086&single=true&output=csv";
+
+        // Global interval references so they can be cleared if needed
+        const timerIntervals = {};
+
+        /**
+         * Robust date parser combining Date and Time strings.
+         */
+        function parseDateTime(dateStr, timeStr) {
+            if (!dateStr) return null;
+            dateStr = String(dateStr).trim();
+            timeStr = timeStr ? String(timeStr).trim() : "00:00";
+            
+            // Try matching DD/MM/YYYY or DD-MM-YYYY
+            const dmyRegex = /^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/;
+            const dmyMatch = dateStr.match(dmyRegex);
+            
+            let year, month, day;
+            if (dmyMatch) {
+                day = parseInt(dmyMatch[1], 10);
+                month = parseInt(dmyMatch[2], 10) - 1; // 0-indexed month
+                year = parseInt(dmyMatch[3], 10);
+            } else {
+                // Native parsing for YYYY-MM-DD
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return null;
+                year = d.getFullYear();
+                month = d.getMonth();
+                day = d.getDate();
+            }
+
+            // Extract HH:mm:ss
+            let hours = 0, minutes = 0, seconds = 0;
+            const timeMatch = timeStr.match(/^(\d{1,2})[:\.](\d{2})(?:[:\.](\d{2}))?/);
+            if (timeMatch) {
+                hours = parseInt(timeMatch[1], 10);
+                minutes = parseInt(timeMatch[2], 10);
+                if (timeMatch[3]) seconds = parseInt(timeMatch[3], 10);
+            }
+
+            const finalDate = new Date(year, month, day, hours, minutes, seconds);
+            if (!isNaN(finalDate.getTime()) && finalDate.getFullYear() > 1970) {
+                return finalDate;
+            }
+            return null;
+        }
+
+        /**
+         * Fetches CSV using PapaParse header mode, processes data for the table,
+         * and finds the most recent valid accident date.
+         */
+        function fetchAndProcessData(url, prefix) {
+            return new Promise((resolve) => {
+                Papa.parse(url, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        let latestDate = null;
+                        const now = new Date();
+                        const tbody = document.getElementById(`${prefix}-table-body`);
+                        tbody.innerHTML = ''; // Clear loading/previous state
+
+                        // Loop through rows
+                        results.data.forEach(row => {
+                            // Extract cell values via header names (fallback for case sensitivity)
+                            const tgl = row['TGL KEJADIAN'] || row['Tgl Kejadian'] || row['tgl kejadian'] || '';
+                            const waktu = row['WAKTU'] || row['Waktu'] || row['waktu'] || '';
+                            const nik = row['NIK DRIVER'] || row['Nik Driver'] || row['nik driver'] || '-';
+                            const nama = row['NAMA DRIVER'] || row['Nama Driver'] || row['nama driver'] || '-';
+                            const status = row['STATUS'] || row['Status'] || row['status'] || '-';
+                            const lambung = row['NO LAMBUNG'] || row['No Lambung'] || row['no lambung'] || '-';
+                            const jenis = row['JENIS LAKA'] || row['Jenis Laka'] || row['jenis laka'] || '-';
+
+                            if (tgl.trim() !== '' && tgl.trim() !== '-') {
+                                // Find max date
+                                const parsedDate = parseDateTime(tgl, waktu === '-' ? '' : waktu);
+                                if (parsedDate && parsedDate <= now) {
+                                    if (!latestDate || parsedDate > latestDate) {
+                                        latestDate = parsedDate;
+                                    }
+                                }
+
+                                // Create table row
+                                const tr = document.createElement('tr');
+                                tr.className = 'hover:bg-slate-700/40 transition-colors duration-200';
+                                
+                                // Color code JENIS LAKA badge based on text if needed, otherwise default rose
+                                const isZero = jenis.toLowerCase() === '-' || jenis.trim() === '';
+                                const badgeClass = isZero 
+                                    ? 'bg-slate-700/50 text-slate-400 border-slate-600' 
+                                    : 'bg-rose-500/20 text-rose-300 border-rose-500/30';
+                                const jenisText = isZero ? '-' : jenis;
+
+                                tr.innerHTML = `
+                                    <td class="px-4 py-3 font-semibold text-slate-200">${tgl}</td>
+                                    <td class="px-4 py-3 text-slate-400 font-mono text-xs">${waktu || '-'}</td>
+                                    <td class="px-4 py-3 font-mono text-xs">${nik}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap">${nama}</td>
+                                    <td class="px-4 py-3">${status}</td>
+                                    <td class="px-4 py-3 font-mono">${lambung}</td>
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 rounded text-xs border ${badgeClass} whitespace-nowrap">${jenisText}</span>
+                                    </td>
+                                `;
+                                tbody.appendChild(tr);
+                            }
+                        });
+                        
+                        // Show placeholder if empty
+                        if (tbody.children.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-500 italic">Tidak ada data laka yang tercatat.</td></tr>`;
+                        }
+
+                        resolve(latestDate);
+                    },
+                    error: function(err) {
+                        console.error(`Error processing CSV for ${prefix}:`, err);
+                        resolve(null);
+                    }
+                });
+            });
+        }
+
+        /**
+         * Starts the setInterval to update the DOM every second based on the startDate.
+         */
+        function startTimer(prefix, startDate) {
+            const elDays = document.getElementById(`${prefix}-days`);
+            const elHours = document.getElementById(`${prefix}-hours`);
+            const elMins = document.getElementById(`${prefix}-mins`);
+            const elSecs = document.getElementById(`${prefix}-secs`);
+
+            function update() {
+                const now = new Date();
+                let diff = now - startDate;
+                
+                if (diff < 0) diff = 0; // Fallback if somehow negative
+
+                // Calculate time units
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const minutes = Math.floor((diff / 1000 / 60) % 60);
+                const seconds = Math.floor((diff / 1000) % 60);
+
+                // Format with zero-padding where necessary
+                elDays.innerText = days;
+                elHours.innerText = String(hours).padStart(2, '0');
+                elMins.innerText = String(minutes).padStart(2, '0');
+                elSecs.innerText = String(seconds).padStart(2, '0');
+            }
+
+            // Run immediately once, then every 1 second
+            update();
+            if (timerIntervals[prefix]) clearInterval(timerIntervals[prefix]);
+            timerIntervals[prefix] = setInterval(update, 1000);
+        }
+
+        /**
+         * Handles the UI state transitions (Loading -> Content / Error) and initializes data.
+         */
+        async function initializeDashboard(prefix, url) {
+            const loadingEl = document.getElementById(`${prefix}-loading`);
+            const contentEl = document.getElementById(`${prefix}-content`);
+            const errorEl = document.getElementById(`${prefix}-error`);
+
+            // Fetch and process data for table, get latest date
+            const latestDate = await fetchAndProcessData(url, prefix);
+
+            // Hide loading
+            loadingEl.classList.add('hidden');
+
+            if (latestDate) {
+                // Date found, show content and start timer
+                contentEl.classList.remove('hidden');
+                contentEl.classList.add('flex');
+                startTimer(prefix, latestDate);
+            } else {
+                // No valid date found in the spreadsheet, show error
+                errorEl.classList.remove('hidden');
+                errorEl.classList.add('flex');
+            }
+        }
+
+        // Initialize both columns on window load
+        window.onload = function() {
+            initializeDashboard('dci', URL_DCI);
+            initializeDashboard('ck', URL_CK);
+        };
+    </script>
+</body>
+</html>
+```
